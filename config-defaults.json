@@ -1,0 +1,8 @@
+{
+  "database": {
+    "host": "localhost",
+    "database": "dc_voters",
+    "user": "USER",
+    "password": "PASSWORD"
+  }
+}

@@ -3,10 +3,15 @@
  * Module dependencies.
  */
 
-var express = require('express')
-  , routes = require('./routes')
-  , http = require('http')
-  , path = require('path');
+var express = require('express'),
+    http = require('http'),
+    path = require('path'),
+    nconf = require('nconf'),
+    mysql = require('mysql');
+
+nconf.file('local', {file: './config-local.json'})
+    .file('defaults', {file: './config-defaults.json'});
+
 
 var app = express();
 
@@ -20,13 +25,23 @@ app.configure(function(){
   app.use(express.methodOverride());
   app.use(app.router);
   app.use(express.static(path.join(__dirname, 'public')));
+  app.enable('jsonp callback');
+  app.set('db', mysql.createConnection({
+        host: nconf.get('database:host'),
+        database: nconf.get('database:database'),
+        user: nconf.get('database:user'),
+        password: nconf.get('database:password')
+  }));
 });
+
+var routes = require('./routes')(app);
 
 app.configure('development', function(){
   app.use(express.errorHandler());
 });
 
 app.get('/', routes.index);
+app.get('/search', routes.search);
 
 http.createServer(app).listen(app.get('port'), function(){
   console.log("Express server listening on port " + app.get('port'));
