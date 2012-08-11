@@ -6,19 +6,18 @@ module.exports = function (app) {
         },
 
         search: function (req, res) {
-            var q = req.query.q;
+            var q = req.query.q,
+                match = 'MATCH (firstname, lastname, res_house, res_street) AGAINST (? IN BOOLEAN MODE)',
+                sql, values;
             if (q) {
-                db.query('SELECT * FROM voters WHERE MATCH ' +
-                    '(firstname, lastname, res_house, res_street) ' +
-                    'AGAINST (?) LIMIT 5',
-                    [q],
-                    function (err, results) {
-                        if (err) {
-                            throw err;
-                        }
-                        res.json(results);
+                sql = 'SELECT *, ' + match + ' AS score FROM voters WHERE ' + match + ' ORDER BY score DESC LIMIT 5';
+                values = [q, q];
+                db.query(sql, values, function (err, results) {
+                    if (err) {
+                        throw err;
                     }
-                );
+                    res.json(results);
+                });
             }
         }
     };
