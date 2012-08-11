@@ -10,9 +10,12 @@ module.exports = function (app) {
                 name = req.query.name,
                 address = req.query.address,
                 values = [],
+                limit = 10,
+                explanation = '',
                 match, sql, m;
             if (q) {
                 match = 'MATCH (firstname, lastname, res_house, res_street) AGAINST (? IN BOOLEAN MODE)';
+                explanation += 'General query: ' + q + '\n';
             }
             sql = 'SELECT *';
             if (match) {
@@ -25,18 +28,22 @@ module.exports = function (app) {
                     sql += ' AND firstname LIKE ?';
                     values.push(m[2] + '%');
                     name = m[1];
+                    explanation += 'First name: ' + m[2] + '*\n';
                 }
                 sql += ' AND lastname LIKE ?';
                 values.push(name + '%');
+                explanation += 'Last name: ' + name + '*\n';
             }
             if (address) {
                 if (m = /^(\d+)\s+(.+)/.exec(address)) {
                     sql += ' AND res_house = ?';
                     values.push(m[1]);
                     address = m[2];
+                    explanation += 'House number: ' + m[1] + '\n';
                 }
                 sql += ' AND res_street LIKE ?';
                 values.push(address + '%');
+                explanation += 'Street name: ' + address + '*\n';
             }
             if (match) {
                 sql += ' AND ' + match + ' ORDER BY score DESC';
@@ -45,14 +52,21 @@ module.exports = function (app) {
             else {
                 sql += ' ORDER BY lastname, firstname, middle, suffix DESC';
             }
-            sql += ' LIMIT 10';
+            sql += ' LIMIT ' + limit;
             console.log(sql);
             console.log(values);
             db.query(sql, values, function (err, results) {
                 if (err) {
                     throw err;
                 }
-                res.json(results);
+                explanation = results.length +
+                    (results.length < limit ? '' : ' or more') +
+                    ' record' + (results.length == 1 ? '' : 's') +  '\n' +
+                    explanation;
+                res.json({
+                    explanation: explanation,
+                    results: results
+                });
             });
         }
     };
