@@ -24,15 +24,17 @@ module.exports = function (app) {
             }
             sql += ' FROM voters WHERE 1';
             if (name) {
-                if (m = /^([^,]+),\s*(.+)/.exec(name)) {
+                if (m = /^([^,]*),\s*(.+)/.exec(name)) {
                     sql += ' AND firstname LIKE ?';
                     values.push(m[2] + '%');
                     name = m[1];
                     explanation += 'First name: ' + m[2] + '*\n';
                 }
-                sql += ' AND lastname LIKE ?';
-                values.push(name + '%');
-                explanation += 'Last name: ' + name + '*\n';
+                if (name) {
+                    sql += ' AND lastname LIKE ?';
+                    values.push(name + '%');
+                    explanation += 'Last name: ' + name + '*\n';
+                }
             }
             if (address) {
                 if (m = /^(\d+)\s+(.+)/.exec(address)) {
