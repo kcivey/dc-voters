@@ -17,7 +17,7 @@ module.exports = function (app) {
                 match = 'MATCH (firstname, lastname, res_house, res_street) AGAINST (? IN BOOLEAN MODE)';
                 explanation += 'General query: ' + q + '\n';
             }
-            sql = 'SELECT *';
+            sql = 'SELECT registered, lastname, firstname, middle, suffix, status, res_house, res_frac, res_apt, res_street, ward, voter_id';
             if (match) {
                 sql += ', ' + match + ' AS score';
                 values.push(q);
