@@ -50,7 +50,7 @@ module.exports = function (app) {
                 values.push(q);
             }
             else {
-                sql += ' ORDER BY lastname, firstname, middle, suffix DESC';
+                sql += ' ORDER BY lastname, firstname, middle, suffix';
             }
             sql += ' LIMIT ' + limit;
             console.log(sql);
