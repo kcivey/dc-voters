@@ -26,12 +26,7 @@ app.configure(function(){
   app.use(app.router);
   app.use(express.static(path.join(__dirname, 'public')));
   app.enable('jsonp callback');
-  app.set('db', mysql.createConnection({
-        host: nconf.get('database:host'),
-        database: nconf.get('database:database'),
-        user: nconf.get('database:user'),
-        password: nconf.get('database:password')
-  }));
+  app.set('db', mysql.createConnection(nconf.get('database')));
 });
 
 var routes = require('./routes')(app);
