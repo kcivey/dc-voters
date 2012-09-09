@@ -12,6 +12,9 @@ var express = require('express'),
 nconf.file('local', {file: './config-local.json'})
     .file('defaults', {file: './config-defaults.json'});
 
+var auth = express.basicAuth(function(user, pass) {
+   return user == 'public' && pass == 'trust';
+},'DC Public Trust');
 
 var app = express();
 
@@ -34,6 +37,7 @@ app.configure('development', function(){
   app.use(express.errorHandler());
 });
 
+app.all('/voters', auth, function (req, res, next) { next(); }); // enforce authorization
 app.get('/search', express.bodyParser(), routes.search);
 app.get('/findLocation', routes.findLocation);
 
