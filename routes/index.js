@@ -1,5 +1,7 @@
 module.exports = function (app) {
-    var db = app.get('db');
+    var db = app.get('db'),
+        httpProxy = require('http-proxy'),
+        proxy = new httpProxy.HttpProxy({target: {host: 'localhost', port: 8000}});
     return {
         index: function(req, res){
           res.render('index', { title: 'Express' });
@@ -70,6 +72,10 @@ module.exports = function (app) {
                     results: results
                 });
             });
+        },
+
+        proxy: function (req, res) {
+            proxy.proxyRequest(req, res);
         }
     };
 };
