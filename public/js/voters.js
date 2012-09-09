@@ -37,7 +37,7 @@ jQuery(function ($) {
         $.ajax({
             url: '/search',
             data: searchData,
-            dataType: 'jsonp',
+            dataType: 'json',
             success: handleResults,
             complete: function () {
                 clearTimeout(timeoutHandle);
