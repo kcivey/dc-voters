@@ -1,5 +1,5 @@
 module.exports = function (app) {
-    var db = app.get('db'),
+    var db = require('../db'),
         httpProxy = require('http-proxy'),
         dcGisProxy = new httpProxy.HttpProxy({target: {host: 'citizenatlas.dc.gov', port: 80}});
     return {

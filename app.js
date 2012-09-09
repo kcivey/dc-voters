@@ -6,11 +6,7 @@
 var express = require('express'),
     http = require('http'),
     path = require('path'),
-    nconf = require('nconf'),
-    mysql = require('mysql');
-
-nconf.file('local', {file: './config-local.json'})
-    .file('defaults', {file: './config-defaults.json'});
+    config = require('./config');
 
 var auth = express.basicAuth(function(user, pass) {
    return user == 'public' && pass == 'trust';
@@ -27,8 +23,6 @@ app.configure(function(){
   app.use(express.methodOverride());
   app.use(app.router);
   app.use(express.static(path.join(__dirname, 'public')));
-  app.enable('jsonp callback');
-  app.set('db', mysql.createConnection(nconf.get('database')));
 });
 
 var routes = require('./routes')(app);
