@@ -36,7 +36,6 @@ app.configure('development', function(){
 
 app.get('/search', express.bodyParser(), routes.search);
 app.get('/findLocation', routes.findLocation);
-app.all('*', routes.proxy)
 
 http.createServer(app).listen(app.get('port'), function(){
   console.log("Express server listening on port " + app.get('port'));
