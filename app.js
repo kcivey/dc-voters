@@ -34,8 +34,8 @@ app.configure('development', function(){
   app.use(express.errorHandler());
 });
 
-app.get('/', routes.index);
 app.get('/search', express.bodyParser(), routes.search);
+app.get('/findLocation', routes.findLocation);
 app.all('*', routes.proxy)
 
 http.createServer(app).listen(app.get('port'), function(){

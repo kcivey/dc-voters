@@ -1,12 +1,8 @@
 module.exports = function (app) {
     var db = app.get('db'),
         httpProxy = require('http-proxy'),
-        proxy = new httpProxy.HttpProxy({target: {host: 'localhost', port: 8000}});
+        dcGisProxy = new httpProxy.HttpProxy({target: {host: 'citizenatlas.dc.gov', port: 80}});
     return {
-        index: function(req, res){
-          res.render('index', { title: 'Express' });
-        },
-
         search: function (req, res) {
             var q = req.query.q,
                 name = req.query.name,
@@ -74,8 +70,11 @@ module.exports = function (app) {
             });
         },
 
-        proxy: function (req, res) {
-            proxy.proxyRequest(req, res);
+        findLocation: function (req, res) {
+            req.headers.host = 'citizenatlas.dc.gov';
+            req.url = '/newwebservices/locationverifier.asmx' + req.url;
+            dcGisProxy.proxyRequest(req, res);
         }
+
     };
 };
