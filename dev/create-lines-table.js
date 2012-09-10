@@ -7,31 +7,24 @@ var fs = require('fs'),
     linesPerPage = 20;
 
 db.query(sql, function (err, rows) {
-    var pendingInserts = 0,
-        inserted = 0,
+    var values = [],
         i, j;
     if (err) {
         throw err;
     }
     console.log('Created table ' + table);
+    sql = 'INSERT INTO ' + table + ' (page,line) VALUES ';
     for (i = 1; i <= pages; i++) {
         for (j = 1; j <= linesPerPage; j++) {
-            pendingInserts++;
-            db.query(
-                'INSERT INTO ' + table + '(page, line) VALUES (?, ?)',
-                [i, j],
-                function (err, rows) {
-                    if (err) {
-                        throw err;
-                    }
-                    inserted++;
-                    if (!--pendingInserts) {
-                        console.log(inserted + ' rows inserted');
-                        process.exit();
-                    }
-                }
-            );
+            sql += (values.length ? ', ' : '') + '(?, ?)';
+            values.push(i, j);
         }
     }
+    db.query(sql, values, function (err, result) {
+        if (err) {
+            throw err;
+        }
+        console.log(result.message);
+        process.exit();
+    });
 });
-
