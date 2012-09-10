@@ -74,7 +74,21 @@ module.exports = function (app) {
             req.headers.host = 'citizenatlas.dc.gov';
             req.url = '/newwebservices/locationverifier.asmx' + req.url;
             dcGisProxy.proxyRequest(req, res);
-        }
+        },
 
+        lineRead: function (req, res) {
+            var page = req.param('page'),
+                line = req.param('line');
+            db.query(
+                'SELECT * FROM petition_lines WHERE page = ? AND line = ?',
+                [page, line],
+                function (err, rows) {
+                    if (err) {
+                        throw err;
+                    }
+                    res.json(rows[0] || null);
+                }
+            );
+        }
     };
 };
