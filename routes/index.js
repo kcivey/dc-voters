@@ -7,6 +7,7 @@ module.exports = function (app) {
             var q = req.query.q,
                 name = req.query.name,
                 address = req.query.address,
+                voterId = req.query.voter_id,
                 values = [],
                 limit = 10,
                 explanation = '',
@@ -44,6 +45,11 @@ module.exports = function (app) {
                 sql += ' AND res_street LIKE ?';
                 values.push(address + '%');
                 explanation += 'Street name: ' + address + '*\n';
+            }
+            if (voterId) {
+                sql += ' AND voter_id = ?';
+                values.push(voterId);
+                explanation += 'Voter ID: ' + voterId + '\n';
             }
             if (match) {
                 sql += ' AND ' + match + ' ORDER BY score DESC';
