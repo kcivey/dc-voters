@@ -77,18 +77,31 @@ module.exports = function (app) {
         },
 
         lineRead: function (req, res) {
-            var page = req.param('page'),
-                line = req.param('line');
-            db.query(
-                'SELECT * FROM petition_lines WHERE page = ? AND line = ?',
-                [page, line],
-                function (err, rows) {
-                    if (err) {
-                        throw err;
-                    }
-                    res.json(rows[0] || null);
+            var id = +req.param('id'),
+                page = +req.param('page'),
+                line = +req.param('line'),
+                sql = 'SELECT * FROM petition_lines WHERE ',
+                values = [];
+            if (id) {
+                sql += "id = ?";
+                values.push(id);
+            }
+            else {
+                sql += "page = ? AND line = ?";
+                values.push(page, line);
+            }
+            sql += ' LIMIT 1';
+            db.query(sql, values, function (err, rows) {
+                if (err) {
+                    throw err;
                 }
-            );
+                if (rows.length) {
+                    res.json(rows[0]);
+                }
+                else {
+                    res.send(404);
+                }
+            });
         }
     };
 };

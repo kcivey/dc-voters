@@ -35,6 +35,7 @@ app.all('/voters', auth, function (req, res, next) { next(); }); // enforce auth
 app.get('/search', express.bodyParser(), routes.search);
 app.get('/findLocation', routes.findLocation);
 app.get('/voters/line/:page/:line', routes.lineRead);
+app.get('/voters/line/:id', routes.lineRead);
 
 http.createServer(app).listen(app.get('port'), function(){
   console.log("Express server listening on port " + app.get('port'));
