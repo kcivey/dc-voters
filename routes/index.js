@@ -108,6 +108,28 @@ module.exports = function (app) {
                     res.send(404);
                 }
             });
+        },
+
+        lineUpdate: function (req, res) {
+            var id = +req.param('id'),
+                lineData = req.body;
+            delete lineData.id;
+            db.query(
+                'UPDATE petition_lines SET ? WHERE id = ?',
+                [lineData, id],
+                function (err, result) {
+                    if (err) {
+                        throw err;
+                    }
+                    db.query(
+                        'SELECT * FROM petition_lines WHERE id = ?',
+                        [id],
+                        function (err, rows) {
+                            res.json(rows[0]);
+                        }
+                    );
+                }
+            );
         }
     };
 };
