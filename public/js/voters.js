@@ -1,6 +1,6 @@
 jQuery(function ($) {
 
-    var rowTemplate = _.template($('#row-template').html());
+    var voterRowTemplate = _.template($('#voter-row-template').html());
 
     $('#results').on('dblclick', 'td', function () {
         selectText(this);
@@ -63,7 +63,7 @@ jQuery(function ($) {
             if (r.res_apt) {
                 r.address += ' #' + r.res_apt;
             }
-            tbody.append(rowTemplate(r));
+            tbody.append(voterRowTemplate(r));
         });
         $('#explanation').append(data.explanation).removeClass('hide');
     }
