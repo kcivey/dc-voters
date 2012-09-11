@@ -49,22 +49,17 @@
       <div class="row-fluid">
         <div class="span5">
           <div class="well">
-            <form action="/" id="form-search" class="form-horizontal">
-              <p>
-                Type words or numbers from the voter's name or street address.
-                Records matching all terms will be ranked higher in the results,
-                to require a match for a particular term, precede it with a
-                plus sign. So <code>bryan weaver</code> will return records with
-                either "bryan" or "weaver" (and prefer records that have both),
-                while <code>bryan +weaver</code> will absolutely require
-                "weaver" in the record.
-              </p>
-              <p>
-                <input type="search" name="q" id="q"/>
-                <button id="search-button" type="submit" class="btn btn-primary">Search</button>
-                <button id="reset-button" type="reset" class="btn">Clear</button>
-              </p>
-              <p>Or use one or both of these fields (does a prefix search for
+            <form action="/" id="form-check" class="form-inline">
+              <p>Enter the petition page and line number. Click "Check" if you want to check a name, or
+              click "Blank" if the line is blank.</p>
+              <label>Page <input type="number" name="page" class="input-mini" min="1" max="1844"/></label>
+              <label>Line <input type="number" name="line" class="input-mini" min="1" max="20"/></label>
+              <button type="submit" class="btn btn-primary" id="check-button">Check</button>
+              <button type="button" class="btn" id="blank-button">Blank</button>
+            </form>
+            <p id="check-results" style="display: none;"></p>
+            <form action="/" id="form-search" class="form-horizontal" style="display: none;">
+              <p>Now use one or both of these fields to search for the voter (does a prefix search for
                 names, so <code>richards</code> will match "Richardson" and
                 <code>connect</code> will match "Connecticut Ave").</p>
               <div class="control-group">
@@ -81,9 +76,12 @@
                   <p class="help-block"><i>House number</i> (optional) followed by <i>street name</i></p>
                 </div>
               </div>
+              <div class="control-group">
+                <button id="search-button" type="submit" class="btn btn-primary">Search</button>
+                <button id="reset-button" type="reset" class="btn">Clear</button>
+              </div>
             </form>
           </div>
-          <p><a href="files/">Raw files</a></p>
         </div>
         <div class="span7" id="result-div">
           <table class="table table-condensed table-striped hide">
@@ -94,11 +92,13 @@
               <th>Date</th>
               <th>Status</th>
               <th>ID</th>
+              <th></th>
             </thead>
             <tbody id="results"></tbody>
           </table>
           <p id="none-found" class="hide"><i>No results found.</i></p>
           <pre id="explanation" class="hide"></pre>
+          <form action="/" id="form-line" class="form-horizontal"></form>
         </div>
       </div>
     </div>
@@ -123,6 +123,8 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
     <script src="/js/bootstrap.min.js"></script>
     <script src="/js/underscore.min.js"></script>
+    <script src="/js/backbone.min.js"></script>
+    <script src="/js/Backbone.ModelBinder.min.js"></script>
     <script src="/js/voters.js"></script>
     <script type="text/template" id="voter-row-template">
       <tr>
@@ -132,7 +134,88 @@
         <td><%- registered %></td>
         <td><%- status %></td>
         <td><%- voter_id %></td>
+        <td><button class="btn btn-mini match" data-voter-id="<?- voter_id %>">Match</button></td>
       </tr>
+    </script>
+    <script type="text/template" id="line-template">
+      <div class="control-group">
+        <label class="control-label" for="page">Page</label>
+        <div class="controls">
+          <input type="number" name="page" id="page" class="input-mini" min="1" max="1844"/>
+        </div>
+      </div>
+      <div class="control-group">
+        <label class="control-label" for="line">Line</label>
+        <div class="controls">
+          <input type="number" name="line" id="line" class="input-mini" min="1" max="20"/>
+        </div>
+      </div>
+      <div class="control-group">
+        <label class="control-label" for="checker">Checker</label>
+        <div class="controls">
+          <input type="text" name="checker" id="checker"/>
+        </div>
+      </div>
+      <div class="control-group">
+        <label class="control-label" for="boe_markings">BOE markings</label>
+        <div class="controls">
+          <input type="text" name="boe_markings" id="boe_markings"/>
+        </div>
+      </div>
+      <div class="control-group">
+        <label class="control-label" for="voter_id">Voter ID</label>
+        <div class="controls">
+          <input type="text" name="voter_id" id="voter_id"/>
+        </div>
+      </div>
+      <div class="control-group">
+        <label class="control-label" for="dcpt_code">DCPT code</label>
+        <div class="controls">
+          <input type="text" name="dcpt_code" id="dcpt_code"/>
+        </div>
+      </div>
+      <div class="control-group">
+        <label class="control-label" for="voter_name">Name</label>
+        <div class="controls">
+          <input type="text" name="voter_name" id="voter_name"/>
+        </div>
+      </div>
+      <div class="control-group">
+        <label class="control-label" for="line-address">Address</label>
+        <div class="controls">
+          <input type="text" name="address" id="line-address"/>
+        </div>
+      </div>
+      <div class="control-group">
+        <label class="control-label" for="ward">Ward</label>
+        <div class="controls">
+          <input type="text" name="ward" id="ward" class="input-mini"/>
+        </div>
+      </div>
+      <div class="control-group">
+        <label class="control-label" for="date_signed">Date signed</label>
+        <div class="controls">
+          <input type="text" name="date_signed" id="date_signed"/>
+        </div>
+      </div>
+      <div class="control-group">
+        <label class="control-label" for="notes">Notes</label>
+        <div class="controls">
+          <textarea name="notes" id="notes"></textarea>
+        </div>
+      </div>
+      <div class="control-group">
+        <input type="hidden" name="id" />
+        <button type="button" class="btn btn-primary btn-small" id="save">Save</button>
+        <a class="btn btn-small" href="#survey-json" id="show-json">JSON</a>
+        <pre id="survey-json" class="modal hide"></pre>
+      </div>
+    </script>
+    <script type="text/template" id="alert-template">
+      <div class="alert fade in<%- successful ? '' : ' alert-danger' %>">
+        <button type="button" class="close" data-dismiss="alert">&times;</button>
+        <%= successful ? 'Record successfully saved' : 'Error saving record' %>
+      </div>
     </script>
   </body>
 </html>

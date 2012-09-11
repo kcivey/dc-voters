@@ -2,8 +2,137 @@ jQuery(function ($) {
 
     var voterRowTemplate = _.template($('#voter-row-template').html());
 
-    $('#results').on('dblclick', 'td', function () {
-        selectText(this);
+    var Line = Backbone.Model.extend({
+        initialize: function () {
+            var line = this; // save to use in inner function
+            this.saved = !this.isNew();
+            this.on('change', this.setUnsaved, this);
+            this.on('sync', this.setSaved, this);
+            window.onbeforeunload = function () {
+                if (!line.saved) {
+                    return 'The form has not been submitted.';
+                }
+            };
+        },
+        urlRoot: '/voters/line',
+        setSaved: function () {
+            this.saved = true;
+        },
+        setUnsaved: function () {
+            this.saved = false;
+        }
+    });
+
+    var LineView = Backbone.View.extend({
+        template: _.template($('#line-template').html()),
+        initialize: function () {
+            this.modelBinder = new Backbone.ModelBinder();
+            this.render();
+        },
+        events: {
+            'click #save': 'save',
+            'click #show-json': 'showJson'
+        },
+        render: function () {
+            var html = this.template(this.model.toJSON());
+            this.$el.html(html);
+            this.modelBinder.bind(this.model, this.el);
+            return this;
+        },
+        save: function () {
+            var jqXhr = this.model.save(),
+                alertTemplate = _.template($('#alert-template').html()),
+                showAlert = function (successful) {
+                    $('#form-line').before(alertTemplate({successful: successful}));
+                };
+            if (jqXhr) {
+                jqXhr.done(function () { showAlert(true); })
+                    .fail(function () { showAlert(false); });
+            }
+            else {
+                showAlert(false);
+            }
+        },
+        showJson: function () {
+            this.$('#survey-json').text(JSON.stringify(this.model, null, 2))
+                .modal();
+            return false;
+        }
+    });
+
+    function makeName(v, reversed) {
+        var name = v.firstname;
+        if (v.middle) {
+            name += ' ' + v.middle;
+        }
+        if (reversed) {
+            name = v.lastname + ', ' + name;
+        }
+        else {
+            name += ' '  + v.lastname;
+        }
+        if (v.suffix) {
+            if (reversed) {
+                name += ',';
+            }
+            name += ' ' + v.suffix;
+        }
+        return name;
+    }
+
+    function makeAddress(v) {
+        var address = v.res_house + v.res_frac + ' ' + v.res_street;
+        if (v.res_apt) {
+            address += ' #' + v.res_apt;
+        }
+        return address;
+    }
+
+    $('#results')
+        .on('dblclick', 'td', function () { selectText(this); })
+        .on('click', '.match', function () {
+            var voterData = $(this).closest('tr').data('voterData'),
+                lineData = $.extend({}, $('#form-check').data('lineData'),
+                    {
+                        voter_id: voterData.voter_id,
+                        voter_name: makeName(voterData),
+                        address: makeAddress(voterData),
+                        ward: voterData.ward
+                    }
+                );
+            console.log(lineData);
+            $('#result-div table, #explanation').addClass('hide');
+            new LineView({el: $('#form-line'), model: new Line(lineData)});
+        });
+
+    $('#form-check').submit(function (evt) {
+        var button = $('#check-button'),
+            page = +$('[name=page]', this).val(),
+            line = +$('[name=line]', this).val();
+        evt.preventDefault();
+        console.log('target', evt.target);
+        if (!page || !line) {
+            return;
+        }
+        button.text('Please Wait').attr('disabled', 'disabled');
+        $.ajax({
+            url: '/voters/line/' + page + '/' + line,
+            dataType: 'json',
+            success: function (lineData) {
+                console.log('lineData', lineData);
+                $('#form-check').data('lineData', lineData).hide();
+                $('#check-results').hide();
+                $('#form-search').show();
+            },
+            error: function (jqXhr, textStatus, errorThrown) {
+                $('#check-results').text('There was a problem finding that line (' +
+                    textStatus + ', ' + errorThrown + '). Maybe try another?')
+                    .show();
+            },
+            complete: function () {
+                button.text('Check').removeAttr('disabled');
+            }
+        });
     });
 
     $('#form-search').submit(function (evt) {
@@ -51,19 +180,12 @@ jQuery(function ($) {
             results = data.results;
         $('#result-div table').toggleClass('hide', results.length ? false : true);
         $('#none-found').toggleClass('hide', results.length ? true : false);
-        $.each(results, function (i, r) {
-            r.name = r.lastname + ', ' + r.firstname;
-            if (r.middle) {
-                r.name += ' ' + r.middle;
-            }
-            if (r.suffix) {
-                r.name += ', ' + r.suffix;
-            }
-            r.address = r.res_house + r.res_frac + ' ' + r.res_street;
-            if (r.res_apt) {
-                r.address += ' #' + r.res_apt;
-            }
-            tbody.append(voterRowTemplate(r));
+        $.each(results, function (i, v) {
+            var tr;
+            v.name = makeName(v, true); // reversed
+            v.address = makeAddress(v);
+            tr = $(voterRowTemplate(v)).data('voterData', v);
+            tbody.append(tr);
         });
         $('#explanation').append(data.explanation).removeClass('hide');
     }
