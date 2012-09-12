@@ -31,7 +31,7 @@ app.configure('development', function(){
   app.use(express.errorHandler());
 });
 
-app.all('/voters', auth, function (req, res, next) { next(); }); // enforce authorization
+app.all('/voters/*', auth, function (req, res, next) { next(); }); // enforce authorization
 app.get('/search', express.bodyParser(), routes.search);
 app.get('/findLocation', routes.findLocation);
 app.get('/voters/line/:page/:line', routes.lineRead);
