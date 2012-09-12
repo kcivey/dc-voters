@@ -165,6 +165,32 @@ module.exports = function (app) {
                     res.json(data);
                 });
             });
+        },
+
+        markBlank: function (req, res){
+            var page = +req.param('page'),
+                line = req.param('line'),
+                sql = "UPDATE petition_lines SET ? WHERE checker IN (?) AND page = ? AND line ",
+                values = [
+                    {dcpt_code: 'blank', checker: req.user},
+                    ['', req.user],
+                    page
+                ],
+                m = line.match(/^(\d+)-(\d+)$/);
+            if (m) {
+                sql += ' BETWEEN ? AND ?';
+                values.push(+m[1], +m[2]);
+            }
+            else {
+                sql += ' = ?';
+                values.push(+line);
+            }
+            db.query(sql, values, function (err, results) {
+                if (err) {
+                    throw err;
+                }
+                res.json({results: results});
+            });
         }
 
     };
