@@ -143,13 +143,27 @@ module.exports = function (app) {
             sql += ' ORDER BY page, line, checker = ? DESC LIMIT 1';
             values.push(req.user);
             db.query(sql, values, function (err, rows) {
+                var data;
                 if (err) {
                     throw err;
                 }
-                res.json({
+                data = {
                     user: req.user,
-                    lineRecord: rows[0] || null
-                })
+                    lineRecord: rows[0] || null,
+                    complete: 0,
+                    incomplete: 0
+                };
+                sql = "SELECT IF(dcpt_code = '', 'incomplete', 'complete') AS state, COUNT(*) AS `count` " +
+                    'FROM petition_lines WHERE checker = ? GROUP BY state';
+                db.query(sql, [req.user], function (err, rows) {
+                    if (err) {
+                        throw err;
+                    }
+                    rows.forEach(function (row) {
+                        data[row.state] = row.count;
+                    });
+                    res.json(data);
+                });
             });
         }
 
