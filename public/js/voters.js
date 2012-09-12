@@ -1,6 +1,7 @@
 jQuery(function ($) {
 
-    var voterRowTemplate = _.template($('#voter-row-template').html());
+    var voterRowTemplate = _.template($('#voter-row-template').html()),
+        status;
 
     var Line = Backbone.Model.extend({
         initialize: function () {
@@ -88,6 +89,44 @@ jQuery(function ($) {
         return address;
     }
 
+    function getStatus(callback) {
+        $.ajax({
+            url: '/voters/status',
+            dataType: 'json',
+            success: function (data) {
+                status = data;
+                callback(null, status); // null for no error
+            },
+            error: function (jqXhr, textStatus, errorThrown) {
+                callback('Unexpected problem: ' + textStatus + ' (' + errorThrown + ')');
+            }
+        });
+    }
+
+    function start() {
+        getStatus(function (err, status) {
+            if (err) {
+                alert(err);
+            }
+            var form = $('#form-check'),
+                p = $('#check-results'),
+                rec = status.lineRecord;
+            if (rec) {
+                $('[name=page]', form).val(rec.page);
+                $('[name=line]', form).val(rec.line);
+            }
+            else if (status.complete) {
+                p.text('You have finished all your assigned petitions. Congratulations! And thank you!');
+            }
+            else {
+                p.text('You have not yet been assigned any petitions.');
+            }
+            p.show();
+        });
+    }
+
+    start();
+
     $('#results')
         .on('dblclick', 'td', function () { selectText(this); })
         .on('click', '.match', function () {
@@ -105,35 +144,29 @@ jQuery(function ($) {
             new LineView({el: $('#form-line'), model: new Line(lineData)});
         });
 
-    $('#form-check').submit(function (evt) {
-        var button = $('#check-button'),
-            page = +$('[name=page]', this).val(),
-            line = +$('[name=line]', this).val();
-        evt.preventDefault();
-        console.log('target', evt.target);
-        if (!page || !line) {
-            return;
-        }
-        button.text('Please Wait').attr('disabled', 'disabled');
-        $.ajax({
-            url: '/voters/line/' + page + '/' + line,
-            dataType: 'json',
-            success: function (lineData) {
-                console.log('lineData', lineData);
-                $('#form-check').data('lineData', lineData).hide();
-                $('#check-results').hide();
-                $('#form-search').show();
-            },
-            error: function (jqXhr, textStatus, errorThrown) {
-                $('#check-results').text('There was a problem finding that line (' +
-                    textStatus + ', ' + errorThrown + '). Maybe try another?')
-                    .show();
-            },
-            complete: function () {
-                button.text('Check').removeAttr('disabled');
+    $('#form-check')
+        .on('click', '#check-button', function () {
+            $('#form-check, #check-results').hide();
+            $('#form-search').show();
+        })
+        .on('click', '#blank-button, #rest-blank-button', function () {
+            var rest = this.id.match(/^rest/),
+                form = $('#form-check'),
+                page = +$('[name=page]', form).val(),
+                line = +$('[name=line]', form).val(),
+                url = '/voters/mark-blank/' + page + '/' + line;
+            if (rest) {
+                url += '-' + 20;
             }
+            $.ajax({
+                url: url,
+                type: 'post',
+                dataType: 'json',
+                success: function (data) {
+                    start();
+                }
+            });
         });
-    });
 
     $('#form-search').submit(function (evt) {
         var searchData = {},
