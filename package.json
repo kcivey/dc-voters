@@ -10,6 +10,7 @@
     "jade": "*",
     "mysql": "2.0.0-alpha3",
     "nconf": "*",
-    "http-proxy": "*"
+    "http-proxy": "*",
+    "password-hash": "*"
   }
 }

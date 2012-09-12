@@ -110,7 +110,11 @@ jQuery(function ($) {
             }
             var form = $('#form-check'),
                 p = $('#check-results'),
-                rec = status.lineRecord;
+                rec = status.lineRecord,
+                statusDiv = $('#status');
+            $('.username', statusDiv).text(status.user || '(anonymous)');
+            $('.complete', statusDiv).text(status.complete);
+            $('.total', statusDiv).text(status.incomplete + status.complete);
             if (rec) {
                 $('[name=page]', form).val(rec.page);
                 $('[name=line]', form).val(rec.line);
@@ -167,6 +171,21 @@ jQuery(function ($) {
                 }
             });
         });
+
+    // Somewhat klugy way to handle logging out of HTTP authentication
+    // by forcing a login with bad credentials
+    $('#log-out').on('click', function (evt) {
+        evt.preventDefault();
+        $.ajax({
+            url: '/voters/status',
+            dataType: 'json',
+            username: '---',
+            password: '',
+            complete: function () {
+                location.href = '/';
+            }
+        });
+    });
 
     $('#form-search').submit(function (evt) {
         var searchData = {},

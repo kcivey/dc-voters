@@ -6,11 +6,10 @@
 var express = require('express'),
     http = require('http'),
     path = require('path'),
-    config = require('./config');
+    config = require('./config'),
+    verifyUser = require('./verify-user');
 
-var auth = express.basicAuth(function(user, pass) {
-   return user == 'public' && pass == 'trust';
-},'DC Public Trust');
+var auth = express.basicAuth(verifyUser.auth, 'DC Public Trust');
 
 var app = express();
 

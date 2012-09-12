@@ -25,6 +25,12 @@
         line-height: 19px;
         padding: 9px 0;
       }
+      #status {
+        margin-bottom: 6px;
+      }
+      #status .username {
+        margin-right: 12px;
+      }
     </style>
 
     <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
@@ -49,6 +55,12 @@
       <div class="row-fluid">
         <div class="span5">
           <div class="well">
+            <div id="status" class="clearfix">
+              <p><strong class="username"></strong>
+                <span class="complete">0</span> of <span class="total">0</span> lines checked
+                <a id="log-out" class="pull-right" href="/">Log Out</a>
+              </p>
+            </div>
             <form action="/" id="form-check" class="form-inline">
               <p>Enter the petition page and line number. Click "Check" if you want to check a name, or
               click "Blank" if the line is blank.</p>
