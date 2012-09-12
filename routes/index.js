@@ -160,7 +160,7 @@ module.exports = function (app) {
                         throw err;
                     }
                     rows.forEach(function (row) {
-                        data[row.state] = row.count;
+                        data[row.state] = +row.count;
                     });
                     res.json(data);
                 });
