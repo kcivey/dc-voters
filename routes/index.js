@@ -130,6 +130,28 @@ module.exports = function (app) {
                     );
                 }
             );
+        },
+
+        status: function (req, res) {
+            var sql = "SELECT * FROM petition_lines WHERE dcpt_code = ''",
+                values = [],
+                page, line;
+            if (page && line) {
+                sql += ' AND (page > ? OR page = ? AND line > ?)';
+                values.push(page, page, line);
+            }
+            sql += ' ORDER BY page, line, checker = ? DESC LIMIT 1';
+            values.push(req.user);
+            db.query(sql, values, function (err, rows) {
+                if (err) {
+                    throw err;
+                }
+                res.json({
+                    user: req.user,
+                    lineRecord: rows[0] || null
+                })
+            });
         }
+
     };
 };
