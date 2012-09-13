@@ -174,8 +174,12 @@
       </div>
       <div class="control-group">
         <label class="control-label" for="dcpt_code">DCPT code</label>
-        <div class="controls">
-          <input type="text" name="dcpt_code" id="dcpt_code"/>
+        <div class="controls" id="dcpt_code">
+          <% _.each(codes, function (label, value) { %>
+            <label class="radio">
+              <input type="radio" name="dcpt_code" value="<%- value %>"/> <%= label %>
+            </label>
+          <% }); %>
         </div>
       </div>
       <div class="control-group">

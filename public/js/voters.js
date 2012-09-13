@@ -2,6 +2,13 @@ jQuery(function ($) {
 
     var voterRowTemplate = _.template($('#voter-row-template').html()),
         checkFormTemplate = _.template($('#check-form-template').html()),
+        dcptCodes = {
+            B: 'blank',
+            A: 'address change',
+            I: 'illegible',
+            NR: 'not registered',
+            OK: 'OK (name and address match)'
+        },
         status;
 
     var Line = Backbone.Model.extend({
@@ -26,7 +33,7 @@ jQuery(function ($) {
     });
 
     var LineView = Backbone.View.extend({
-        template: _.template($('#line-form-template').html()),
+        html: _.template($('#line-form-template').html(), {codes: dcptCodes}),
         initialize: function () {
             this.modelBinder = new Backbone.ModelBinder();
             this.render();
@@ -36,8 +43,7 @@ jQuery(function ($) {
             'click #show-json': 'showJson'
         },
         render: function () {
-            var html = this.template(this.model.toJSON());
-            this.$el.html(html);
+            this.$el.html(this.html);
             this.modelBinder.bind(this.model, this.el);
             return this;
         },
