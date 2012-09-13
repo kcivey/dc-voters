@@ -38,6 +38,7 @@ app.get('/voters/line/:id', routes.lineRead);
 app.put('/voters/line/:id', express.bodyParser(), routes.lineUpdate);
 app.get('/voters/status', routes.status);
 app.post('/voters/mark-blank/:page/:line', routes.markBlank);
+app.get('/voters/completed.tsv', routes.completedTsv);
 
 http.createServer(app).listen(app.get('port'), function(){
   console.log("Express server listening on port " + app.get('port'));

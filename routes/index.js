@@ -1,5 +1,6 @@
 module.exports = function (app) {
-    var db = require('../db'),
+    var _ = require('underscore'),
+        db = require('../db'),
         httpProxy = require('http-proxy'),
         dcGisProxy = new httpProxy.HttpProxy({target: {host: 'citizenatlas.dc.gov', port: 80}});
     return {
@@ -168,7 +169,7 @@ module.exports = function (app) {
             });
         },
 
-        markBlank: function (req, res){
+        markBlank: function (req, res) {
             var page = +req.param('page'),
                 line = req.param('line'),
                 sql = "UPDATE petition_lines SET ? WHERE checker IN (?) AND page = ? AND line ",
@@ -191,6 +192,21 @@ module.exports = function (app) {
                     throw err;
                 }
                 res.json({results: results});
+            });
+        },
+
+        completedTsv: function (req, res) {
+            var sql = "SELECT * FROM petition_lines WHERE dcpt_code <> '' ORDER BY page, line",
+                content;
+            db.query(sql, function (err, rows, fields) {
+                var fieldNames = _.pluck(fields, 'name');
+                content = fieldNames.join("\t") + "\n";
+                _.forEach(rows, function (row) {
+                    content += _.map(fieldNames, function (name) { return row[name]; })
+                        .join("\t") + "\n";
+                });
+                res.attachment('completed.tsv');
+                res.send(content);
             });
         }
 
