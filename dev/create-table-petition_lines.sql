@@ -3,6 +3,7 @@ CREATE TABLE petition_lines (
   `page` SMALLINT UNSIGNED NOT NULL,
   `line` TINYINT UNSIGNED NOT NULL,
   `checker` VARCHAR(10) DEFAULT '' NOT NULL,
+  `check_time` DATETIME DEFAULT NULL,
   `boe_markings` VARCHAR(255) DEFAULT '' NOT NULL,
   `voter_id` VARCHAR(10) DEFAULT '' NOT NULL,
   `dcpt_code` VARCHAR(10) DEFAULT '' NOT NULL,
@@ -14,5 +15,6 @@ CREATE TABLE petition_lines (
   PRIMARY KEY (`id`),
   KEY `page_line` (`page`, `line`),
   KEY (`checker`),
+  KEY (`check_time`),
   KEY (`ward`)
 );

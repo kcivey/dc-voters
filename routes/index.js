@@ -114,6 +114,7 @@ module.exports = function (app) {
             var id = +req.param('id'),
                 lineData = req.body;
             delete lineData.id;
+            lineData.check_time = new Date();
             db.query(
                 'UPDATE petition_lines SET ? WHERE id = ?',
                 [lineData, id],
@@ -140,7 +141,7 @@ module.exports = function (app) {
                 sql += ' AND (page > ? OR page = ? AND line > ?)';
                 values.push(page, page, line);
             }
-            sql += ' ORDER BY page, line, checker = ? DESC LIMIT 1';
+            sql += ' AND checker = ? ORDER BY page, line LIMIT 1';
             values.push(req.user);
             db.query(sql, values, function (err, rows) {
                 var data;
@@ -172,7 +173,7 @@ module.exports = function (app) {
                 line = req.param('line'),
                 sql = "UPDATE petition_lines SET ? WHERE checker IN (?) AND page = ? AND line ",
                 values = [
-                    {dcpt_code: 'blank', checker: req.user},
+                    {dcpt_code: 'blank', checker: req.user, check_time: new Date()},
                     ['', req.user],
                     page
                 ],
