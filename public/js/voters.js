@@ -1,6 +1,7 @@
 jQuery(function ($) {
 
     var voterRowTemplate = _.template($('#voter-row-template').html()),
+        checkFormTemplate = _.template($('#check-form-template').html()),
         status;
 
     var Line = Backbone.Model.extend({
@@ -25,7 +26,7 @@ jQuery(function ($) {
     });
 
     var LineView = Backbone.View.extend({
-        template: _.template($('#line-template').html()),
+        template: _.template($('#line-form-template').html()),
         initialize: function () {
             this.modelBinder = new Backbone.ModelBinder();
             this.render();
@@ -47,7 +48,13 @@ jQuery(function ($) {
                     $('#form-line').before(alertTemplate({successful: successful}));
                 };
             if (jqXhr) {
-                jqXhr.done(function () { showAlert(true); })
+                jqXhr.done(function () {
+                        showAlert(true);
+                        setTimeout(function () {
+                            $('#form-line').prev().alert('close');
+                            start();
+                        }, 3000);
+                    })
                     .fail(function () { showAlert(false); });
             }
             else {
@@ -108,24 +115,26 @@ jQuery(function ($) {
             if (err) {
                 alert(err);
             }
-            var form = $('#form-check'),
-                p = $('#check-results'),
-                rec = status.lineRecord,
-                statusDiv = $('#status');
+            var statusDiv = $('#status'),
+                rec = status.lineRecord || {};
             $('.username', statusDiv).text(status.user || '(anonymous)');
             $('.complete', statusDiv).text(status.complete);
             $('.total', statusDiv).text(status.incomplete + status.complete);
-            if (rec) {
-                $('[name=page]', form).val(rec.page);
-                $('[name=line]', form).val(rec.line);
-            }
-            else if (status.complete) {
-                p.text('You have finished all your assigned petitions. Congratulations! And thank you!');
+            if (rec.line) {
+                $('#page-line').html('Petition Page ' + rec.page + ', Line ' + rec.line)
+                    .show();
             }
             else {
-                p.text('You have not yet been assigned any petitions.');
+                $('#page-line').hide();
             }
-            p.show();
+            $('#check-form').html(
+                checkFormTemplate({
+                    page: rec.page,
+                    line: rec.line,
+                    complete: status.complete
+                })
+            ).show();
+            $('#search-form, #result-div > *').hide();
         });
     }
 
@@ -135,8 +144,10 @@ jQuery(function ($) {
         .on('dblclick', 'td', function () { selectText(this); })
         .on('click', '.match', function () {
             var voterData = $(this).closest('tr').data('voterData'),
-                lineData = $.extend({}, $('#form-check').data('lineData'),
+                rec = status.lineRecord || {},
+                lineData = $.extend({}, status.lineRecord,
                     {
+                        checker: status.user,
                         voter_id: voterData.voter_id,
                         voter_name: makeName(voterData),
                         address: makeAddress(voterData),
@@ -144,21 +155,19 @@ jQuery(function ($) {
                     }
                 );
             console.log(lineData);
-            $('#result-div table, #explanation').addClass('hide');
-            new LineView({el: $('#form-line'), model: new Line(lineData)});
+            $('#result-div table, #explanation').hide();
+            new LineView({el: $('#line-form').show(), model: new Line(lineData)});
         });
 
-    $('#form-check')
+    $('#check-form')
         .on('click', '#check-button', function () {
-            $('#form-check, #check-results').hide();
-            $('#form-search').show();
+            $('#check-form, #check-results').hide();
+            $('#search-form').show();
         })
         .on('click', '#blank-button, #rest-blank-button', function () {
             var rest = this.id.match(/^rest/),
-                form = $('#form-check'),
-                page = +$('[name=page]', form).val(),
-                line = +$('[name=line]', form).val(),
-                url = '/voters/mark-blank/' + page + '/' + line;
+                rec = status.lineRecord,
+                url = '/voters/mark-blank/' + rec.page + '/' + rec.line;
             if (rest) {
                 url += '-' + 20;
             }
@@ -187,7 +196,7 @@ jQuery(function ($) {
         });
     });
 
-    $('#form-search').submit(function (evt) {
+    $('#search-form').submit(function (evt) {
         var searchData = {},
             button = $('#search-button'),
             resetButton = function () {
@@ -230,8 +239,8 @@ jQuery(function ($) {
     function handleResults(data) {
         var tbody = $('#results'),
             results = data.results;
-        $('#result-div table').toggleClass('hide', results.length ? false : true);
-        $('#none-found').toggleClass('hide', results.length ? true : false);
+        $('#result-div table').toggle(results.length ? true : false);
+        $('#none-found').toggle(results.length ? false : true);
         $.each(results, function (i, v) {
             var tr;
             v.name = makeName(v, true); // reversed
@@ -239,7 +248,7 @@ jQuery(function ($) {
             tr = $(voterRowTemplate(v)).data('voterData', v);
             tbody.append(tr);
         });
-        $('#explanation').append(data.explanation).removeClass('hide');
+        $('#explanation').append(data.explanation).show();
     }
 
     // Adapted from http://stackoverflow.com/questions/985272/jquery-selecting-text-in-an-element-akin-to-highlighting-with-your-mouse

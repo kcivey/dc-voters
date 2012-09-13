@@ -15,10 +15,10 @@
       #result-div {
         min-height: 300px;
       }
-      #form-search .control-label {
+      #search-form .control-label {
         width: 80px;
       }
-      #form-search .controls {
+      #search-form .controls {
         margin-left: 100px;
       }
       .navbar p {
@@ -26,10 +26,10 @@
         padding: 9px 0;
       }
       #status {
-        margin-bottom: 6px;
+        margin: 8px 0;
       }
       #status .username {
-        margin-right: 12px;
+        margin: 0 15px;
       }
     </style>
 
@@ -43,8 +43,12 @@
       <div class="navbar-inner">
         <div class="container-fluid">
           <a class="brand" href="/">DC Public Trust</a>
+          <ul id="status" class="nav">
+            <li><strong class="username"></strong></li>
+            <li><span class="complete">0</span> of <span class="total">0</span> lines checked</li>
+          </ul>
           <ul class="nav pull-right">
-            <li><a id="log-out" class="pull-right" href="/">Log Out</a></li>
+            <li><a id="log-out" href="/">Log Out</a></li>
           </ul>
         </div>
       </div>
@@ -54,22 +58,9 @@
       <div class="row-fluid">
         <div class="span5">
           <div class="well">
-            <div id="status" class="clearfix">
-              <p><strong class="username"></strong>
-                <span class="complete">0</span> of <span class="total">0</span> lines checked
-              </p>
-            </div>
-            <form action="/" id="form-check" class="form-inline">
-              <p>Enter the petition page and line number. Click "Check" if you want to check a name, or
-              click "Blank" if the line is blank.</p>
-              <label>Page <input type="number" name="page" class="input-mini" min="1" max="1844"/></label>
-              <label>Line <input type="number" name="line" class="input-mini" min="1" max="20"/></label>
-              <button type="button" class="btn btn-primary" id="check-button">Check</button>
-              <button type="button" class="btn" id="blank-button">Blank</button>
-              <button type="button" class="btn" id="rest-blank-button">Rest Blank</button>
-            </form>
-            <p id="check-results" style="display: none;"></p>
-            <form action="/" id="form-search" class="form-horizontal" style="display: none;">
+            <h2 id="page-line"></h2>
+            <form action="/" id="check-form" class="form-inline"></form>
+            <form action="/" id="search-form" class="form-horizontal" style="display: none;">
               <p>Now use one or both of these fields to search for the voter (does a prefix search for
                 names, so <code>richards</code> will match "Richardson" and
                 <code>connect</code> will match "Connecticut Ave").</p>
@@ -95,7 +86,7 @@
           </div>
         </div>
         <div class="span7" id="result-div">
-          <table class="table table-condensed table-striped hide">
+          <table class="table table-condensed table-striped" style="display: none;">
             <thead>
               <th>Name</th>
               <th>Address</th>
@@ -107,9 +98,9 @@
             </thead>
             <tbody id="results"></tbody>
           </table>
-          <p id="none-found" class="hide"><i>No results found.</i></p>
-          <pre id="explanation" class="hide"></pre>
-          <form action="/" id="form-line" class="form-horizontal"></form>
+          <p id="none-found" style="display: none;"><i>No results found.</i></p>
+          <pre id="explanation" style="display: none;"></pre>
+          <form action="/" id="line-form" class="form-horizontal"></form>
         </div>
       </div>
     </div>
@@ -136,6 +127,27 @@
     <script src="/js/backbone.min.js"></script>
     <script src="/js/Backbone.ModelBinder.min.js"></script>
     <script src="/js/voters.js"></script>
+    <script type="text/template" id="check-form-template">
+      <% if (line) { %>
+        <p>Click "Check" if you want to check a name, "Blank" if the line has no name, or "Rest Blank"
+          if the rest of the page is blank.</p>
+      <% } else { %>
+        <% if (complete) { %>
+          <p>You have completed your assigned pages.</p>
+          <p>Congratulations! And thanks!</p>
+        <% } else { %>
+          <p>No pages have been assigned to you yet.</p>
+        <% } %>
+        <p>You can still search, if you'd like.</p>
+      <% } %>
+      <p>
+        <button type="button" class="btn btn-primary" id="check-button">Check</button>
+        <% if (line) { %>
+          <button type="button" class="btn" id="blank-button">Blank</button>
+          <button type="button" class="btn" id="rest-blank-button">Rest Blank</button>
+        <% } %>
+      </p>
+    </script>
     <script type="text/template" id="voter-row-template">
       <tr>
         <td><%- name %></td>
@@ -147,25 +159,7 @@
         <td><button class="btn btn-mini match" data-voter-id="<?- voter_id %>">Match</button></td>
       </tr>
     </script>
-    <script type="text/template" id="line-template">
-      <div class="control-group">
-        <label class="control-label" for="page">Page</label>
-        <div class="controls">
-          <input type="number" name="page" id="page" class="input-mini" min="1" max="1844"/>
-        </div>
-      </div>
-      <div class="control-group">
-        <label class="control-label" for="line">Line</label>
-        <div class="controls">
-          <input type="number" name="line" id="line" class="input-mini" min="1" max="20"/>
-        </div>
-      </div>
-      <div class="control-group">
-        <label class="control-label" for="checker">Checker</label>
-        <div class="controls">
-          <input type="text" name="checker" id="checker"/>
-        </div>
-      </div>
+    <script type="text/template" id="line-form-template">
       <div class="control-group">
         <label class="control-label" for="boe_markings">BOE markings</label>
         <div class="controls">
@@ -215,10 +209,13 @@
         </div>
       </div>
       <div class="control-group">
-        <input type="hidden" name="id" />
-        <button type="button" class="btn btn-primary btn-small" id="save">Save</button>
+        <input type="hidden" name="id"/>
+        <input type="hidden" name="page"/>
+        <input type="hidden" name="line"/>
+        <input type="hidden" name="checker"/>
+        <button type="button" class="btn btn-primary btn" id="save">Save</button>
         <a class="btn btn-small" href="#survey-json" id="show-json">JSON</a>
-        <pre id="survey-json" class="modal hide"></pre>
+        <pre id="survey-json" class="modal" style="display: none;"></pre>
       </div>
     </script>
     <script type="text/template" id="alert-template">
