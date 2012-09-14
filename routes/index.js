@@ -208,6 +208,64 @@ module.exports = function (app) {
                 res.attachment('completed.tsv');
                 res.send(content);
             });
+        },
+
+        dtLine: function (req, res) {
+            var start = +req.param('iDisplayStart') || 0,
+                length = +req.param('iDisplayLength') || 100,
+                data = {sEcho: +req.param('sEcho') || 1},
+                search = req.param('sSearch'),
+                sortingCols = +req.param('iSortingCols') || 0,
+                table = 'petition_lines',
+                sql = 'SELECT COUNT(*) AS `count` FROM ' + table,
+                values = [],
+                i, sortColumnIndex, sortColumn, sortDirection;
+            db.query(sql, function (err, rows) {
+                if (err) {
+                    throw err;
+                }
+                data.iTotalRecords = +rows[0].count;
+                sql += " WHERE dcpt_code <> ''";
+                db.query(sql, function (err, rows) {
+                    if (err) {
+                        throw err;
+                    }
+                    data.iTotalDisplayRecords = +rows[0].count;
+                    sql = 'SELECT * FROM ' + table + ' WHERE 1';
+                    if (search) {
+                        search = '%' + search + '%';
+                        sql += ' AND (';
+                        ['lastname', 'firstname'].forEach(function (column) {
+                            sql += ' OR ' + column + ' LIKE ?';
+                            values.push(search);
+                        });
+                        sql += ')';
+                    }
+                    sql += ' ORDER BY';
+                    for (i = 0; i < sortingCols.length; i++) {
+                        sortColumnIndex = +req.param('iSortCol_' + i) || 0;
+                        sortColumn = req.param('mDataProp_' + sortColumnIndex);
+                        if (/^\w+$/.test(sortColumn) && sortColumn != 'function') {
+                            sortDirection = req.param('sSortDir_' + i);
+                            sql += ' ' + sortColumn;
+                            if (sortDirection == 'desc') {
+                                sql += ' DESC';
+                            }
+                            sql += ',';
+                        }
+                    }
+                    sql += ' id'; // order by id if nothing else
+                    sql += ' LIMIT ' + start + ',' + length;
+                    db.query(sql, values, function (err, rows) {
+                        console.log(sql);
+                        if (err) {
+                            throw err;
+                        }
+                        data.aaData = rows;
+                        res.json(data);
+                    });
+                });
+            });
         }
 
     };
