@@ -51,13 +51,13 @@ jQuery(function ($) {
             var jqXhr = this.model.save(),
                 alertTemplate = _.template($('#alert-template').html()),
                 showAlert = function (successful) {
-                    $('#form-line').before(alertTemplate({successful: successful}));
+                    $('#line-form').before(alertTemplate({successful: successful}));
                 };
             if (jqXhr) {
                 jqXhr.done(function () {
                         showAlert(true);
                         setTimeout(function () {
-                            $('#form-line').prev().alert('close');
+                            $('#line-form').prev().alert('close');
                             start();
                         }, 3000);
                     })
@@ -146,7 +146,7 @@ jQuery(function ($) {
 
     start();
 
-    $('#results')
+    $('#voter-table tbody')
         .on('dblclick', 'td', function () { selectText(this); })
         .on('click', '.match', function () {
             var voterData = $(this).closest('tr').data('voterData'),
@@ -161,7 +161,7 @@ jQuery(function ($) {
                     }
                 );
             console.log(lineData);
-            $('#result-div table, #explanation').hide();
+            $('#voter-table, #explanation').hide();
             new LineView({el: $('#line-form').show(), model: new Line(lineData)});
         });
 
@@ -220,7 +220,7 @@ jQuery(function ($) {
             return; // don't search if no search terms
         }
         button.text('Please Wait').attr('disabled', 'disabled');
-        $('#results, #explanation').empty();
+        $('#voter-table tbody, #explanation').empty();
         // Use a timeout because JSONP calls don't always raise error
         // events when there's a problem.
         timeoutHandle = setTimeout(
@@ -243,9 +243,9 @@ jQuery(function ($) {
     });
 
     function handleResults(data) {
-        var tbody = $('#results'),
+        var tbody = $('#voter-table tbody'),
             results = data.results;
-        $('#result-div table').toggle(results.length ? true : false);
+        $('#voter-table').toggle(results.length ? true : false);
         $('#none-found').toggle(results.length ? false : true);
         $.each(results, function (i, v) {
             var tr;
