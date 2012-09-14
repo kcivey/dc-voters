@@ -234,8 +234,8 @@ module.exports = function (app) {
                     sql = 'SELECT * FROM ' + table + ' WHERE 1';
                     if (search) {
                         search = '%' + search + '%';
-                        sql += ' AND (';
-                        ['lastname', 'firstname'].forEach(function (column) {
+                        sql += ' AND (0';
+                        ['voter_name', 'address'].forEach(function (column) {
                             sql += ' OR ' + column + ' LIKE ?';
                             values.push(search);
                         });
