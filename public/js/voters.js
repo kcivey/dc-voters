@@ -211,7 +211,7 @@ jQuery(function ($) {
             link.text('Back');
             $('#bottom-row').show().html($('#line-table-template').html());
             $('#line-table').dataTable({
-                sAjaxSource: '/voters/dt-line',
+                sAjaxSource: '/voters/dt-line/' + status.user,
                 bProcessing: true,
                 bServerSide: true,
                 bDestroy: true,

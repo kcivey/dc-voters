@@ -39,6 +39,7 @@ app.put('/voters/line/:id', express.bodyParser(), routes.lineUpdate);
 app.get('/voters/status', routes.status);
 app.post('/voters/mark-blank/:page/:line', routes.markBlank);
 app.get('/voters/completed.tsv', express.compress(), routes.completedTsv);
+app.get('/voters/dt-line/:checker', express.compress(), routes.dtLine);
 app.get('/voters/dt-line', express.compress(), routes.dtLine);
 
 http.createServer(app).listen(app.get('port'), function(){

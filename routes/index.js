@@ -216,8 +216,10 @@ module.exports = function (app) {
                 data = {sEcho: +req.param('sEcho') || 1},
                 search = req.param('sSearch'),
                 sortingCols = +req.param('iSortingCols') || 0,
+                checker = req.param('checker'),
                 table = 'petition_lines',
                 sql = 'SELECT COUNT(*) AS `count` FROM ' + table,
+                where = " WHERE dcpt_code <> ''",
                 values = [],
                 i, sortColumnIndex, sortColumn, sortDirection;
             db.query(sql, function (err, rows) {
@@ -225,13 +227,17 @@ module.exports = function (app) {
                     throw err;
                 }
                 data.iTotalRecords = +rows[0].count;
-                sql += " WHERE dcpt_code <> ''";
-                db.query(sql, function (err, rows) {
+                if (checker) {
+                    where += ' AND checker = ?';
+                    values.push(checker);
+                }
+                sql += where;
+                db.query(sql, values, function (err, rows) {
                     if (err) {
                         throw err;
                     }
                     data.iTotalDisplayRecords = +rows[0].count;
-                    sql = 'SELECT * FROM ' + table + ' WHERE 1';
+                    sql = 'SELECT * FROM ' + table + where;
                     if (search) {
                         search = '%' + search + '%';
                         sql += ' AND (0';
@@ -257,7 +263,6 @@ module.exports = function (app) {
                     sql += ' id'; // order by id if nothing else
                     sql += ' LIMIT ' + start + ',' + length;
                     db.query(sql, values, function (err, rows) {
-                        console.log(sql);
                         if (err) {
                             throw err;
                         }
