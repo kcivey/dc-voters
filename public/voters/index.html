@@ -8,6 +8,7 @@
 
     <link href="/css/bootstrap.min.css" rel="stylesheet"/>
     <link href="/css/bootstrap-responsive.css" rel="stylesheet"/>
+    <link href="http://ajax.aspnetcdn.com/ajax/jquery.dataTables/1.9.3/css/jquery.dataTables.css" rel="stylesheet"/>
     <style>
       body {
         padding-top: 60px; /* to make the container go all the way to the bottom of the topbar */
@@ -48,6 +49,7 @@
             <li><span class="complete">0</span> of <span class="total">0</span> lines checked</li>
           </ul>
           <ul class="nav pull-right">
+            <li><a id="see-work" href="/">See Work</a></li>
             <li><a id="log-out" href="/">Log Out</a></li>
           </ul>
         </div>
@@ -55,7 +57,7 @@
     </div>
 
     <div class="container-fluid">
-      <div class="row-fluid">
+      <div id="top-row" class="row-fluid">
         <div class="span5">
           <div class="well">
             <h2 id="page-line"></h2>
@@ -103,6 +105,8 @@
           <form action="/" id="line-form" class="form-horizontal" style="display: none;"></form>
         </div>
       </div>
+      <div id="bottom-row" class="row-fluid" style="display: none;">
+      </div>
     </div>
 
     <div class="navbar">
@@ -122,6 +126,7 @@
     </div>
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+    <script src="http://ajax.aspnetcdn.com/ajax/jquery.dataTables/1.9.3/jquery.dataTables.min.js"></script>
     <script src="/js/bootstrap.min.js"></script>
     <script src="/js/underscore.min.js"></script>
     <script src="/js/backbone.min.js"></script>
@@ -227,6 +232,9 @@
         <button type="button" class="close" data-dismiss="alert">&times;</button>
         <%= successful ? 'Record successfully saved' : 'Error saving record' %>
       </div>
+    </script>
+    <script type="text/template" id="line-table-template">
+      <table id="line-table" class="table table-condensed table-striped"></table>
     </script>
   </body>
 </html>

@@ -202,6 +202,89 @@ jQuery(function ($) {
         });
     });
 
+    $('#see-work').on('click', function (evt) {
+        evt.preventDefault();
+        var link = $(this),
+            seeWork = link.text() == 'See Work';
+        $('#top-row').toggle(!seeWork);
+        if (seeWork) {
+            link.text('Back');
+            $('#bottom-row').show().html($('#line-table-template').html());
+            $('#line-table').dataTable({
+                sAjaxSource: '/voters/dt-line',
+                bProcessing: true,
+                bServerSide: true,
+                bDestroy: true,
+                iDisplayLength: 50,
+                sDom: '<"row-fluid"<"span6"><"span6"f>r>t<"row-fluid"<"span6"i><"span6">p>',
+                bSortClasses: false,
+                aaSorting: [], // no sorting by default
+                bDeferRender: true,
+                aoColumns: [
+                    {
+                        mDataProp: 'page',
+                        sTitle: 'Page',
+                        bSearchable: false
+                    },
+                    {
+                        mDataProp: 'line',
+                        sTitle: 'Line',
+                        bSearchable: false
+                    },
+                    {
+                        mDataProp: 'checker',
+                        sTitle: 'Checker',
+                        bSearchable: false
+                    },
+                    {
+                        mDataProp: 'boe_markings',
+                        sTitle: 'BOE Markings',
+                        bSearchable: false
+                    },
+                    {
+                        mDataProp: 'voter_id',
+                        sTitle: 'Voter ID',
+                        bSearchable: false
+                    },
+                    {
+                        mDataProp: 'dcpt_code',
+                        sTitle: 'DCPT Code',
+                        bSearchable: false
+                    },
+                    {
+                        mDataProp: 'voter_name',
+                        sTitle: 'Name',
+                        bSearchable: true
+                    },
+                    {
+                        mDataProp: 'address',
+                        sTitle: 'Address',
+                        bSearchable: true
+                    },
+                    {
+                        mDataProp: 'ward',
+                        sTitle: 'Ward',
+                        bSearchable: true
+                    },
+                    {
+                        mDataProp: 'date_signed',
+                        sTitle: 'Date Signed',
+                        bSearchable: true
+                    },
+                    {
+                        mDataProp: 'notes',
+                        sTitle: 'Notes',
+                        bSearchable: true
+                    }
+                ]
+            });
+        }
+        else {
+            $('#bottom-row').hide().empty();
+            link.text('Show Work');
+        }
+    });
+
     $('#search-form').submit(function (evt) {
         var searchData = {},
             button = $('#search-button'),
