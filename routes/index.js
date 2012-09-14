@@ -174,7 +174,7 @@ module.exports = function (app) {
                 line = req.param('line'),
                 sql = "UPDATE petition_lines SET ? WHERE checker IN (?) AND page = ? AND line ",
                 values = [
-                    {dcpt_code: 'blank', checker: req.user, check_time: new Date()},
+                    {dcpt_code: 'B', checker: req.user, check_time: new Date()},
                     ['', req.user],
                     page
                 ],
