@@ -189,6 +189,9 @@ jQuery(function ($) {
                     start();
                 }
             });
+        })
+        .on('click', '#illegible-button', function () {
+            editLine({dcpt_code: 'I'});
         });
 
     // Somewhat klugy way to handle logging out of HTTP authentication
