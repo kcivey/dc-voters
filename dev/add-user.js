@@ -1,11 +1,12 @@
 var db = require('../db'),
     passwordHash = require('password-hash'),
     _ = require('underscore'),
+    async = require('async'),
     table = 'users',
     username = process.argv[2],
     password = process.argv[3],
     pageRange = process.argv[4],
-    m, startPage, endPage, digits;
+    m, startPage, endPage, digits, todo;
 
 if (!username) {
     throw 'Missing username';
@@ -32,37 +33,50 @@ if (pageRange && (m = pageRange.match(/^(\d+)-(\d+)$/))) {
     endPage = +m[2];
 }
 
-db.query(
-    'INSERT INTO ' + table + ' (username, password) VALUES (?, ?)',
-    [username, passwordHash.generate(password)],
-    function (err, result) {
-        if (err) {
-            if (err.code == 'ER_DUP_ENTRY') {
-                console.log('User ' + username + ' already exists');
+function insertUser(callback) {
+    db.query(
+        'INSERT INTO ' + table + ' (username, password) VALUES (?, ?)',
+        [username, passwordHash.generate(password)],
+        function (err, result) {
+            if (err) {
+                if (err.code == 'ER_DUP_ENTRY') {
+                    console.log('User ' + username + ' already exists');
+                }
+                else {
+                    return callback(err);
+                }
             }
             else {
-                throw err;
+                console.log(result.affectedRows + ' user record created');
+                console.log('Username ' + username + ', password ' + password);
             }
+            callback(null, result);
         }
-        else {
-            console.log(result.affectedRows + ' user record created');
-            console.log('Username ' + username + ', password ' + password);
+    );
+}
+
+function assignPages(callback) {
+    db.query(
+        "UPDATE petition_lines SET checker = ? WHERE dcpt_code = '' AND page BETWEEN ? AND ?",
+        [username, startPage, endPage],
+        function (err, result) {
+            if (err) {
+                return callback(err);
+            }
+            console.log(result.affectedRows + ' lines assigned');
+            callback(null, result);
         }
-        if (pageRange) {
-            db.query(
-                "UPDATE petition_lines SET checker = ? WHERE dcpt_code = '' AND page BETWEEN ? AND ?",
-                [username, startPage, endPage],
-                function (err, result) {
-                    if (err) {
-                        throw err;
-                    }
-                    console.log(result.affectedRows + ' lines assigned');
-                    process.exit();
-                }
-            );
-        }
-        else {
-            process.exit();
-        }
+    );
+}
+
+todo = [insertUser];
+if (pageRange) {
+    todo.push(assignPages);
+}
+
+async.series(todo, function (err, results) {
+    if (err) {
+        throw err;
     }
-);
+    process.exit();
+});

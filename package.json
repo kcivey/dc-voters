@@ -12,6 +12,7 @@
     "nconf": "*",
     "http-proxy": "*",
     "password-hash": "*",
-    "underscore": "*"
+    "underscore": "*",
+    "async": "*"
   }
 }
