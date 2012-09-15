@@ -248,7 +248,7 @@ module.exports = function (app) {
                         sql += ')';
                     }
                     sql += ' ORDER BY';
-                    for (i = 0; i < sortingCols.length; i++) {
+                    for (i = 0; i < sortingCols; i++) {
                         sortColumnIndex = +req.param('iSortCol_' + i) || 0;
                         sortColumn = req.param('mDataProp_' + sortColumnIndex);
                         if (/^\w+$/.test(sortColumn) && sortColumn != 'function') {
