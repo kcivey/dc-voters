@@ -222,7 +222,7 @@ jQuery(function ($) {
                 bProcessing: true,
                 bServerSide: true,
                 bDestroy: true,
-                iDisplayLength: 50,
+                iDisplayLength: 25,
                 sDom: '<"row-fluid"<"span6"><"span6"f>r>t<"row-fluid"<"span6"i><"span6">p>',
                 bSortClasses: false,
                 aaSorting: [], // no sorting by default
@@ -242,6 +242,15 @@ jQuery(function ($) {
                         mDataProp: 'checker',
                         sTitle: 'Checker',
                         bSearchable: false
+                    },
+                    {
+                        mDataProp: 'check_time',
+                        sTitle: 'Check Time',
+                        bSearchable: false,
+                        fnCreatedCell: function (nTd, sData) {
+                            $(nTd).wrapInner('<time datetime="' + sData + '"></time>')
+                                .find('time').timeago();
+                        }
                     },
                     {
                         mDataProp: 'boe_markings',
