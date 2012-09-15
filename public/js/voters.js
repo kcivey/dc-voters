@@ -127,10 +127,12 @@ jQuery(function ($) {
 
     function setStatus(status) {
         var statusDiv = $('#status'),
-            rec = status.lineRecord || {};
+            rec = status.lineRecord || {},
+            total = status.incomplete + status.complete;
         $('.username', statusDiv).text(status.user || '(anonymous)');
         $('.complete', statusDiv).text(status.complete);
-        $('.total', statusDiv).text(status.incomplete + status.complete);
+        $('.total', statusDiv).text(total);
+        $('#complete-bar').width(total ? (100 * status.complete / total) + '%' : 0);
         if (rec.line) {
             $('#page-line').html('Petition Page ' + rec.page + ', Line ' + rec.line)
                 .show();

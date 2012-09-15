@@ -30,10 +30,25 @@
         margin: 8px 0;
       }
       #status .username {
-        margin: 0 15px;
+        margin: 0 8px;
+      }
+      #status .complete {
+        margin-left: 8px;
       }
       #explanation {
         font-size: 85%;
+      }
+      .progress {
+        display: inline-block;
+        width: 250px;
+        margin-bottom: 0;
+        background-color: #f3f3f3;
+        background-image: -moz-linear-gradient(top, #f1f1f1, #f5f5f5);
+        background-image: -ms-linear-gradient(top, #f1f1f1, #f5f5f5);
+        background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#f1f1f1), to(#f5f5f5));
+        background-image: -webkit-linear-gradient(top, #f1f1f1, #f5f5f5);
+        background-image: -o-linear-gradient(top, #f1f1f1, #f5f5f5);
+        background-image: linear-gradient(top, #f1f1f1, #f5f5f5);
       }
     </style>
 
@@ -48,8 +63,12 @@
         <div class="container-fluid">
           <a class="brand" href="/">DC Public Trust</a>
           <ul id="status" class="nav">
-            <li><strong class="username"></strong></li>
-            <li><span class="complete">0</span> of <span class="total">0</span> lines checked</li>
+            <li><strong class="username"></strong>
+              <div class="progress">
+                <div id="complete-bar" class="bar" style="width: 0;"></div>
+              </div>
+              <span class="complete">0</span> of <span class="total">0</span> lines checked
+            </li>
           </ul>
           <ul class="nav pull-right">
             <li><a id="see-work" href="/">See Work</a></li>
