@@ -146,23 +146,27 @@ jQuery(function ($) {
 
     start();
 
-    $('#voter-table tbody')
+    function editLine(lineData) {
+        lineData = $.extend({}, status.lineRecord, {checker: status.user},
+            lineData);
+        console.log(lineData);
+        $('#voter-table, #explanation').hide();
+        new LineView({el: $('#line-form').show(), model: new Line(lineData)});
+    }
+
+    $('#voter-table')
         .on('dblclick', 'td', function () { selectText(this); })
         .on('click', '.match', function () {
-            var voterData = $(this).closest('tr').data('voterData'),
-                rec = status.lineRecord || {},
-                lineData = $.extend({}, status.lineRecord,
-                    {
-                        checker: status.user,
-                        voter_id: voterData.voter_id,
-                        voter_name: makeName(voterData),
-                        address: makeAddress(voterData),
-                        ward: voterData.ward
-                    }
-                );
-            console.log(lineData);
-            $('#voter-table, #explanation').hide();
-            new LineView({el: $('#line-form').show(), model: new Line(lineData)});
+            var voterData = $(this).closest('tr').data('voterData');
+            editLine({
+                voter_id: voterData.voter_id,
+                voter_name: makeName(voterData),
+                address: makeAddress(voterData),
+                ward: voterData.ward
+            });
+        })
+        .on('click', '.not-found', function () {
+            editLine({dcpt_code: 'NR'});
         });
 
     $('#check-form')
