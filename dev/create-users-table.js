@@ -17,7 +17,7 @@ db.query(sql, function (err, rows) {
             if (err) {
                 throw err;
             }
-            console.log(result);
+            console.log(result.affectedRows + ' user record created');
             process.exit();
         }
     );

@@ -3,5 +3,5 @@ CREATE TABLE users (
   `username` VARCHAR(10),
   `password` VARCHAR(64),
   PRIMARY KEY (`id`),
-  KEY (`username`)
+  UNIQUE KEY (`username`)
 );
