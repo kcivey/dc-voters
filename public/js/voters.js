@@ -121,27 +121,31 @@ jQuery(function ($) {
             if (err) {
                 alert(err);
             }
-            var statusDiv = $('#status'),
-                rec = status.lineRecord || {};
-            $('.username', statusDiv).text(status.user || '(anonymous)');
-            $('.complete', statusDiv).text(status.complete);
-            $('.total', statusDiv).text(status.incomplete + status.complete);
-            if (rec.line) {
-                $('#page-line').html('Petition Page ' + rec.page + ', Line ' + rec.line)
-                    .show();
-            }
-            else {
-                $('#page-line').hide();
-            }
-            $('#check-form').html(
-                checkFormTemplate({
-                    page: rec.page,
-                    line: rec.line,
-                    complete: status.complete
-                })
-            ).show();
-            $('#search-form, #result-div > *').hide();
+            setStatus(status);
         });
+    }
+
+    function setStatus(status) {
+        var statusDiv = $('#status'),
+            rec = status.lineRecord || {};
+        $('.username', statusDiv).text(status.user || '(anonymous)');
+        $('.complete', statusDiv).text(status.complete);
+        $('.total', statusDiv).text(status.incomplete + status.complete);
+        if (rec.line) {
+            $('#page-line').html('Petition Page ' + rec.page + ', Line ' + rec.line)
+                .show();
+        }
+        else {
+            $('#page-line').hide();
+        }
+        $('#check-form').html(
+            checkFormTemplate({
+                page: rec.page,
+                line: rec.line,
+                complete: status.complete
+            })
+        ).show();
+        $('#search-form, #result-div > *').hide();
     }
 
     start();
@@ -212,12 +216,14 @@ jQuery(function ($) {
     $('#see-work').on('click', function (evt) {
         evt.preventDefault();
         var link = $(this),
-            seeWork = link.text() == 'See Work';
+            seeWork = link.text() == 'See Work',
+            dataTable;
+        console.log('click See Work', seeWork);
         $('#top-row').toggle(!seeWork);
         if (seeWork) {
             link.text('Back');
             $('#bottom-row').show().html($('#line-table-template').html());
-            $('#line-table').dataTable({
+            dataTable = $('#line-table').dataTable({
                 sAjaxSource: '/voters/dt-line/' + status.user,
                 bProcessing: true,
                 bServerSide: true,
@@ -291,13 +297,31 @@ jQuery(function ($) {
                         mDataProp: 'notes',
                         sTitle: 'Notes',
                         bSearchable: true
+                    },
+                    {
+                        mDataProp: function () {
+                            return '<button type="button" class="btn btn-mini edit-button">Edit</button>'
+                        },
+                        sTitle: '',
+                        bSearchable: false,
+                        bSortable: false
                     }
                 ]
             });
+            $('#line-table').on('click', '.edit-button', function () {
+                var row = $(this).closest('tr'),
+                    dataTable = row.closest('table').dataTable({bRetrieve: true}),
+                    lineData = dataTable.fnGetData(row[0]);
+                $('#see-work').click();
+                status.lineRecord = lineData;
+                setStatus(status);
+                editLine(lineData);
+            });
+
         }
         else {
             $('#bottom-row').hide().empty();
-            link.text('Show Work');
+            link.text('See Work');
         }
     });
 
