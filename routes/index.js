@@ -116,6 +116,10 @@ module.exports = function (app) {
                 lineData = req.body;
             delete lineData.id;
             lineData.check_time = new Date();
+            if (lineData.date_signed) {
+                lineData.date_signed = lineData.date_signed
+                    .replace(/^(\d+)\/(\d+)\/(\d+)$/, '$3-$1-$2');
+            }
             db.query(
                 'UPDATE petition_lines SET ? WHERE id = ?',
                 [lineData, id],

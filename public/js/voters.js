@@ -190,7 +190,10 @@ jQuery(function ($) {
     function editLine(lineData) {
         lineData = $.extend({}, status.lineRecord, {checker: status.user},
             lineData);
-        console.log(lineData);
+        if (lineData.date_signed) {
+            lineData.date_signed = lineData.date_signed
+                .replace(/^(\d{4})-(\d\d)-(\d\d).*/, '$2/$3/$1');
+        }
         $('#voter-table, #explanation').hide();
         new LineView({el: $('#line-form').show(), model: new Line(lineData)});
     }
@@ -326,8 +329,11 @@ jQuery(function ($) {
                         bSearchable: true
                     },
                     {
-                        mDataProp: 'date_signed',
-                        sTitle: 'Date Signed',
+                        mDataProp: function (oData) {
+                            return oData.date_signed ?
+                                oData.date_signed.replace(/^(\d{4})-(\d\d)-(\d\d).*/, '$2/$3') : '';
+                        },
+                        sTitle: 'Date',
                         bSearchable: true
                     },
                     {
