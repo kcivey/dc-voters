@@ -215,7 +215,7 @@ jQuery(function ($) {
 
     $('#check-form')
         .on('click', '#check-button', function () {
-            $('#check-form, #check-results').hide();
+            $('#check-form, #check-results, #line-form').hide();
             $('#search-form').show();
         })
         .on('click', '#blank-button, #rest-blank-button', function () {
