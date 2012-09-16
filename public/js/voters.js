@@ -3,11 +3,12 @@ jQuery(function ($) {
     var voterRowTemplate = _.template($('#voter-row-template').html()),
         checkFormTemplate = _.template($('#check-form-template').html()),
         dcptCodes = {
-            B: 'blank',
+            OK: 'OK (name and address match)',
             A: 'address change',
-            I: 'illegible',
+            AM: 'address change (multiple possibilities)',
             NR: 'not registered',
-            OK: 'OK (name and address match)'
+            I: 'illegible',
+            B: 'blank'
         },
         status;
 
