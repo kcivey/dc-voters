@@ -210,6 +210,7 @@ module.exports = function (app) {
                         .join("\t") + "\n";
                 });
                 res.attachment('completed.tsv');
+                res.set('Content-Type', 'text/tab-separated-values; charset=utf-8');
                 res.send(content);
             });
         },
