@@ -40,7 +40,12 @@ jQuery(function ($) {
         },
         events: {
             'click #save': 'save',
+            'click #checkmark-button': 'appendCheckmark',
             'click #show-json': 'showJson'
+        },
+        appendCheckmark: function () {
+            var markings = this.model.get('boe_markings');
+            this.model.set('boe_markings', markings + '\u2713'); // append checkmark
         },
         render: function () {
             this.$el.html(this.html);
