@@ -258,7 +258,6 @@ jQuery(function ($) {
         var link = $(this),
             seeWork = link.text() == 'See Work',
             dataTable;
-        console.log('click See Work', seeWork);
         $('#top-row').toggle(!seeWork);
         if (seeWork) {
             link.text('Back');
