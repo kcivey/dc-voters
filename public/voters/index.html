@@ -208,19 +208,19 @@
         </div>
       </div>
       <div class="control-group">
-        <label class="control-label" for="voter_id">Voter ID</label>
-        <div class="controls">
-          <input type="text" name="voter_id" id="voter_id"/>
-        </div>
-      </div>
-      <div class="control-group">
-        <label class="control-label" for="dcpt_code">DCPT code</label>
+        <label class="control-label" for="dcpt_code">DCPT finding</label>
         <div class="controls" id="dcpt_code">
           <% _.each(codes, function (label, value) { %>
             <label class="radio">
               <input type="radio" name="dcpt_code" value="<%- value %>"/> <%= label %>
             </label>
           <% }); %>
+        </div>
+      </div>
+      <div class="control-group">
+        <label class="control-label" for="voter_id">Voter ID</label>
+        <div class="controls">
+          <input type="text" name="voter_id" id="voter_id" class="input-small"/>
         </div>
       </div>
       <div class="control-group">
@@ -232,7 +232,7 @@
       <div class="control-group">
         <label class="control-label" for="line-address">Address</label>
         <div class="controls">
-          <input type="text" name="address" id="line-address"/>
+          <input type="text" name="address" id="line-address" class="input-block-level"/>
         </div>
       </div>
       <div class="control-group">
@@ -244,13 +244,13 @@
       <div class="control-group">
         <label class="control-label" for="date_signed">Date signed</label>
         <div class="controls">
-          <input type="text" name="date_signed" id="date_signed"/>
+          <input type="text" name="date_signed" id="date_signed" class="input-small"/>
         </div>
       </div>
       <div class="control-group">
         <label class="control-label" for="notes">Notes</label>
         <div class="controls">
-          <textarea name="notes" id="notes"></textarea>
+          <textarea name="notes" id="notes" class="input-block-level"></textarea>
         </div>
       </div>
       <div class="control-group">
