@@ -10,7 +10,7 @@ jQuery(function ($) {
             I: 'illegible',
             B: 'blank'
         },
-        status;
+        status, lineView;
 
     var Line = Backbone.Model.extend({
         initialize: function () {
@@ -189,6 +189,7 @@ jQuery(function ($) {
     start();
 
     function editLine(lineData) {
+        var lineForm = $('#line-form');
         lineData = $.extend({}, status.lineRecord, {checker: status.user},
             lineData);
         if (lineData.date_signed) {
@@ -196,7 +197,14 @@ jQuery(function ($) {
                 .replace(/^(\d{4})-(\d\d)-(\d\d).*/, '$2/$3/$1');
         }
         $('#voter-table, #explanation').hide();
-        new LineView({el: $('#line-form').show(), model: new Line(lineData)});
+        if (lineView) {
+            lineView.model = new Line(lineData);
+            lineView.render();
+        }
+        else {
+            lineView = new LineView({el: lineForm, model: new Line(lineData)});
+        }
+        lineForm.show();
     }
 
     $('#voter-table')
