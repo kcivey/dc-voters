@@ -48,7 +48,7 @@ jQuery(function ($) {
             // This is a mess. Need proper date functions.
             var input = this.$('#date_signed'),
                 value = input.val(),
-                currentYear = (new Date).getFullYear(),
+                currentYear = (new Date()).getFullYear(),
                 parts, i, dd, mm, yy;
             if (!value) {
                 return;
@@ -342,7 +342,7 @@ jQuery(function ($) {
                     },
                     {
                         mDataProp: function () {
-                            return '<button type="button" class="btn btn-mini edit-button">Edit</button>'
+                            return '<button type="button" class="btn btn-mini edit-button">Edit</button>';
                         },
                         sTitle: '',
                         bSearchable: false,
