@@ -386,6 +386,7 @@ jQuery(function ($) {
         }
         button.text('Please Wait').attr('disabled', 'disabled');
         $('#voter-table tbody, #explanation').empty();
+        $('#voter-table, #none-found, #explanation, #line-form').hide();
         // Use a timeout because JSONP calls don't always raise error
         // events when there's a problem.
         timeoutHandle = setTimeout(
