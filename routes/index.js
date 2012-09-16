@@ -225,6 +225,7 @@ module.exports = function (app) {
                 table = 'petition_lines',
                 sql = 'SELECT COUNT(*) AS `count` FROM ' + table,
                 where = " WHERE dcpt_code <> ''",
+                order = [],
                 values = [],
                 i, sortColumnIndex, sortColumn, sortDirection;
             db.query(sql, function (err, rows) {
@@ -252,20 +253,16 @@ module.exports = function (app) {
                         });
                         sql += ')';
                     }
-                    sql += ' ORDER BY';
                     for (i = 0; i < sortingCols; i++) {
                         sortColumnIndex = +req.param('iSortCol_' + i) || 0;
                         sortColumn = req.param('mDataProp_' + sortColumnIndex);
                         if (/^\w+$/.test(sortColumn) && sortColumn != 'function') {
                             sortDirection = req.param('sSortDir_' + i);
-                            sql += ' ' + sortColumn;
-                            if (sortDirection == 'desc') {
-                                sql += ' DESC';
-                            }
-                            sql += ',';
+                            order.push(sortColumn + (sortDirection == 'desc' ? ' DESC' : ''));
                         }
                     }
-                    sql += ' id'; // order by id if nothing else
+                    order.push('check_time DESC', 'id DESC'); // sort newest first if nothing else
+                    sql += ' ORDER BY ' + order.join(', ');
                     sql += ' LIMIT ' + start + ',' + length;
                     db.query(sql, values, function (err, rows) {
                         if (err) {
