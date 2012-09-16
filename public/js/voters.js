@@ -41,7 +41,37 @@ jQuery(function ($) {
         events: {
             'click #save': 'save',
             'click #checkmark-button': 'appendCheckmark',
+            'change #date_signed': 'checkDateSigned',
             'click #show-json': 'showJson'
+        },
+        checkDateSigned: function () {
+            // This is a mess. Need proper date functions.
+            var input = this.$('#date_signed'),
+                value = input.val(),
+                currentYear = (new Date).getFullYear(),
+                parts, i, dd, mm, yy;
+            if (!value) {
+                return;
+            }
+            if (parts = value.match(/\d+/g)) {
+                mm = +parts[0];
+                dd = +parts[1];
+                yy = +(parts[2] || currentYear);
+                if (yy < 100) {
+                    yy += 2000;
+                }
+                if (dd >= 1 && dd <= 31 && mm >= 1 && mm <= 12 && yy == currentYear) {
+                    if (dd < 10) {
+                        dd = '0' + dd;
+                    }
+                    if (mm < 10) {
+                        mm = '0' + mm;
+                    }
+                    input.val(mm + '/' + dd + '/' + yy);
+                    return;
+                }
+            }
+            input.focus();
         },
         appendCheckmark: function () {
             var markings = this.model.get('boe_markings');
