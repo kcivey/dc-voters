@@ -285,18 +285,26 @@ jQuery(function ($) {
                     {
                         mDataProp: 'page',
                         sTitle: 'Page',
+                        sClass: 'right',
+                        sWidth: 40,
+                        aDataSort: [0, 1],
                         bSearchable: false
                     },
                     {
                         mDataProp: 'line',
                         sTitle: 'Line',
-                        bSearchable: false
+                        sClass: 'right',
+                        sWidth: 40,
+                        bSearchable: false,
+                        bSortable: false
                     },
+                    /*
                     {
                         mDataProp: 'checker',
                         sTitle: 'Checker',
                         bSearchable: false
                     },
+                    */
                     {
                         mDataProp: 'check_time',
                         sTitle: 'Check Time',
@@ -308,17 +316,20 @@ jQuery(function ($) {
                     },
                     {
                         mDataProp: 'boe_markings',
-                        sTitle: 'BOE Markings',
+                        sTitle: 'BOE',
+                        sWidth: 50,
                         bSearchable: false
                     },
                     {
                         mDataProp: 'voter_id',
                         sTitle: 'Voter ID',
+                        sWidth: 50,
                         bSearchable: false
                     },
                     {
                         mDataProp: 'dcpt_code',
-                        sTitle: 'DCPT Code',
+                        sTitle: 'DCPT',
+                        sWidth: 40,
                         bSearchable: false
                     },
                     {
@@ -334,6 +345,7 @@ jQuery(function ($) {
                     {
                         mDataProp: 'ward',
                         sTitle: 'Ward',
+                        sWidth: 40,
                         bSearchable: true
                     },
                     {
@@ -342,18 +354,21 @@ jQuery(function ($) {
                                 oData.date_signed.replace(/^(\d{4})-(\d\d)-(\d\d).*/, '$2/$3') : '';
                         },
                         sTitle: 'Date',
+                        sWidth: 50,
                         bSearchable: true
                     },
                     {
                         mDataProp: 'notes',
                         sTitle: 'Notes',
-                        bSearchable: true
+                        bSearchable: true,
+                        bSortable: false
                     },
                     {
                         mDataProp: function () {
                             return '<button type="button" class="btn btn-mini edit-button">Edit</button>';
                         },
                         sTitle: '',
+                        sWidth: 30,
                         bSearchable: false,
                         bSortable: false
                     }
