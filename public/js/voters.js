@@ -10,7 +10,7 @@ jQuery(function ($) {
             NM: 'possible name variation/change (address matches)',
             NR: 'not registered',
             I: 'illegible',
-            M: 'missing date',
+            MD: 'missing date',
             B: 'blank'
         },
         status = {},
