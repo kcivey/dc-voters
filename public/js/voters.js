@@ -2,6 +2,7 @@ jQuery(function ($) {
 
     var voterRowTemplate = _.template($('#voter-row-template').html()),
         checkFormTemplate = _.template($('#check-form-template').html()),
+        alertTemplate = _.template($('#alert-template').html()),
         dcptCodes = {
             OK: 'OK (name and address match)',
             A: 'address change',
@@ -83,34 +84,32 @@ jQuery(function ($) {
             this.modelBinder.bind(this.model, this.el);
             return this;
         },
+        showAlert: function (successful) {
+            var alert = $(alertTemplate({successful: successful}))
+                .insertBefore(this.el);
+            if (successful) {
+                alert.on('closed', start);
+            }
+            return alert;
+        },
         save: function () {
             var jqXhr = this.model.save(),
-                alertTemplate = _.template($('#alert-template').html()),
-                timeoutHandle;
-            function showAlert(successful) {
-                return $(alertTemplate({successful: successful}))
-                    .insertBefore($('#line-form'))
-                    .on('closed', function () {
-                        if (timeoutHandle) {
-                            clearTimeout(timeoutHandle);
-                        }
-                        if (successful) {
-                            start();
-                        }
-                    });
-            }
+                that = this; // save to use in inner functions
             if (jqXhr) {
                 jqXhr
                     .done(function () {
-                        var alert = showAlert(true);
-                        timeoutHandle = setTimeout(function () {
-                            alert.alert('close');
-                        }, 2500);
+                        var alert = that.showAlert(true),
+                            timeoutHandle = setTimeout(function () {
+                                alert.alert('close');
+                            }, 2500);
+                        alert.on('closed', function () {
+                            clearTimeout(timeoutHandle);
+                        })
                     })
-                    .fail(function () { showAlert(false); });
+                    .fail(function () { that.showAlert(false); });
             }
             else {
-                showAlert(false);
+                this.showAlert(false);
             }
         },
         showJson: function () {
