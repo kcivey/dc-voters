@@ -11,7 +11,8 @@ jQuery(function ($) {
             NR: 'not registered',
             I: 'illegible',
             MD: 'missing date',
-            B: 'blank'
+            B: 'blank',
+            S: 'skip for now and deal with it later'
         },
         status = {},
         lineView;

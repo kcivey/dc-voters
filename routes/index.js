@@ -165,7 +165,7 @@ module.exports = function (app) {
                     complete: 0,
                     incomplete: 0
                 };
-                sql = "SELECT IF(dcpt_code = '', 'incomplete', 'complete') AS state, COUNT(*) AS `count` " +
+                sql = "SELECT IF(dcpt_code IN ('', 'S'), 'incomplete', 'complete') AS state, COUNT(*) AS `count` " +
                     'FROM petition_lines WHERE checker = ? GROUP BY state';
                 db.query(sql, [req.user], function (err, rows) {
                     if (err) {
