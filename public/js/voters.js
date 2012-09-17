@@ -7,6 +7,7 @@ jQuery(function ($) {
             OK: 'OK (name and address match)',
             A: 'address change',
             AM: 'address change (multiple possibilities)',
+            NM: 'possible name variation/change (address matches)',
             NR: 'not registered',
             I: 'illegible',
             B: 'blank'
