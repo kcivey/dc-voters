@@ -86,16 +86,26 @@ jQuery(function ($) {
         save: function () {
             var jqXhr = this.model.save(),
                 alertTemplate = _.template($('#alert-template').html()),
-                showAlert = function (successful) {
-                    $('#line-form').before(alertTemplate({successful: successful}));
-                };
-            if (jqXhr) {
-                jqXhr.done(function () {
-                        showAlert(true);
-                        setTimeout(function () {
-                            $('#line-form').prev().alert('close');
+                timeoutHandle;
+            function showAlert(successful) {
+                return $(alertTemplate({successful: successful}))
+                    .insertBefore($('#line-form'))
+                    .on('closed', function () {
+                        if (timeoutHandle) {
+                            clearTimeout(timeoutHandle);
+                        }
+                        if (successful) {
                             start();
-                        }, 3000);
+                        }
+                    });
+            }
+            if (jqXhr) {
+                jqXhr
+                    .done(function () {
+                        var alert = showAlert(true);
+                        timeoutHandle = setTimeout(function () {
+                            alert.alert('close');
+                        }, 2500);
                     })
                     .fail(function () { showAlert(false); });
             }
