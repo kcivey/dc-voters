@@ -132,7 +132,12 @@ module.exports = function (app) {
                         'SELECT * FROM petition_lines WHERE id = ?',
                         [id],
                         function (err, rows) {
-                            res.json(rows[0]);
+                            lineData = rows[0];
+                            if (lineData.date_signed) {
+                                lineData.date_signed = moment(lineData.date_signed)
+                                    .utc().format('MM/DD/YYYY');
+                            }
+                            res.json(lineData);
                         }
                     );
                 }

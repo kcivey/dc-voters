@@ -11,7 +11,8 @@ jQuery(function ($) {
             I: 'illegible',
             B: 'blank'
         },
-        status, lineView;
+        status = {},
+        lineView;
 
     var Line = Backbone.Model.extend({
         initialize: function () {
@@ -106,7 +107,8 @@ jQuery(function ($) {
                         alert.on('closed', function () {
                             clearTimeout(timeoutHandle);
                             start();
-                        })
+                        });
+                        status.defaultDateSigned = that.model.get('date_signed');
                     })
                     .fail(function () { that.showAlert(false); });
             }
@@ -160,6 +162,10 @@ jQuery(function ($) {
             url: '/voters/status',
             dataType: 'json',
             success: function (data) {
+                // If we're still on the same page, keep the date signed
+                if (status.lineRecord && status.lineRecord.page == data.lineRecord.page) {
+                    data.defaultDateSigned = status.defaultDateSigned;
+                }
                 status = data;
                 callback(null, status); // null for no error
             },
@@ -207,11 +213,17 @@ jQuery(function ($) {
 
     function editLine(lineData) {
         var lineForm = $('#line-form');
-        lineData = $.extend({}, status.lineRecord, {checker: status.user},
-            lineData);
+        lineData = $.extend(
+            status.lineRecord,
+            {checker: status.user},
+            lineData
+        );
         if (lineData.date_signed) {
             lineData.date_signed = lineData.date_signed
                 .replace(/^(\d{4})-(\d\d)-(\d\d).*/, '$2/$3/$1');
+        }
+        else {
+            lineData.date_signed = status.defaultDateSigned;
         }
         $('#voter-table, #explanation').hide();
         if (lineView) {
