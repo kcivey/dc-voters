@@ -443,7 +443,7 @@ jQuery(function ($) {
         }
         button.text('Please Wait').attr('disabled', 'disabled');
         $('#voter-table tbody, #explanation').empty();
-        $('#voter-table, #none-found, #explanation, #line-form').hide();
+        $('#voter-table, #explanation, #line-form').hide();
         // Use a timeout because JSONP calls don't always raise error
         // events when there's a problem.
         timeoutHandle = setTimeout(
@@ -468,8 +468,7 @@ jQuery(function ($) {
     function handleResults(data) {
         var tbody = $('#voter-table tbody'),
             results = data.results;
-        $('#voter-table').toggle(results.length ? true : false);
-        $('#none-found').toggle(results.length ? false : true);
+        $('#voter-table').show();
         $.each(results, function (i, v) {
             var tr;
             v.name = makeName(v, true); // reversed
@@ -477,6 +476,11 @@ jQuery(function ($) {
             tr = $(voterRowTemplate(v)).data('voterData', v);
             tbody.append(tr);
         });
+        if (!results.length) {
+            tbody.append(
+                '<tr><td colspan="7"><i>No matching voter records found.</i></td></tr>'
+            );
+        }
         $('#explanation').append(data.explanation).show();
     }
 
