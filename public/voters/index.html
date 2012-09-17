@@ -271,7 +271,7 @@
     <script type="text/template" id="alert-template">
       <div class="alert fade in<%- successful ? '' : ' alert-danger' %>">
         <button type="button" class="close" data-dismiss="alert">&times;</button>
-        <%= successful ? 'Record successfully saved' : 'Error saving record' %>
+        <%= text || (successful ? 'Record successfully saved' : 'Error saving record') %>
       </div>
     </script>
     <script type="text/template" id="line-table-template">

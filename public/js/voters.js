@@ -84,18 +84,19 @@ jQuery(function ($) {
             this.modelBinder.bind(this.model, this.el);
             return this;
         },
-        showAlert: function (successful) {
-            var alert = $(alertTemplate({successful: successful}))
-                .insertBefore(this.el);
-            if (successful) {
-                alert.on('closed', start);
+        showAlert: function (successful, text) {
+            var alert = $(alertTemplate({successful: successful, text: text || ''}));
+            // remove any earlier alerts
+            while (this.$el.prev().hasClass('alert')) {
+                this.$el.prev().remove();
             }
-            return alert;
+            return alert.insertBefore(this.$el);
         },
         save: function () {
-            var jqXhr = this.model.save(),
-                that = this; // save to use in inner functions
-            if (jqXhr) {
+            var error = this.check(),
+                that = this, // save to use in inner functions
+                jqXhr;
+            if (!error && (jqXhr = this.model.save())) {
                 jqXhr
                     .done(function () {
                         var alert = that.showAlert(true),
@@ -104,12 +105,19 @@ jQuery(function ($) {
                             }, 2500);
                         alert.on('closed', function () {
                             clearTimeout(timeoutHandle);
+                            start();
                         })
                     })
                     .fail(function () { that.showAlert(false); });
             }
             else {
-                this.showAlert(false);
+                this.showAlert(false, error);
+            }
+        },
+        check: function () {
+            var line = this.model;
+            if (!line.get('dcpt_code')) {
+                return 'Missing DCPT finding';
             }
         },
         showJson: function () {
