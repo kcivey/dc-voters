@@ -1,5 +1,6 @@
 module.exports = function (app) {
     var _ = require('underscore'),
+        moment = require('moment'),
         db = require('../db'),
         httpProxy = require('http-proxy'),
         dcGisProxy = new httpProxy.HttpProxy({target: {host: 'citizenatlas.dc.gov', port: 80}});
@@ -206,8 +207,15 @@ module.exports = function (app) {
                 var fieldNames = _.pluck(fields, 'name');
                 content = fieldNames.join("\t") + "\n";
                 _.forEach(rows, function (row) {
-                    content += _.map(fieldNames, function (name) { return row[name]; })
-                        .join("\t") + "\n";
+                    content += _.map(fieldNames, function (name) {
+                        if (name == 'check_time' && row.check_time) {
+                            return moment(row.check_time).format('YYYY-MM-DD HH:mm:ss');
+                        }
+                        if (name == 'date_signed' && row.date_signed) {
+                            return moment(row.date_signed).format('YYYY-MM-DD');
+                        }
+                        return row[name];
+                    }).join("\t") + "\n";
                 });
                 res.attachment('completed.tsv');
                 res.set('Content-Type', 'text/tab-separated-values; charset=utf-8');
