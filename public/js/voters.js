@@ -243,6 +243,7 @@ jQuery(function ($) {
         .on('click', '#check-button', function () {
             $('#check-form, #check-results, #line-form').hide();
             $('#search-form').show();
+            $('#name').focus();
         })
         .on('click', '#blank-button, #rest-blank-button', function () {
             var rest = this.id.match(/^rest/),
