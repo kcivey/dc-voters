@@ -169,6 +169,10 @@ jQuery(function ($) {
                 if (status.lineRecord && status.lineRecord.page == data.lineRecord.page) {
                     data.defaultDateSigned = status.defaultDateSigned;
                 }
+                // Reload page if version has changed
+                if (status.version && status.version != data.version) {
+                    window.location.reload();
+                }
                 status = data;
                 callback(null, status); // null for no error
             },

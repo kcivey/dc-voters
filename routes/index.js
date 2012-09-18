@@ -2,6 +2,7 @@ module.exports = function (app) {
     var _ = require('underscore'),
         moment = require('moment'),
         db = require('../db'),
+        package = require('../package.json'),
         httpProxy = require('http-proxy'),
         dcGisProxy = new httpProxy.HttpProxy({target: {host: 'citizenatlas.dc.gov', port: 80}});
     return {
@@ -163,7 +164,8 @@ module.exports = function (app) {
                     user: req.user,
                     lineRecord: rows[0] || null,
                     complete: 0,
-                    incomplete: 0
+                    incomplete: 0,
+                    version: package.version
                 };
                 sql = "SELECT IF(dcpt_code IN ('', 'S'), 'incomplete', 'complete') AS state, COUNT(*) AS `count` " +
                     'FROM petition_lines WHERE checker = ? GROUP BY state';
