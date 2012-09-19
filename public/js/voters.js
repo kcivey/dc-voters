@@ -295,6 +295,7 @@ jQuery(function ($) {
             dataType: 'json',
             username: '---',
             password: '',
+            cache: false,
             complete: function () {
                 location.href = '/';
             }
