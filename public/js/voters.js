@@ -164,6 +164,7 @@ jQuery(function ($) {
         $.ajax({
             url: '/voters/status',
             dataType: 'json',
+            cache: false,
             success: function (data) {
                 // If we're still on the same page, keep the date signed
                 if (status.lineRecord && status.lineRecord.page == data.lineRecord.page) {
