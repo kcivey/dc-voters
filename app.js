@@ -13,12 +13,17 @@ var auth = express.basicAuth(verifyUser.auth, 'DC Public Trust');
 
 var app = express();
 
+express.logger.token('user', function (req, res) {
+    return req.user || '-';
+});
+var logFormat = ':remote-addr :user - [:date] ":method :url HTTP/:http-version" :status :res[content-length] ":referrer" ":user-agent"';
+
 app.configure(function(){
   app.set('port', process.env.PORT || 3000);
   app.set('views', __dirname + '/views');
   app.set('view engine', 'jade');
   app.use(express.favicon());
-  app.use(express.logger('dev'));
+  app.use(express.logger(logFormat));
   app.use(express.methodOverride());
   app.use(app.router);
   app.use(express.static(path.join(__dirname, 'public')));
