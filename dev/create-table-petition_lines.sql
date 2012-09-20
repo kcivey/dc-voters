@@ -12,9 +12,13 @@ CREATE TABLE petition_lines (
   `ward` VARCHAR(1) DEFAULT '' NOT NULL,
   `date_signed` DATE DEFAULT NULL,
   `notes` TEXT DEFAULT '' NOT NULL,
+  `boe_validated` TINYINT UNSIGNED DEFAULT 0 NOT NULL,
   PRIMARY KEY (`id`),
   KEY `page_line` (`page`, `line`),
   KEY (`checker`),
   KEY (`check_time`),
+  KEY (`voter_id`),
+  KEY (`date_signed`),
+  KEY (`dcpt_code`),
   KEY (`ward`)
 );
