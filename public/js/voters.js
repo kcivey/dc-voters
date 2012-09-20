@@ -354,8 +354,8 @@ jQuery(function ($) {
                         sTitle: 'Line',
                         sClass: 'right',
                         sWidth: 40,
-                        bSearchable: false,
-                        bSortable: false
+                        aDataSort: [0, 1],
+                        bSearchable: false
                     },
                     /*
                     {
