@@ -53,6 +53,10 @@
       td.right {
         text-align: right;
       }
+      td.number {
+        text-align: right;
+        width: 30px;
+      }
     </style>
 
     <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
@@ -136,6 +140,21 @@
           </table>
           <pre id="explanation" style="display: none;"></pre>
           <form action="/" id="line-form" class="form-horizontal" style="display: none;"></form>
+          <table id="skipped-table" class="table table-condensed" style="display: none;">
+            <thead>
+              <tr>
+                <td colspan="3">
+                  We're skipping these lines because the Board of Elections has already ruled them valid.
+                </td>
+              </tr>
+              <tr>
+                <th>Page</th>
+                <th>Line</th>
+                <th>Signed By</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
         </div>
       </div>
       <div id="bottom-row" class="row-fluid" style="display: none;">
@@ -199,6 +218,13 @@
         <td><%- status %></td>
         <td><%- voter_id %></td>
         <td><button class="btn btn-mini match" data-voter-id="<?- voter_id %>">Match</button></td>
+      </tr>
+    </script>
+    <script type="text/template" id="skipped-row-template">
+      <tr>
+        <td class="number"><%- page %></td>
+        <td class="number"><%- line %></td>
+        <td><%- signed_by %></td>
       </tr>
     </script>
     <script type="text/template" id="line-form-template">

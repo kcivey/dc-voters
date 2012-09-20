@@ -1,6 +1,7 @@
 module.exports = function (app) {
     var _ = require('underscore'),
         moment = require('moment'),
+        async = require('async'),
         db = require('../db'),
         pkg = require('../package.json'),
         httpProxy = require('http-proxy'),
@@ -146,33 +147,79 @@ module.exports = function (app) {
         },
 
         status: function (req, res) {
-            var sql = "SELECT * FROM petition_lines WHERE dcpt_code = ''" +
-                ' AND checker = ? ORDER BY page, line LIMIT 1',
-                values = [req.user];
-            db.query(sql, values, function (err, rows) {
-                var data;
-                if (err) {
-                    throw err;
-                }
-                data = {
+            var responseData = {
                     user: req.user,
-                    lineRecord: rows[0] || null,
                     complete: 0,
                     incomplete: 0,
                     version: pkg.version
-                };
-                sql = "SELECT IF(dcpt_code IN ('', 'S'), 'incomplete', 'complete') AS state, COUNT(*) AS `count` " +
-                    'FROM petition_lines WHERE checker = ? GROUP BY state';
-                db.query(sql, [req.user], function (err, rows) {
+                },
+                currentPage, currentLine;
+
+            async.series([
+                function getCurrentLine(callback) {
+                    var sql = "SELECT page, line FROM petition_lines WHERE checker = ? AND dcpt_code <> ''" +
+                        " ORDER BY page DESC, line DESC LIMIT 1";
+                    db.query(sql, [req.user], function (err, rows) {
+                        if (err) {
+                            return callback(err);
+                        }
+                        if (rows.length) {
+                            currentPage = rows[0].page;
+                            currentLine = rows[0].line;
+                        }
+                        return callback(null);
+                    });
+                },
+                function getNextLine(callback) {
+                    var sql = "SELECT * FROM petition_lines WHERE dcpt_code = '' AND checker = ?" +
+                        " AND NOT boe_validated ORDER BY page, line LIMIT 1";
+                    db.query(sql, [req.user], function (err, rows) {
+                        if (err) {
+                            return callback(err);
+                        }
+                        responseData.lineRecord = rows[0] || null;
+                        return callback(null);
+                    });
+                },
+                function getSkippedLines(callback) {
+                    if (!currentPage || !currentLine || !responseData.lineRecord) {
+                        responseData.skippedLines = [];
+                        return callback(null);
+                    }
+                    var sql = "SELECT p.page, p.line, b.signed_by FROM petition_lines p" +
+                            " INNER JOIN boe_valid_signers b USING (page, line)" +
+                            " WHERE p.checker = ? AND p.page BETWEEN ? AND ?" +
+                            " AND p.page * 20 + p.line BETWEEN ? * 20 + ? + 1 AND ? * 20 + ? - 1",
+                        rec = responseData.lineRecord,
+                        values = [req.user, currentPage, rec.page, currentPage, currentLine, rec.page, rec.line];
+                    db.query(sql, values, function (err, rows) {
+                        if (err) {
+                            return callback(err);
+                        }
+                        responseData.skippedLines = rows;
+                        return callback(null);
+                    });
+                },
+                function getProgress(callback) {
+                    var sql = "SELECT IF(dcpt_code IN ('', 'S'), 'incomplete', 'complete') AS state, COUNT(*) AS `count` " +
+                        'FROM petition_lines WHERE checker = ? GROUP BY state';
+                    db.query(sql, [req.user], function (err, rows) {
+                        if (err) {
+                            return callback(err);
+                        }
+                        rows.forEach(function (row) {
+                            responseData[row.state] = +row.count;
+                        });
+                        res.json(responseData);
+                        return callback(null);
+                    });
+                }],
+                function (err, results) {
                     if (err) {
                         throw err;
                     }
-                    rows.forEach(function (row) {
-                        data[row.state] = +row.count;
-                    });
-                    res.json(data);
-                });
-            });
+                }
+            );
         },
 
         markBlank: function (req, res) {
