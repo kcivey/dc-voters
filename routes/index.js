@@ -146,15 +146,9 @@ module.exports = function (app) {
         },
 
         status: function (req, res) {
-            var sql = "SELECT * FROM petition_lines WHERE dcpt_code = ''",
-                values = [],
-                page, line;
-            if (page && line) {
-                sql += ' AND (page > ? OR page = ? AND line > ?)';
-                values.push(page, page, line);
-            }
-            sql += ' AND checker = ? ORDER BY page, line LIMIT 1';
-            values.push(req.user);
+            var sql = "SELECT * FROM petition_lines WHERE dcpt_code = ''" +
+                ' AND checker = ? ORDER BY page, line LIMIT 1',
+                values = [req.user];
             db.query(sql, values, function (err, rows) {
                 var data;
                 if (err) {
