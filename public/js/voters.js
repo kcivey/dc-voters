@@ -103,16 +103,18 @@ jQuery(function ($) {
                 jqXhr;
             if (!error && (jqXhr = this.model.save())) {
                 jqXhr
-                    .done(function () {
-                        var alert = that.showAlert(true),
+                    .done(function (data) {
+                        var message = 'Record saved for page ' + data.page +
+                                ', line ' + data.line,
+                            alert = that.showAlert(true, message),
                             timeoutHandle = setTimeout(function () {
                                 alert.alert('close');
-                            }, 2500);
+                            }, 4000);
                         alert.on('closed', function () {
                             clearTimeout(timeoutHandle);
-                            start();
                         });
                         status.defaultDateSigned = that.model.get('date_signed');
+                        start();
                     })
                     .fail(function () { that.showAlert(false); });
             }
@@ -215,6 +217,7 @@ jQuery(function ($) {
                 complete: status.complete
             })
         ).show();
+        $('#result-div .alert').insertAfter($('#check-form'));
         $('#search-form, #result-div > *').hide();
         showSkippedLines(status.skippedLines);
     }
