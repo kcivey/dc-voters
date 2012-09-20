@@ -157,7 +157,7 @@ module.exports = function (app) {
 
             async.series([
                 function getCurrentLine(callback) {
-                    var sql = "SELECT page, line FROM petition_lines WHERE checker = ? AND dcpt_code <> ''" +
+                    var sql = "SELECT page, line FROM petition_lines WHERE checker = ? AND dcpt_code NOT IN ('', 'V')" +
                         " ORDER BY page DESC, line DESC LIMIT 1";
                     db.query(sql, [req.user], function (err, rows) {
                         if (err) {
@@ -186,7 +186,7 @@ module.exports = function (app) {
                         responseData.skippedLines = [];
                         return callback(null);
                     }
-                    var sql = "SELECT p.page, p.line, b.signed_by FROM petition_lines p" +
+                    var sql = "SELECT p.id, p.page, p.line, b.signed_by FROM petition_lines p" +
                             " INNER JOIN boe_valid_signers b USING (page, line)" +
                             " WHERE p.checker = ? AND p.page BETWEEN ? AND ?" +
                             " AND p.page * 20 + p.line BETWEEN ? * 20 + ? + 1 AND ? * 20 + ? - 1",
@@ -197,6 +197,20 @@ module.exports = function (app) {
                             return callback(err);
                         }
                         responseData.skippedLines = rows;
+                        return callback(null);
+                    });
+                },
+                function markSkippedLines(callback) {
+                    if (!responseData.skippedLines.length) {
+                        return callback(null);
+                    }
+                    var sql = "UPDATE petition_lines SET dcpt_code = 'V' WHERE id IN (?)",
+                        values = [_.pluck(responseData.skippedLines, 'id')];
+                    console.log(sql, values);
+                    db.query(sql, values, function (err, result) {
+                        if (err) {
+                            return callback(err);
+                        }
                         return callback(null);
                     });
                 },
