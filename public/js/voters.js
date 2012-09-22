@@ -195,14 +195,23 @@ jQuery(function ($) {
         });
     }
 
+    function commify(n) {
+        return n.toString().replace(/(\d)(?=\d{3}$)/, '$1,');
+    }
+
     function setStatus(status) {
         var statusDiv = $('#status'),
             rec = status.lineRecord || {},
-            total = status.incomplete + status.complete;
-        $('.username', statusDiv).text(status.user || '(anonymous)');
-        $('.complete', statusDiv).text(status.complete);
-        $('.total', statusDiv).text(total);
+            total = status.incomplete + status.complete,
+            overall = status.overall,
+            overallTotal = overall.incomplete + overall.complete;
+        $('#username', statusDiv).text(status.user || '(anonymous)');
+        $('.complete', statusDiv).text(commify(status.complete));
+        $('.total', statusDiv).text(commify(total));
         $('#complete-bar').width(total ? (100 * status.complete / total) + '%' : 0);
+        $('.overall-complete', statusDiv).text(commify(overall.complete));
+        $('.overall-total', statusDiv).text(commify(overallTotal));
+        $('#overall-complete-bar').width(overallTotal ? (100 * overall.complete / overallTotal) + '%' : 0);
         if (rec.line) {
             $('#page-line').html('Petition Page ' + rec.page + ', Line ' + rec.line)
                 .show();

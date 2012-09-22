@@ -151,6 +151,10 @@ module.exports = function (app) {
                     user: req.user,
                     complete: 0,
                     incomplete: 0,
+                    overall: {
+                        complete: 0,
+                        incomplete: 0
+                    },
                     version: pkg.version
                 },
                 currentPage, currentLine;
@@ -214,7 +218,7 @@ module.exports = function (app) {
                         return callback(null);
                     });
                 },
-                function getProgress(callback) {
+                function getUserProgress(callback) {
                     var sql = "SELECT IF(dcpt_code IN ('', 'S'), 'incomplete', 'complete') AS state, COUNT(*) AS `count` " +
                         'FROM petition_lines WHERE checker = ? GROUP BY state';
                     db.query(sql, [req.user], function (err, rows) {
@@ -223,6 +227,19 @@ module.exports = function (app) {
                         }
                         rows.forEach(function (row) {
                             responseData[row.state] = +row.count;
+                        });
+                        return callback(null);
+                    });
+                },
+                function getOverallProgress(callback) {
+                    var sql = "SELECT IF(dcpt_code IN ('', 'S'), 'incomplete', 'complete') AS state, COUNT(*) AS `count` " +
+                        'FROM petition_lines GROUP BY state';
+                    db.query(sql, function (err, rows) {
+                        if (err) {
+                            return callback(err);
+                        }
+                        rows.forEach(function (row) {
+                            responseData.overall[row.state] = +row.count;
                         });
                         res.json(responseData);
                         return callback(null);
