@@ -186,16 +186,13 @@ module.exports = function (app) {
                     });
                 },
                 function getSkippedLines(callback) {
-                    if (!currentPage || !currentLine || !responseData.lineRecord) {
-                        responseData.skippedLines = [];
-                        return callback(null);
-                    }
                     var sql = "SELECT p.id, p.page, p.line, b.signed_by FROM petition_lines p" +
                             " INNER JOIN boe_valid_signers b USING (page, line)" +
                             " WHERE p.checker = ? AND p.page BETWEEN ? AND ?" +
                             " AND p.page * 20 + p.line BETWEEN ? * 20 + ? + 1 AND ? * 20 + ? - 1",
-                        rec = responseData.lineRecord,
-                        values = [req.user, currentPage, rec.page, currentPage, currentLine, rec.page, rec.line];
+                        rec = responseData.lineRecord || {},
+                        values = [req.user, currentPage || 0, rec.page || 1e6, currentPage || 0, currentLine || 0,
+                            rec.page || 1e6, rec.line || 20];
                     db.query(sql, values, function (err, rows) {
                         if (err) {
                             return callback(err);
