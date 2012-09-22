@@ -334,6 +334,7 @@ jQuery(function ($) {
     $('#review-links').on('click', 'a', function (evt) {
         evt.preventDefault();
         var linkText = $(this).text(),
+            value = $(this).data('value'),
             dataTable, url;
         if (/^Back/.test(linkText)) {
             $('#top-row').show();
@@ -344,8 +345,8 @@ jQuery(function ($) {
         $('#top-row').hide();
         $('#bottom-row').show().html($('#line-table-template').html());
         url = '/voters/dt-line/' + status.user;
-        if (/skipped/i.test(linkText)) {
-            url += '?filterColumn=dcpt_code&filterValue=S';
+        if (value) {
+            url += '?filterColumn=dcpt_code&filterValue=' + value;
         }
         dataTable = $('#line-table').dataTable({
             sAjaxSource: url,
