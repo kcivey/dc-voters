@@ -322,133 +322,142 @@ jQuery(function ($) {
         });
     });
 
-    $('#see-work').on('click', function (evt) {
+    $('#review-links').on('click', 'a', function (evt) {
         evt.preventDefault();
-        var link = $(this),
-            seeWork = link.text() == 'See Work',
-            dataTable;
-        $('#top-row').toggle(!seeWork);
-        if (seeWork) {
-            link.text('Back');
-            $('#bottom-row').show().html($('#line-table-template').html());
-            dataTable = $('#line-table').dataTable({
-                sAjaxSource: '/voters/dt-line/' + status.user,
-                bProcessing: true,
-                bServerSide: true,
-                bDestroy: true,
-                iDisplayLength: 25,
-                sDom: '<"row-fluid"<"span6"><"span6"f>r>t<"row-fluid"<"span6"i><"span6">p>',
-                bSortClasses: false,
-                aaSorting: [], // no sorting by default
-                bDeferRender: true,
-                aoColumns: [
-                    {
-                        mDataProp: 'page',
-                        sTitle: 'Page',
-                        sClass: 'right',
-                        sWidth: 40,
-                        aDataSort: [0, 1],
-                        bSearchable: false
-                    },
-                    {
-                        mDataProp: 'line',
-                        sTitle: 'Line',
-                        sClass: 'right',
-                        sWidth: 40,
-                        aDataSort: [0, 1],
-                        bSearchable: false
-                    },
-                    /*
-                    {
-                        mDataProp: 'checker',
-                        sTitle: 'Checker',
-                        bSearchable: false
-                    },
-                    */
-                    {
-                        mDataProp: 'check_time',
-                        sTitle: 'Check Time',
-                        bSearchable: false,
-                        fnCreatedCell: function (nTd, sData) {
-                            $(nTd).wrapInner('<time datetime="' + sData + '"></time>')
-                                .find('time').timeago();
-                        }
-                    },
-                    {
-                        mDataProp: 'boe_markings',
-                        sTitle: 'BOE',
-                        sWidth: 50,
-                        bSearchable: false
-                    },
-                    {
-                        mDataProp: 'voter_id',
-                        sTitle: 'Voter ID',
-                        sWidth: 50,
-                        bSearchable: false
-                    },
-                    {
-                        mDataProp: 'dcpt_code',
-                        sTitle: 'DCPT',
-                        sWidth: 40,
-                        bSearchable: false
-                    },
-                    {
-                        mDataProp: 'voter_name',
-                        sTitle: 'Name',
-                        bSearchable: true
-                    },
-                    {
-                        mDataProp: 'address',
-                        sTitle: 'Address',
-                        bSearchable: true
-                    },
-                    {
-                        mDataProp: 'ward',
-                        sTitle: 'Ward',
-                        sWidth: 40,
-                        bSearchable: true
-                    },
-                    {
-                        mDataProp: function (oData) {
-                            return oData.date_signed ?
-                                oData.date_signed.replace(/^(\d{4})-(\d\d)-(\d\d).*/, '$2/$3') : '';
-                        },
-                        sTitle: 'Date',
-                        sWidth: 50,
-                        bSearchable: true
-                    },
-                    {
-                        mDataProp: 'notes',
-                        sTitle: 'Notes',
-                        bSearchable: true,
-                        bSortable: false
-                    },
-                    {
-                        mDataProp: function () {
-                            return '<button type="button" class="btn btn-mini edit-button">Edit</button>';
-                        },
-                        sTitle: '',
-                        sWidth: 30,
-                        bSearchable: false,
-                        bSortable: false
-                    }
-                ]
-            });
-            $('#line-table').on('click', '.edit-button', function () {
-                var row = $(this).closest('tr'),
-                    dataTable = row.closest('table').dataTable({bRetrieve: true}),
-                    lineData = dataTable.fnGetData(row[0]);
-                $('#see-work').click();
-                status.lineRecord = lineData;
-                setStatus(status);
-                editLine(lineData);
-            });
-
-        }
-        else {
+        var linkText = $(this).text(),
+            dataTable, url;
+        if (/^Back/.test(linkText)) {
+            $('#top-row').show();
             $('#bottom-row').hide().empty();
-            link.text('See Work');
+            start();
+            return;
         }
+        $('#top-row').hide();
+        $('#bottom-row').show().html($('#line-table-template').html());
+        url = '/voters/dt-line/' + status.user;
+        if (/skipped/i.test(linkText)) {
+            url += '?filterColumn=dcpt_code&filterValue=S';
+        }
+        dataTable = $('#line-table').dataTable({
+            sAjaxSource: url,
+            bProcessing: true,
+            bServerSide: true,
+            bDestroy: true,
+            iDisplayLength: 25,
+            sDom: '<"row-fluid"<"span6 go-back"><"span6"f>r>t<"row-fluid"<"span6"i><"span6">p>',
+            bSortClasses: false,
+            aaSorting: [], // no sorting by default
+            bDeferRender: true,
+            fnInitComplete: function () {
+                var button = $('<button type="button"/>')
+                    .text('Back to Checking')
+                    .addClass('btn')
+                    .click(function () {
+                        $('#go-back').click(); // kluge
+                    });
+                $('.go-back').html(button);
+            },
+            aoColumns: [
+                {
+                    mDataProp: 'page',
+                    sTitle: 'Page',
+                    sClass: 'right',
+                    sWidth: 40,
+                    aDataSort: [0, 1],
+                    bSearchable: false
+                },
+                {
+                    mDataProp: 'line',
+                    sTitle: 'Line',
+                    sClass: 'right',
+                    sWidth: 40,
+                    aDataSort: [0, 1],
+                    bSearchable: false
+                },
+                /*
+                {
+                    mDataProp: 'checker',
+                    sTitle: 'Checker',
+                    bSearchable: false
+                },
+                */
+                {
+                    mDataProp: 'check_time',
+                    sTitle: 'Check Time',
+                    bSearchable: false,
+                    fnCreatedCell: function (nTd, sData) {
+                        $(nTd).wrapInner('<time datetime="' + sData + '"></time>')
+                            .find('time').timeago();
+                    }
+                },
+                {
+                    mDataProp: 'boe_markings',
+                    sTitle: 'BOE',
+                    sWidth: 50,
+                    bSearchable: false
+                },
+                {
+                    mDataProp: 'voter_id',
+                    sTitle: 'Voter ID',
+                    sWidth: 50,
+                    bSearchable: false
+                },
+                {
+                    mDataProp: 'dcpt_code',
+                    sTitle: 'DCPT',
+                    sWidth: 40,
+                    bSearchable: false
+                },
+                {
+                    mDataProp: 'voter_name',
+                    sTitle: 'Name',
+                    bSearchable: true
+                },
+                {
+                    mDataProp: 'address',
+                    sTitle: 'Address',
+                    bSearchable: true
+                },
+                {
+                    mDataProp: 'ward',
+                    sTitle: 'Ward',
+                    sWidth: 40,
+                    bSearchable: true
+                },
+                {
+                    mDataProp: function (oData) {
+                        return oData.date_signed ?
+                            oData.date_signed.replace(/^(\d{4})-(\d\d)-(\d\d).*/, '$2/$3') : '';
+                    },
+                    sTitle: 'Date',
+                    sWidth: 50,
+                    bSearchable: true
+                },
+                {
+                    mDataProp: 'notes',
+                    sTitle: 'Notes',
+                    bSearchable: true,
+                    bSortable: false
+                },
+                {
+                    mDataProp: function () {
+                        return '<button type="button" class="btn btn-mini edit-button">Edit</button>';
+                    },
+                    sTitle: '',
+                    sWidth: 30,
+                    bSearchable: false,
+                    bSortable: false
+                }
+            ]
+        });
+        $('#line-table').on('click', '.edit-button', function () {
+            var row = $(this).closest('tr'),
+                lineData = dataTable.fnGetData(row[0]);
+            $('#see-work').click();
+            status.lineRecord = lineData;
+            setStatus(status);
+            editLine(lineData);
+        });
     });
 
     $('#search-form').submit(function (evt) {

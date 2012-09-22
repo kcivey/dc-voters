@@ -292,6 +292,8 @@ module.exports = function (app) {
                 search = req.param('sSearch'),
                 sortingCols = +req.param('iSortingCols') || 0,
                 checker = req.param('checker'),
+                filterColumn = req.param('filterColumn') || '',
+                filterValue = req.param('filterValue'),
                 table = 'petition_lines',
                 sql = 'SELECT COUNT(*) AS `count` FROM ' + table,
                 where = " WHERE dcpt_code <> ''",
@@ -306,6 +308,10 @@ module.exports = function (app) {
                 if (checker) {
                     where += ' AND checker = ?';
                     values.push(checker);
+                }
+                if (/^\w+$/.test(filterColumn)) {
+                    where += ' AND `' + filterColumn + '` = ?';
+                    values.push(filterValue);
                 }
                 sql += where;
                 db.query(sql, values, function (err, rows) {
