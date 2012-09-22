@@ -462,8 +462,9 @@ jQuery(function ($) {
         $('#line-table').on('click', '.edit-button', function () {
             var row = $(this).closest('tr'),
                 lineData = dataTable.fnGetData(row[0]);
-            $('#go-back').click();
             status.lineRecord = lineData;
+            $('#top-row').show();
+            $('#bottom-row').hide().empty();
             setStatus(status);
             editLine(lineData);
         });
