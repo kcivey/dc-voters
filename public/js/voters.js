@@ -281,6 +281,7 @@ jQuery(function ($) {
     $('#check-form')
         .on('click', '#check-button', function () {
             $('#check-form, #check-results, #line-form').hide();
+            $('#check-form').next('.alert').remove(); // remove leftover alert if there
             $('#search-form').show();
             $('#reset-button').click(); // clear search form
             $('#name').focus();
