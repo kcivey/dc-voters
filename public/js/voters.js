@@ -219,16 +219,24 @@ jQuery(function ($) {
         else {
             $('#page-line').hide();
         }
-        $('#check-form').html(
-            checkFormTemplate({
-                page: rec.page,
-                line: rec.line,
-                complete: status.complete
-            })
-        ).show();
-        $('#result-div .alert').insertAfter($('#check-form'));
-        $('#search-form, #result-div > *').hide();
-        showSkippedLines(status.skippedLines);
+        if (rec.dcpt_code) {
+            console.log(rec.dcpt_code);
+            $('#check-form').hide();
+            $('#search-form').show();
+            editLine(rec);
+        }
+        else {
+            $('#check-form').html(
+                checkFormTemplate({
+                    page: rec.page,
+                    line: rec.line,
+                    complete: status.complete
+                })
+            ).show();
+            $('#result-div .alert').insertAfter($('#check-form'));
+            $('#search-form, #result-div > *').hide();
+            showSkippedLines(status.skippedLines);
+        }
     }
 
     function showSkippedLines(lines) {
@@ -260,7 +268,6 @@ jQuery(function ($) {
         else {
             lineData.date_signed = status.defaultDateSigned;
         }
-        $('#voter-table, #explanation').hide();
         if (lineView) {
             lineView.model = new Line(lineData);
             lineView.render();

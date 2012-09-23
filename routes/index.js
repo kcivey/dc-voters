@@ -119,6 +119,7 @@ module.exports = function (app) {
                 lineData = req.body;
             delete lineData.id;
             lineData.check_time = new Date();
+            lineData.todo = 0;
             if (lineData.date_signed) {
                 lineData.date_signed = lineData.date_signed
                     .replace(/^(\d+)\/(\d+)\/(\d+)$/, '$3-$1-$2');
@@ -175,8 +176,8 @@ module.exports = function (app) {
                     });
                 },
                 function getNextLine(callback) {
-                    var sql = "SELECT * FROM petition_lines WHERE dcpt_code = '' AND checker = ?" +
-                        " AND NOT boe_validated ORDER BY page, line LIMIT 1";
+                    var sql = "SELECT * FROM petition_lines WHERE checker = ? AND todo" +
+                        " ORDER BY page, line LIMIT 1";
                     db.query(sql, [req.user], function (err, rows) {
                         if (err) {
                             return callback(err);
@@ -253,10 +254,10 @@ module.exports = function (app) {
         markBlank: function (req, res) {
             var page = +req.param('page'),
                 line = req.param('line'),
-                sql = "UPDATE petition_lines SET ? WHERE checker IN (?) AND page = ? AND line ",
+                sql = "UPDATE petition_lines SET ? WHERE checker = ? AND page = ? AND line ",
                 values = [
-                    {dcpt_code: 'B', checker: req.user, check_time: new Date()},
-                    ['', req.user],
+                    {dcpt_code: 'B', checker: req.user, check_time: new Date(), todo: 0},
+                    req.user,
                     page
                 ],
                 m = line.match(/^(\d+)-(\d+)$/);
