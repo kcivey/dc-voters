@@ -74,7 +74,7 @@
               <div class="progress">
                 <div id="complete-bar" class="bar" style="width: 0;"></div>
               </div>
-              <span class="complete">0</span> of <span class="total">0</span> lines
+              <span class="complete">0</span> of <span class="total">0</span>
             </li>
             <li class="divider-vertical"></li>
             <li>
@@ -82,10 +82,23 @@
               <div class="progress progress-success">
                 <div id="overall-complete-bar" class="bar" style="width: 0;"></div>
               </div>
-              <span class="overall-complete">0</span> of <span class="overall-total">0</span> lines
+              <span class="overall-complete">0</span> of <span class="overall-total">0</span>
             </li>
           </ul>
           <ul class="nav pull-right">
+            <li class="dropdown">
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                Downloads
+                <b class="caret"></b>
+              </a>
+              <ul class="dropdown-menu">
+                <li><a href="/voters/completed.tsv">All completed lines</a></li>
+                <li><a href="/voters/boe-valid-signers.tsv">BOE valid signers</a></li>
+                <li><a href="/voters/not-validated.tsv?dcpt_code=OK">OK lines not accepted by BOE</a></li>
+                <li><a href="/voters/not-validated.tsv?dcpt_code=A,AM">Address mismatches not accepted by BOE</a></li>
+                <li><a href="/voters/not-validated.tsv?dcpt_code=NM">Name mismatches not accepted by BOE</a></li>
+              </ul>
+            </li>
             <li class="dropdown">
               <a href="#" class="dropdown-toggle" data-toggle="dropdown">
                 Review Your Work

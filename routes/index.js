@@ -6,6 +6,38 @@ module.exports = function (app) {
         pkg = require('../package.json'),
         httpProxy = require('http-proxy'),
         dcGisProxy = new httpProxy.HttpProxy({target: {host: 'citizenatlas.dc.gov', port: 80}});
+
+    function sendTsv(req, res, sql, values) {
+        var filename, m;
+        if (m = req.path.match(/([^\/]+)$/)) {
+            filename = m[1];
+        }
+        else {
+            filename = 'data.tsv';
+        }
+        db.query(sql, values, function (err, rows, fields) {
+            var fieldNames = _.pluck(fields, 'name'),
+                content = fieldNames.join('\t') + '\n';
+            _.forEach(rows, function (row) {
+                content += _.map(fieldNames, function (name) {
+                    if (name == 'check_time' && row.check_time) {
+                        return moment(row.check_time).format('YYYY-MM-DD HH:mm:ss');
+                    }
+                    if (name == 'date_signed' && row.date_signed) {
+                        return moment(row.date_signed).format('YYYY-MM-DD');
+                    }
+                    if (_.isString(row[name])) {
+                        return row[name].replace(/[\n\r\t]/g, ' ');
+                    }
+                    return row[name];
+                }).join('\t') + '\n';
+            });
+            res.attachment(filename);
+            res.set('Content-Type', 'text/tab-separated-values; charset=utf-8');
+            res.send(content);
+        });
+    }
+
     return {
         search: function (req, res) {
             var q = req.query.q,
@@ -278,26 +310,26 @@ module.exports = function (app) {
         },
 
         completedTsv: function (req, res) {
-            var sql = "SELECT * FROM petition_lines WHERE dcpt_code <> '' ORDER BY page, line",
-                content;
-            db.query(sql, function (err, rows, fields) {
-                var fieldNames = _.pluck(fields, 'name');
-                content = fieldNames.join("\t") + "\n";
-                _.forEach(rows, function (row) {
-                    content += _.map(fieldNames, function (name) {
-                        if (name == 'check_time' && row.check_time) {
-                            return moment(row.check_time).format('YYYY-MM-DD HH:mm:ss');
-                        }
-                        if (name == 'date_signed' && row.date_signed) {
-                            return moment(row.date_signed).format('YYYY-MM-DD');
-                        }
-                        return row[name];
-                    }).join("\t") + "\n";
-                });
-                res.attachment('completed.tsv');
-                res.set('Content-Type', 'text/tab-separated-values; charset=utf-8');
-                res.send(content);
-            });
+            var sql = "SELECT * FROM petition_lines WHERE dcpt_code <> '' ORDER BY page, line";
+            sendTsv(req, res, sql, []);
+        },
+
+        notValidatedTsv: function (req, res) {
+            var sql = "SELECT * FROM petition_lines WHERE boe_validated = ''",
+                values = [],
+                dcptCode = req.param('dcpt_code');
+            if (dcptCode) {
+                dcptCode = dcptCode.split(/\s*,\s*/);
+                sql += " AND dcpt_code IN (?)";
+                values.push(dcptCode);
+            }
+            sql += " ORDER BY page, line";
+            sendTsv(req, res, sql, values);
+        },
+
+        boeValidSignersTsv: function (req, res) {
+            var sql = "SELECT * FROM boe_valid_signers ORDER BY page, line";
+            sendTsv(req, res, sql, []);
         },
 
         dtLine: function (req, res) {
