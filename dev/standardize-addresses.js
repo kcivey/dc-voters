@@ -37,7 +37,7 @@ db.query(sql, function (err, rows) {
     rows.forEach(function (row) {
         queue.push(row, function (err) {
             if (err) {
-                throw err;
+                console.log('Error for ' + row.id + ': ', err);
             }
         });
     });
