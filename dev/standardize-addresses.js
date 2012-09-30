@@ -61,18 +61,18 @@ function getStdAddress(obj, callback) {
                 address = m[1].replace(/\b(\w+)(?=(?: [NS][EW])?$)/, function (match) {
                     return stAbbr[match] || match;
                 });
-                sql = 'UPDATE ' + table + ' SET std_address = ? WHERE id = ?';
-                db.query(sql, [address, id], function (err, result) {
-                    if (err) {
-                        return callback(err);
-                    }
-                    console.log('Updated ' + id + ': ' + address);
-                    return callback(null);
-                });
             }
             else {
-                return callback('Location not found');
+                address = '[NOT FOUND]';
             }
+            sql = 'UPDATE ' + table + ' SET std_address = ? WHERE id = ?';
+            db.query(sql, [address, id], function (err, result) {
+                if (err) {
+                    return callback(err);
+                }
+                console.log('Updated ' + id + ': ' + address);
+                return callback(null);
+            });
         }
     );
 }
