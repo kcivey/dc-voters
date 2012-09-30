@@ -57,7 +57,8 @@ function getStdAddress(obj, callback) {
             if (err) {
                 return callback(err);
             }
-            if (m = body.match(/<FULLADDRESS>([^<>]+)<\/FULLADDRESS>/)) {
+            if ((m = body.match(/<FULLADDRESS>([^<>]+)<\/FULLADDRESS>/)) ||
+                (m = body.match(/&lt;STRONG&gt;Normalized:&lt;\/STRONG&gt;\s*(.*?)\s*&lt;\/br&gt;/))) {
                 address = m[1].replace(/\b(\w+)(?=(?: [NS][EW])?$)/, function (match) {
                     return stAbbr[match] || match;
                 });
