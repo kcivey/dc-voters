@@ -14,6 +14,7 @@
     "password-hash": "*",
     "underscore": "*",
     "async": "*",
-    "moment": "*"
+    "moment": "*",
+    "request": "*"
   }
 }
