@@ -13,7 +13,8 @@ jQuery(function ($) {
             I: 'illegible',
             MD: 'missing date',
             B: 'blank',
-            S: 'skip for now and deal with it later'
+            S: 'skip for now and deal with it later',
+            V: 'validated by BOE'
         },
         status = {},
         lineView;
@@ -170,7 +171,7 @@ jQuery(function ($) {
             cache: false,
             success: function (data) {
                 // If we're still on the same page, keep the date signed
-                if (status.lineRecord && status.lineRecord.page == data.lineRecord.page) {
+                if (status.lineRecord && data.lineRecord && status.lineRecord.page == data.lineRecord.page) {
                     data.defaultDateSigned = status.defaultDateSigned;
                 }
                 // Reload page if version has changed
@@ -205,7 +206,7 @@ jQuery(function ($) {
             total = status.incomplete + status.complete,
             overall = status.overall,
             overallTotal = overall.incomplete + overall.complete;
-        $('#username', statusDiv).text(status.user || '(anonymous)');
+        $('#username', statusDiv).text(status.user.username || '(anonymous)');
         $('.complete', statusDiv).text(commify(status.complete));
         $('.total', statusDiv).text(commify(total));
         $('#complete-bar').width(total ? (100 * status.complete / total) + '%' : 0);
@@ -220,7 +221,6 @@ jQuery(function ($) {
             $('#page-line').hide();
         }
         if (rec.dcpt_code) {
-            console.log(rec.dcpt_code);
             $('#check-form').hide();
             $('#search-form').show();
             editLine(rec);
@@ -230,7 +230,8 @@ jQuery(function ($) {
                 checkFormTemplate({
                     page: rec.page,
                     line: rec.line,
-                    complete: status.complete
+                    complete: status.complete,
+                    admin: status.user.admin
                 })
             ).show();
             $('#result-div .alert').insertAfter($('#check-form'));
@@ -258,7 +259,7 @@ jQuery(function ($) {
         var lineForm = $('#line-form');
         lineData = $.extend(
             status.lineRecord,
-            {checker: status.user},
+            {checker: status.user.username},
             lineData
         );
         if (lineData.date_signed) {
@@ -320,6 +321,36 @@ jQuery(function ($) {
         })
         .on('click', '#illegible-button', function () {
             editLine({dcpt_code: 'I'});
+        })
+        .on('click', '.edit-button', function () {
+            var form = $('#check-form'),
+                page = +$('[name=page]', form).val(),
+                line = +$('[name=line]', form).val();
+            console.log('edit click', page, line);
+            $.ajax({
+                url: '/voters/line/' + page + '/' + line,
+                cache: false,
+                dataType: 'json',
+                success: function (lineRecord) {
+                    status.lineRecord = lineRecord;
+                    setStatus(status);
+                },
+                error: function (jqXhr, textStatus, errorThrown) {
+                    var message = textStatus + ' (' + errorThrown + ')',
+                        alert = $(alertTemplate({successful: false, text: message})),
+                        timeoutHandle = setTimeout(function () {
+                            alert.alert('close');
+                        }, 2500);
+                    // remove any earlier alerts
+                    while (form.next().hasClass('alert')) {
+                        form.next().remove();
+                    }
+                    alert.insertAfter(form)
+                        .on('closed', function () {
+                            clearTimeout(timeoutHandle);
+                        });
+                }
+            });
         });
 
     // Somewhat klugy way to handle logging out of HTTP authentication
@@ -351,7 +382,7 @@ jQuery(function ($) {
         }
         $('#top-row').hide();
         $('#bottom-row').show().html($('#line-table-template').html());
-        url = '/voters/dt-line/' + status.user;
+        url = '/voters/dt-line/' + status.user.username;
         if (value) {
             url += '?filterColumn=dcpt_code&filterValue=' + value;
         }

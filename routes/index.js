@@ -181,7 +181,7 @@ module.exports = function (app) {
 
         status: function (req, res) {
             var responseData = {
-                    user: req.user,
+                    user: req.user || {},
                     complete: 0,
                     incomplete: 0,
                     overall: {
@@ -191,12 +191,11 @@ module.exports = function (app) {
                     version: pkg.version
                 },
                 currentPage, currentLine;
-
             async.series([
                 function getCurrentLine(callback) {
                     var sql = "SELECT page, line FROM petition_lines WHERE checker = ? AND dcpt_code NOT IN ('', 'V')" +
                         " ORDER BY page DESC, line DESC LIMIT 1";
-                    db.query(sql, [req.user], function (err, rows) {
+                    db.query(sql, [req.user.username], function (err, rows) {
                         if (err) {
                             return callback(err);
                         }
@@ -210,7 +209,7 @@ module.exports = function (app) {
                 function getNextLine(callback) {
                     var sql = "SELECT * FROM petition_lines WHERE checker = ? AND todo" +
                         " ORDER BY page, line LIMIT 1";
-                    db.query(sql, [req.user], function (err, rows) {
+                    db.query(sql, [req.user.username], function (err, rows) {
                         if (err) {
                             return callback(err);
                         }
@@ -224,7 +223,7 @@ module.exports = function (app) {
                             " WHERE p.checker = ? AND p.page BETWEEN ? AND ?" +
                             " AND p.page * 20 + p.line BETWEEN ? * 20 + ? + 1 AND ? * 20 + ? - 1",
                         rec = responseData.lineRecord || {},
-                        values = [req.user, currentPage || 0, rec.page || 1e6, currentPage || 0, currentLine || 0,
+                        values = [req.user.username, currentPage || 0, rec.page || 1e6, currentPage || 0, currentLine || 0,
                             rec.page || 1e6, rec.line || 20];
                     db.query(sql, values, function (err, rows) {
                         if (err) {
@@ -251,7 +250,7 @@ module.exports = function (app) {
                 function getUserProgress(callback) {
                     var sql = "SELECT IF(dcpt_code IN ('', 'S'), 'incomplete', 'complete') AS state, COUNT(*) AS `count` " +
                         'FROM petition_lines WHERE checker = ? GROUP BY state';
-                    db.query(sql, [req.user], function (err, rows) {
+                    db.query(sql, [req.user.username], function (err, rows) {
                         if (err) {
                             return callback(err);
                         }
@@ -288,8 +287,8 @@ module.exports = function (app) {
                 line = req.param('line'),
                 sql = "UPDATE petition_lines SET ? WHERE checker = ? AND page = ? AND line ",
                 values = [
-                    {dcpt_code: 'B', checker: req.user, check_time: new Date(), todo: 0},
-                    req.user,
+                    {dcpt_code: 'B', checker: req.user.username, check_time: new Date(), todo: 0},
+                    req.user.username,
                     page
                 ],
                 m = line.match(/^(\d+)-(\d+)$/);

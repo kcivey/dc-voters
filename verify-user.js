@@ -3,14 +3,14 @@ var passwordHash = require('password-hash'),
 
 module.exports.auth = function (username, password, callback) {
     db.query(
-        'SELECT password FROM users WHERE username = ?',
+        'SELECT * FROM users WHERE username = ?',
         [username],
         function (err, rows) {
             if (err) {
                 callback(err);
             }
             else if (rows.length && passwordHash.verify(password, rows[0].password)) {
-                callback(null, username);
+                callback(null, rows[0]);
             }
             else {
                 callback(null, '');

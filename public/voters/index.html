@@ -241,6 +241,13 @@
           <button type="button" class="btn" id="illegible-button">Illegible</button>
         <% } %>
       </p>
+      <% if (admin) { %>
+        <p>Or edit a specific page and line number:<br/>
+          <label>Page <input type="number" class="input-mini" name="page"/></label>
+          <label>Line <input type="number" class="input-mini" name="line"/></label>
+          <button type="button" class="btn edit-button">Edit</button>
+        </p>
+      <% } %>
     </script>
     <script type="text/template" id="voter-row-template">
       <tr>
