@@ -382,7 +382,10 @@ jQuery(function ($) {
         }
         $('#top-row').hide();
         $('#bottom-row').show().html($('#line-table-template').html());
-        url = '/voters/dt-line/' + status.user.username;
+        url = '/voters/dt-line';
+        if (!status.user.admin) {
+            url += '/' + status.user.username;
+        }
         if (value) {
             url += '?filterColumn=dcpt_code&filterValue=' + value;
         }
@@ -392,7 +395,7 @@ jQuery(function ($) {
             bServerSide: true,
             bDestroy: true,
             iDisplayLength: 25,
-            sDom: '<"row-fluid"<"span6 go-back"><"span6"f>r>t<"row-fluid"<"span6"i><"span6">p>',
+            sDom: '<"row-fluid"<"span6 dt-top-left"><"span6"f>r>t<"row-fluid"<"span6"i><"span6">p>',
             bSortClasses: false,
             aaSorting: [], // no sorting by default
             bDeferRender: true,
@@ -403,7 +406,7 @@ jQuery(function ($) {
                     .click(function () {
                         $('#go-back').click(); // kluge
                     });
-                $('.go-back').html(button);
+                $('.dt-top-left').html(button);
             },
             aoColumns: [
                 {
@@ -422,13 +425,11 @@ jQuery(function ($) {
                     aDataSort: [0, 1],
                     bSearchable: false
                 },
-                /*
                 {
                     mDataProp: 'checker',
                     sTitle: 'Checker',
                     bSearchable: false
                 },
-                */
                 {
                     mDataProp: 'check_time',
                     sTitle: 'Check Time',
