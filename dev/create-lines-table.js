@@ -3,7 +3,7 @@ var fs = require('fs'),
     db = require('../db'),
     table = 'petition_lines',
     sql = fs.readFileSync(path.join(__dirname, 'create-table-' + table + '.sql'), 'utf-8'),
-    pages = 1844,
+    pages = 500,
     linesPerPage = 20;
 
 db.query(sql, function (err, rows) {

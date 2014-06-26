@@ -9,7 +9,7 @@ var express = require('express'),
     config = require('./config'),
     verifyUser = require('./verify-user');
 
-var auth = express.basicAuth(verifyUser.auth, 'DC Public Trust');
+var auth = express.basicAuth(verifyUser.auth, 'Validation');
 
 var app = express();
 
