@@ -4,8 +4,7 @@ module.exports = function (app) {
         async = require('async'),
         db = require('../db'),
         pkg = require('../package.json'),
-        httpProxy = require('http-proxy'),
-        dcGisProxy = new httpProxy.HttpProxy({target: {host: 'citizenatlas.dc.gov', port: 80}});
+        dcGisProxy = require('http-proxy').createProxyServer({target: 'http://citizenatlas.dc.gov'});
 
     function sendTsv(req, res, sql, values) {
         var filename, m;
@@ -115,7 +114,7 @@ module.exports = function (app) {
         findLocation: function (req, res) {
             req.headers.host = 'citizenatlas.dc.gov';
             req.url = '/newwebservices/locationverifier.asmx' + req.url;
-            dcGisProxy.proxyRequest(req, res);
+            dcGisProxy.web(req, res);
         },
 
         lineRead: function (req, res) {
