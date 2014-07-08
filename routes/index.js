@@ -150,7 +150,6 @@ module.exports = function (app) {
                 lineData = req.body;
             delete lineData.id;
             lineData.check_time = new Date();
-            lineData.todo = 0;
             if (lineData.date_signed) {
                 lineData.date_signed = lineData.date_signed
                     .replace(/^(\d+)\/(\d+)\/(\d+)$/, '$3-$1-$2');
@@ -192,7 +191,7 @@ module.exports = function (app) {
                 currentPage, currentLine;
             async.series([
                 function getCurrentLine(callback) {
-                    var sql = "SELECT page, line FROM petition_lines WHERE checker = ? AND dcpt_code NOT IN ('', 'V')" +
+                    var sql = "SELECT page, line FROM petition_lines WHERE checker = ? AND finding NOT IN ('', 'V')" +
                         " ORDER BY page DESC, line DESC LIMIT 1";
                     db.query(sql, [req.user.username], function (err, rows) {
                         if (err) {
@@ -206,7 +205,7 @@ module.exports = function (app) {
                     });
                 },
                 function getNextLine(callback) {
-                    var sql = "SELECT * FROM petition_lines WHERE checker = ? AND todo" +
+                    var sql = "SELECT * FROM petition_lines WHERE checker = ? AND finding = ''" +
                         " ORDER BY page, line LIMIT 1";
                     db.query(sql, [req.user.username], function (err, rows) {
                         if (err) {
@@ -216,38 +215,8 @@ module.exports = function (app) {
                         return callback(null);
                     });
                 },
-                function getSkippedLines(callback) {
-                    var sql = "SELECT p.id, p.page, p.line, b.signed_by FROM petition_lines p" +
-                            " INNER JOIN boe_valid_signers b USING (page, line)" +
-                            " WHERE p.checker = ? AND p.page BETWEEN ? AND ?" +
-                            " AND p.page * 20 + p.line BETWEEN ? * 20 + ? + 1 AND ? * 20 + ? - 1",
-                        rec = responseData.lineRecord || {},
-                        values = [req.user.username, currentPage || 0, rec.page || 1e6, currentPage || 0, currentLine || 0,
-                            rec.page || 1e6, rec.line || 20];
-                    db.query(sql, values, function (err, rows) {
-                        if (err) {
-                            return callback(err);
-                        }
-                        responseData.skippedLines = rows;
-                        return callback(null);
-                    });
-                },
-                function markSkippedLines(callback) {
-                    if (!responseData.skippedLines.length) {
-                        return callback(null);
-                    }
-                    var sql = "UPDATE petition_lines SET dcpt_code = 'V' WHERE id IN (?)",
-                        values = [_.pluck(responseData.skippedLines, 'id')];
-                    console.log(sql, values);
-                    db.query(sql, values, function (err, result) {
-                        if (err) {
-                            return callback(err);
-                        }
-                        return callback(null);
-                    });
-                },
                 function getUserProgress(callback) {
-                    var sql = "SELECT IF(dcpt_code IN ('', 'S'), 'incomplete', 'complete') AS state, COUNT(*) AS `count` " +
+                    var sql = "SELECT IF(finding IN ('', 'S'), 'incomplete', 'complete') AS state, COUNT(*) AS `count` " +
                         'FROM petition_lines WHERE checker = ? GROUP BY state';
                     db.query(sql, [req.user.username], function (err, rows) {
                         if (err) {
@@ -260,7 +229,7 @@ module.exports = function (app) {
                     });
                 },
                 function getOverallProgress(callback) {
-                    var sql = "SELECT IF(dcpt_code IN ('', 'S'), 'incomplete', 'complete') AS state, COUNT(*) AS `count` " +
+                    var sql = "SELECT IF(finding IN ('', 'S'), 'incomplete', 'complete') AS state, COUNT(*) AS `count` " +
                         'FROM petition_lines GROUP BY state';
                     db.query(sql, function (err, rows) {
                         if (err) {
@@ -286,7 +255,7 @@ module.exports = function (app) {
                 line = req.param('line'),
                 sql = "UPDATE petition_lines SET ? WHERE checker = ? AND page = ? AND line ",
                 values = [
-                    {dcpt_code: 'B', checker: req.user.username, check_time: new Date(), todo: 0},
+                    {finding: 'B', checker: req.user.username, check_time: new Date()},
                     req.user.username,
                     page
                 ],
@@ -308,25 +277,7 @@ module.exports = function (app) {
         },
 
         completedTsv: function (req, res) {
-            var sql = "SELECT * FROM petition_lines WHERE dcpt_code <> '' ORDER BY page, line";
-            sendTsv(req, res, sql, []);
-        },
-
-        notValidatedTsv: function (req, res) {
-            var sql = "SELECT * FROM petition_lines WHERE boe_validated = ''",
-                values = [],
-                dcptCode = req.param('dcpt_code');
-            if (dcptCode) {
-                dcptCode = dcptCode.split(/\s*,\s*/);
-                sql += " AND dcpt_code IN (?)";
-                values.push(dcptCode);
-            }
-            sql += " ORDER BY page, line";
-            sendTsv(req, res, sql, values);
-        },
-
-        boeValidSignersTsv: function (req, res) {
-            var sql = "SELECT * FROM boe_valid_signers ORDER BY page, line";
+            var sql = "SELECT * FROM petition_lines WHERE finding <> '' ORDER BY page, line";
             sendTsv(req, res, sql, []);
         },
 
@@ -341,7 +292,7 @@ module.exports = function (app) {
                 filterValue = req.param('filterValue'),
                 table = 'petition_lines',
                 sql = 'SELECT COUNT(*) AS `count` FROM ' + table,
-                where = " WHERE dcpt_code <> ''",
+                where = " WHERE finding <> ''",
                 order = [],
                 values = [],
                 i, sortColumnIndex, sortColumn, sortDirection;

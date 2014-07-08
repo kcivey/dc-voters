@@ -57,7 +57,7 @@ function insertUser(callback) {
 
 function assignPages(callback) {
     db.query(
-        "UPDATE petition_lines SET checker = ? WHERE dcpt_code = '' AND page BETWEEN ? AND ?",
+        "UPDATE petition_lines SET checker = ? WHERE finding = '' AND page BETWEEN ? AND ?",
         [username, startPage, endPage],
         function (err, result) {
             if (err) {

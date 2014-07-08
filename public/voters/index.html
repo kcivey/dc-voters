@@ -2,7 +2,7 @@
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8"/>
-    <title>DC Public Trust Petition Review</title>
+    <title>Petition Validation</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <meta name="author" content="Keith C. Ivey (keith at iveys dot org)"/>
 
@@ -93,10 +93,6 @@
               </a>
               <ul class="dropdown-menu">
                 <li><a href="/voters/completed.tsv">All completed lines</a></li>
-                <li><a href="/voters/boe-valid-signers.tsv">BOE valid signers</a></li>
-                <li><a href="/voters/not-validated.tsv?dcpt_code=OK">OK lines not accepted by BOE</a></li>
-                <li><a href="/voters/not-validated.tsv?dcpt_code=A,AM">Address mismatches not accepted by BOE</a></li>
-                <li><a href="/voters/not-validated.tsv?dcpt_code=NM">Name mismatches not accepted by BOE</a></li>
               </ul>
             </li>
             <li class="dropdown">
@@ -269,18 +265,11 @@
     </script>
     <script type="text/template" id="line-form-template">
       <div class="control-group">
-        <label class="control-label" for="boe_markings">BOE markings</label>
-        <div class="controls">
-          <input type="text" name="boe_markings" id="boe_markings"/>
-          <button type="button" id="checkmark-button" class="btn btn-mini" title="insert a checkmark">&#x2713;</button>
-        </div>
-      </div>
-      <div class="control-group">
-        <label class="control-label" for="dcpt_code">DCPT finding</label>
-        <div class="controls" id="dcpt_code">
+        <label class="control-label" for="finding">Finding</label>
+        <div class="controls" id="finding">
           <% _.each(codes, function (label, value) { %>
             <label class="radio">
-              <input type="radio" name="dcpt_code" value="<%- value %>"/> <%= label %> [<%- value %>]
+              <input type="radio" name="finding" value="<%- value %>"/> <%= label %> [<%- value %>]
             </label>
           <% }); %>
         </div>
@@ -327,10 +316,6 @@
         <input type="hidden" name="line"/>
         <input type="hidden" name="checker"/>
         <button type="button" class="btn btn-primary btn" id="save">Save</button>
-        <!--
-        <a class="btn btn-small" href="#survey-json" id="show-json">JSON</a>
-        <pre id="survey-json" class="modal" style="display: none;"></pre>
-        -->
       </div>
     </script>
     <script type="text/template" id="alert-template">

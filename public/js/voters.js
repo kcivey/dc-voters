@@ -4,7 +4,7 @@ jQuery(function ($) {
         skippedRowTemplate = _.template($('#skipped-row-template').html()),
         checkFormTemplate = _.template($('#check-form-template').html()),
         alertTemplate = _.template($('#alert-template').html()),
-        dcptCodes = {
+        findingCodes = {
             OK: 'OK (name and address match)',
             A: 'address change',
             AM: 'address change with multiple possibilities',
@@ -13,8 +13,7 @@ jQuery(function ($) {
             I: 'illegible',
             MD: 'missing date',
             B: 'blank',
-            S: 'skip for now and deal with it later',
-            V: 'validated by BOE'
+            S: 'skip for now and deal with it later'
         },
         status = {},
         lineView;
@@ -41,16 +40,14 @@ jQuery(function ($) {
     });
 
     var LineView = Backbone.View.extend({
-        html: _.template($('#line-form-template').html(), {codes: dcptCodes}),
+        html: _.template($('#line-form-template').html(), {codes: findingCodes}),
         initialize: function () {
             this.modelBinder = new Backbone.ModelBinder();
             this.render();
         },
         events: {
             'click #save': 'save',
-            'click #checkmark-button': 'appendCheckmark',
-            'change #date_signed': 'checkDateSigned',
-            'click #show-json': 'showJson'
+            'change #date_signed': 'checkDateSigned'
         },
         checkDateSigned: function () {
             // This is a mess. Need proper date functions.
@@ -80,10 +77,6 @@ jQuery(function ($) {
                 }
             }
             input.focus();
-        },
-        appendCheckmark: function () {
-            var markings = this.model.get('boe_markings');
-            this.model.set('boe_markings', markings + '\u2713'); // append checkmark
         },
         render: function () {
             this.$el.html(this.html);
@@ -117,7 +110,10 @@ jQuery(function ($) {
                         status.defaultDateSigned = that.model.get('date_signed');
                         start();
                     })
-                    .fail(function () { that.showAlert(false); });
+                    .fail(function (err) {
+                        console.log(err);
+                        that.showAlert(false);
+                    });
             }
             else {
                 this.showAlert(false, error);
@@ -125,14 +121,9 @@ jQuery(function ($) {
         },
         check: function () {
             var line = this.model;
-            if (!line.get('dcpt_code')) {
-                return 'Missing DCPT finding';
+            if (!line.get('finding')) {
+                return 'Missing finding';
             }
-        },
-        showJson: function () {
-            this.$('#survey-json').text(JSON.stringify(this.model, null, 2))
-                .modal();
-            return false;
         }
     });
 
@@ -220,7 +211,7 @@ jQuery(function ($) {
         else {
             $('#page-line').hide();
         }
-        if (rec.dcpt_code) {
+        if (rec.finding) {
             $('#check-form').hide();
             $('#search-form').show();
             editLine(rec);
@@ -292,7 +283,7 @@ jQuery(function ($) {
             });
         })
         .on('click', '.not-found', function () {
-            editLine({dcpt_code: 'NR'});
+            editLine({finding: 'NR'});
         });
 
     $('#check-form')
@@ -320,7 +311,7 @@ jQuery(function ($) {
             });
         })
         .on('click', '#illegible-button', function () {
-            editLine({dcpt_code: 'I'});
+            editLine({finding: 'I'});
         })
         .on('click', '.edit-button', function () {
             var form = $('#check-form'),
@@ -387,7 +378,7 @@ jQuery(function ($) {
             url += '/' + status.user.username;
         }
         if (value) {
-            url += '?filterColumn=dcpt_code&filterValue=' + value;
+            url += '?filterColumn=finding&filterValue=' + value;
         }
         dataTable = $('#line-table').dataTable({
             sAjaxSource: url,
@@ -440,20 +431,14 @@ jQuery(function ($) {
                     }
                 },
                 {
-                    mDataProp: 'boe_markings',
-                    sTitle: 'BOE',
-                    sWidth: 50,
-                    bSearchable: false
-                },
-                {
                     mDataProp: 'voter_id',
                     sTitle: 'Voter ID',
                     sWidth: 50,
                     bSearchable: false
                 },
                 {
-                    mDataProp: 'dcpt_code',
-                    sTitle: 'DCPT',
+                    mDataProp: 'finding',
+                    sTitle: 'Finding',
                     sWidth: 40,
                     bSearchable: false
                 },
