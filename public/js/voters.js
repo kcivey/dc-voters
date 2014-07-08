@@ -257,7 +257,6 @@ jQuery(function ($) {
     }
 
     $('#voter-table')
-        .on('dblclick', 'td', function () { selectText(this); })
         .on('click', '.match', function () {
             var voterData = $(this).closest('tr').data('voterData');
             editLine({
