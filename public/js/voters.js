@@ -1,7 +1,6 @@
 jQuery(function ($) {
 
     var voterRowTemplate = _.template($('#voter-row-template').html()),
-        skippedRowTemplate = _.template($('#skipped-row-template').html()),
         checkFormTemplate = _.template($('#check-form-template').html()),
         alertTemplate = _.template($('#alert-template').html()),
         findingCodes = {
@@ -16,7 +15,7 @@ jQuery(function ($) {
             S: 'skip for now and deal with it later'
         },
         status = {},
-        lineView;
+        lineView, searchTimeout;
 
     var Line = Backbone.Model.extend({
         initialize: function () {
@@ -227,21 +226,7 @@ jQuery(function ($) {
             ).show();
             $('#result-div .alert').insertAfter($('#check-form'));
             $('#search-form, #result-div > *').hide();
-            showSkippedLines(status.skippedLines);
         }
-    }
-
-    function showSkippedLines(lines) {
-        var table = $('#skipped-table'),
-            tbody = $('tbody', table).empty();
-        if (!lines.length) {
-            table.hide();
-            return;
-        }
-        $.each(lines, function (i, line) {
-            tbody.append(skippedRowTemplate(line));
-        });
-        table.show();
     }
 
     start();
@@ -495,14 +480,22 @@ jQuery(function ($) {
         });
     });
 
-    $('#search-form').submit(function (evt) {
+    $('#search-button').on('click', doSearch);
+    $('#search-form input').on('change input', function () {
+        if (searchTimeout) {
+            clearTimeout(searchTimeout);
+            searchTimeout = null;
+        }
+        searchTimeout = setTimeout(doSearch, 200);
+    });
+
+    function doSearch() {
         var searchData = {},
             button = $('#search-button'),
             resetButton = function () {
                 button.text('Search').removeAttr('disabled');
             },
             timeoutHandle;
-        evt.preventDefault();
         $.each(['q', 'name', 'address'], function (i, name) {
             var value = $.trim($('#' + name).val());
             if (value) {
@@ -534,7 +527,7 @@ jQuery(function ($) {
                 resetButton();
             }
         });
-    });
+    }
 
     function handleResults(data) {
         var tbody = $('#voter-table tbody'),
