@@ -6,11 +6,11 @@ jQuery(function ($) {
         findingCodes = {
             OK: 'OK (name and address match)',
             A: 'address change',
-            AM: 'address change with multiple possibilities',
             NM: 'possible name variation/change (address matches)',
             NR: 'not registered',
             I: 'illegible',
             MD: 'missing date',
+            MS: 'missing signature',
             B: 'blank',
             S: 'skip for now and deal with it later'
         },
