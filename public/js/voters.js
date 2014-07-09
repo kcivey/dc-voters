@@ -505,7 +505,6 @@ jQuery(function ($) {
             return; // don't search if no search terms
         }
         button.text('Please Wait').attr('disabled', 'disabled');
-        $('#voter-table tbody, #explanation').empty();
         $('#result-div > *').hide();
         // Use a timeout because JSONP calls don't always raise error
         // events when there's a problem.
@@ -529,7 +528,8 @@ jQuery(function ($) {
     }
 
     function handleResults(data) {
-        var tbody = $('#voter-table tbody'),
+        var tbody = $('#voter-table tbody').empty(),
+            explanation = $('#explanation').empty(),
             results = data.results;
         $('#result-div > *').hide();
         $('#voter-table').show();
