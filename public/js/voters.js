@@ -233,6 +233,10 @@ jQuery(function ($) {
 
     function editLine(lineData) {
         var lineForm = $('#line-form');
+        if (searchTimeout) {
+            clearTimeout(searchTimeout);
+            searchTimeout = null;
+        }
         lineData = $.extend(
             status.lineRecord,
             {checker: status.user.username},
