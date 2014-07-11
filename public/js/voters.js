@@ -551,23 +551,4 @@ jQuery(function ($) {
         }
         $('#explanation').append(data.explanation).show();
     }
-
-    // Adapted from http://stackoverflow.com/questions/985272/jquery-selecting-text-in-an-element-akin-to-highlighting-with-your-mouse
-    function selectText(element) {
-        var doc = document,
-            range, selection;
-
-        if (doc.body.createTextRange) { // ms
-            range = doc.body.createTextRange();
-            range.moveToElementText(element);
-            range.select();
-        } else if (window.getSelection) { // moz, opera, webkit
-            selection = window.getSelection();
-            range = doc.createRange();
-            range.selectNodeContents(element);
-            selection.removeAllRanges();
-            selection.addRange(range);
-        }
-    }
-
 });
