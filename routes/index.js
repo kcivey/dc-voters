@@ -65,6 +65,7 @@ module.exports = function (app) {
                     explanation += 'First name: ' + m[2] + '*\n';
                 }
                 if (name) {
+                    name = name.replace(/\s*,\s*$/, '');
                     sql += ' AND lastname LIKE ?';
                     values.push(name + '%');
                     explanation += 'Last name: ' + name + '*\n';
