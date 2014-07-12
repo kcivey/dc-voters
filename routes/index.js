@@ -404,8 +404,8 @@ module.exports = function (app) {
             });
         },
 
-        assignPages: function (res, req) {
-            var username = +req.param('username'),
+        assignPages: function (req, res) {
+            var username = req.param('username'),
                 pages = req.body;
             if (!Array.isArray(pages) || pages.filter(function (v) { return !/^\d+$/.test(v); }).length) {
                 res.send(400);
@@ -415,6 +415,9 @@ module.exports = function (app) {
                 'UPDATE petition_lines SET checker = ? WHERE page IN (?)',
                 [username, pages],
                 function (err, result) {
+                    if (err) {
+                        throw err;
+                    }
                     res.send(204);
                 }
             )

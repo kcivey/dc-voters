@@ -309,7 +309,6 @@ jQuery(function ($) {
             var form = $('#check-form'),
                 page = +$('[name=page]', form).val(),
                 line = +$('[name=line]', form).val();
-            console.log('edit click', page, line);
             $.ajax({
                 url: '/voters/line/' + page + '/' + line,
                 cache: false,
@@ -608,5 +607,48 @@ jQuery(function ($) {
                 }).join('')
             );
         }
+    }).on('click', '.assign-send-button', function () {
+        var modal = $('#assign-pages-modal'),
+            username = $('.username', modal).text(),
+            pages = $('[name=pages]', modal).val();
+        $.ajax({
+            url: '/voters/users/' + username + '/pages',
+            data: JSON.stringify(stringToList(pages)),
+            dataType: 'json',
+            contentType: 'application/json',
+            type: 'POST',
+            success: function () {
+                $('#assign-pages-modal').modal('hide');
+                showUsers();
+            }
+        });
+    }).on('click', '.assign-modal-button', function () {
+        var username = $(this).closest('tr').find('td:first').text();
+        $('#assign-pages-modal .username').text(username);
     });
+
+    function stringToList(s) {
+        var numbers = [],
+            m, n, end;
+        while (m = s.match(/^\s*([1-9]\d*)(?:\s*-\s*([1-9]\d*))?(?:,\s*|\s+|$)/)) {
+            s = s.substr(m[0].length);
+            n = +m[1];
+            end = m[2] == null ? n : +m[2];
+            if (n > end) {
+                throw new Error('Invalid range "' + n + '-' + end + '"');
+            }
+            while (n <= end) {
+                numbers.push(n);
+                n++;
+            }
+        }
+        if (s) {
+            throw new Error('Invalid number list "' + s + '"');
+        }
+        return numbers.sort(sortNumber);
+    }
+
+    function sortNumber(a, b) {
+        return a - b;
+    }
 });
