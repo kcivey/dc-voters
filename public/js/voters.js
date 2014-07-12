@@ -567,8 +567,11 @@ jQuery(function ($) {
             url: '/voters/users',
             dataType: 'json',
             success: function (users) {
+                var password = _.range(4).map(function () {
+                        return _.range(10)[Math.floor(Math.random() * 10)].toString();
+                    }).join('');
                 $('#top-row').hide();
-                $('#bottom-row').html(userTableTemplate({users: users})).show()
+                $('#bottom-row').html(userTableTemplate({users: users, password: password})).show()
                     .on('click', '.back-button', backToChecking);
             }
         });
