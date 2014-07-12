@@ -567,11 +567,8 @@ jQuery(function ($) {
             url: '/voters/users',
             dataType: 'json',
             success: function (users) {
-                var password = _.range(4).map(function () {
-                        return _.range(10)[Math.floor(Math.random() * 10)].toString();
-                    }).join('');
                 $('#top-row').hide();
-                $('#bottom-row').html(userTableTemplate({users: users, password: password})).show()
+                $('#bottom-row').html(userTableTemplate({users: users})).show()
                     .on('click', '.back-button', backToChecking);
             }
         });
@@ -601,5 +598,15 @@ jQuery(function ($) {
                 showUsers();
             }
         });
+    }).on('click', '.user-create-row', function () {
+        var passwordField = $('[name=password]', this),
+            digits = _.range(10);
+        if (!passwordField.val()) {
+            passwordField.val(
+                _.range(4).map(function () {
+                    return digits[Math.floor(Math.random() * 10)].toString();
+                }).join('')
+            );
+        }
     });
 });
