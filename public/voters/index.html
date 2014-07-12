@@ -108,6 +108,15 @@
                 <li><a href="#" id="go-back">Back to Checking</a></li>
               </ul>
             </li>
+            <li class="dropdown admin-only">
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                  Admin
+                  <b class="caret"></b>
+              </a>
+              <ul class="dropdown-menu">
+                  <li><a id="users-link" href="#">Users</a></li>
+              </ul>
+            </li>
             <li><a id="log-out" href="/">Log Out</a></li>
           </ul>
         </div>
@@ -326,6 +335,41 @@
     </script>
     <script type="text/template" id="line-table-template">
       <table id="line-table" class="table table-condensed table-striped"></table>
+    </script>
+    <script type="text/template" id="user-table-template">
+      <div class="span6">
+        <button type="button" class="btn back-button">Back to Checking</button>
+        <table id="user-table" class="table table-condensed table-striped">
+          <thead>
+            <tr>
+              <th>Username</th>
+              <th>Password</th>
+              <th>Email</th>
+              <th>Admin</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><input type="text" name="username" class="input-block-level"/></td>
+              <td><input type="text" name="password" class="input-block-level"/></td>
+              <td><input type="text" name="email" class="input-block-level"/></td>
+              <td><input type="checkbox" name="admin"/></td>
+              <td><button type="button" class="btn btn-primary btn-mini save-user">Save</button></td>
+            </tr>
+            <% _.each(users, function (user) { %>
+              <tr data-id="<%- user.id %>">
+                <td><%- user.username %></td>
+                <td></td>
+                <td><%- user.email %></td>
+                <td><input type="checkbox"<% if (user.admin) { %> checked<% } %>/></td>
+                <td><button type="button" class="btn btn-mini">Edit</button></td>
+              </tr>
+            <% }); %>
+          </tbody>
+        </table>
+      </div>
+      <div class="span6"></div>
     </script>
   </body>
 </html>

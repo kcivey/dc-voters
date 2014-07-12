@@ -346,7 +346,56 @@ module.exports = function (app) {
                     });
                 });
             });
-        }
+        },
 
+        getUsers: function (req, res) {
+            var sql = 'SELECT id, username, email, admin FROM users ORDER BY username';
+            db.query(sql, function (err, rows) {
+                if (err) {
+                    throw err;
+                }
+                res.json(rows);
+            });
+        },
+
+        createOrUpdateUser: function (req, res) {
+            var id = +req.param('id'),
+                userData = req.body,
+                values = [userData],
+                sql;
+            if (id) {
+                delete userData.id;
+                sql = 'UPDATE users SET ? WHERE id = ?';
+                values.push(id);
+            }
+            else {
+                if (!userData.username || !userData.password) {
+                    res.send(400);
+                    return;
+                }
+                sql = 'INSERT INTO users SET ?';
+            }
+            db.query(sql, values, function (err, result) {
+                if (err) {
+                    console.log('user SQL error', err);
+                    res.send(500);
+                    return;
+                }
+                if (result.insertId) {
+                    id = result.insertId;
+                }
+                if (!id) {
+                    res.send(500);
+                    return;
+                }
+                db.query(
+                    'SELECT * FROM users WHERE id = ?',
+                    [id],
+                    function (err, rows) {
+                        res.json(rows[0]);
+                    }
+                );
+            });
+        }
     };
 };

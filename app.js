@@ -46,6 +46,9 @@ app.post('/voters/mark-blank/:page/:line', routes.markBlank);
 app.get('/voters/completed.tsv', express.compress(), routes.completedTsv);
 app.get('/voters/dt-line/:checker', express.compress(), routes.dtLine);
 app.get('/voters/dt-line', express.compress(), routes.dtLine);
+app.get('/voters/users', routes.getUsers);
+app.post('/voters/users', express.bodyParser(), routes.createOrUpdateUser);
+app.put('/voters/users/:id', express.bodyParser(), routes.createOrUpdateUser);
 
 http.createServer(app).listen(app.get('port'), function(){
   console.log("Express server listening on port " + app.get('port'));

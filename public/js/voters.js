@@ -3,6 +3,7 @@ jQuery(function ($) {
     var voterRowTemplate = _.template($('#voter-row-template').html()),
         checkFormTemplate = _.template($('#check-form-template').html()),
         alertTemplate = _.template($('#alert-template').html()),
+        userTableTemplate = _.template($('#user-table-template').html()),
         findingCodes = {
             OK: 'OK (name and address match)',
             A: 'address change',
@@ -182,6 +183,9 @@ jQuery(function ($) {
             if (err) {
                 alert(err);
             }
+            if (!status.user.admin) {
+                $('.admin-only').remove();
+            }
             setStatus(status);
         });
     }
@@ -354,9 +358,7 @@ jQuery(function ($) {
             value = $(this).data('value'),
             dataTable, url;
         if (/^Back/.test(linkText)) {
-            $('#top-row').show();
-            $('#bottom-row').hide().empty();
-            start();
+            backToChecking();
             return;
         }
         $('#top-row').hide();
@@ -483,6 +485,12 @@ jQuery(function ($) {
         });
     });
 
+    function backToChecking() {
+        $('#top-row').show();
+        $('#bottom-row').hide().empty();
+        start();
+    }
+
     $('#search-button').on('click', doSearch);
     $('#search-form input').on('change input', function () {
         if (searchTimeout) {
@@ -551,4 +559,44 @@ jQuery(function ($) {
         }
         $('#explanation').append(data.explanation).show();
     }
+
+    $('#users-link').on('click', showUsers);
+
+    function showUsers() {
+        $.ajax({
+            url: '/voters/users',
+            dataType: 'json',
+            success: function (users) {
+                $('#top-row').hide();
+                $('#bottom-row').html(userTableTemplate({users: users})).show()
+                    .on('click', '.back-button', backToChecking);
+            }
+        });
+    }
+
+    $('#bottom-row').on('click', '.save-user', function () {
+        var $tr = $(this).closest('tr'),
+            id = $tr.data('id'),
+            url = '/voters/users',
+            method = 'POST',
+            userData = {
+                username: $('[name=username]', $tr).val(),
+                password: $('[name=password]', $tr).val(),
+                email: $('[name=email]', $tr).val(),
+                admin: $('[name=admin]', $tr).prop('checked') ? 1 : 0
+            };
+        if (id) {
+            url += '/' + id;
+            method = 'PUT';
+        }
+        $.ajax({
+            url: url,
+            dataType: 'json',
+            data: userData,
+            type: method,
+            success: function (data) {
+                showUsers();
+            }
+        });
+    });
 });
