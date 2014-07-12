@@ -2,6 +2,7 @@ module.exports = function (app) {
     var _ = require('underscore'),
         moment = require('moment'),
         async = require('async'),
+        passwordHash = require('password-hash'),
         db = require('../db'),
         pkg = require('../package.json'),
         dcGisProxy = require('http-proxy').createProxyServer({target: 'http://citizenatlas.dc.gov'});
@@ -374,6 +375,9 @@ module.exports = function (app) {
                     return;
                 }
                 sql = 'INSERT INTO users SET ?';
+            }
+            if (userData.password) {
+                userData.password = passwordHash.generate(userData.password);
             }
             db.query(sql, values, function (err, result) {
                 if (err) {
