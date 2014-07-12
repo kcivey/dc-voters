@@ -350,7 +350,9 @@ module.exports = function (app) {
         },
 
         getUsers: function (req, res) {
-            var sql = 'SELECT id, username, email, admin FROM users ORDER BY username';
+            var sql = 'SELECT u.id, u.username, u.email, u.admin, COUNT(DISTINCT l.page) AS pages ' +
+                    'FROM users u LEFT JOIN petition_lines l ON u.username = l.checker ' +
+                    'GROUP BY u.username ORDER BY u.username';
             db.query(sql, function (err, rows) {
                 if (err) {
                     throw err;
@@ -400,6 +402,22 @@ module.exports = function (app) {
                     }
                 );
             });
+        },
+
+        assignPages: function (res, req) {
+            var username = +req.param('username'),
+                pages = req.body;
+            if (!Array.isArray(pages) || pages.filter(function (v) { return !/^\d+$/.test(v); }).length) {
+                res.send(400);
+                return;
+            }
+            db.query(
+                'UPDATE petition_lines SET checker = ? WHERE page IN (?)',
+                [username, pages],
+                function (err, result) {
+                    res.send(204);
+                }
+            )
         }
     };
 };

@@ -49,6 +49,7 @@ app.get('/voters/dt-line', express.compress(), routes.dtLine);
 app.get('/voters/users', routes.getUsers);
 app.post('/voters/users', express.bodyParser(), routes.createOrUpdateUser);
 app.put('/voters/users/:id', express.bodyParser(), routes.createOrUpdateUser);
+app.post('/voters/users/:username/pages', express.bodyParser(), routes.assignPages);
 
 http.createServer(app).listen(app.get('port'), function(){
   console.log("Express server listening on port " + app.get('port'));
