@@ -337,15 +337,15 @@
       <table id="line-table" class="table table-condensed table-striped"></table>
     </script>
     <script type="text/template" id="user-table-template">
-      <div class="span6">
         <button type="button" class="btn back-button">Back to Checking</button>
-        <table id="user-table" class="table table-condensed table-striped">
+        <table id="user-table" class="table table-condensed table-striped" style="width: auto;">
           <thead>
             <tr>
               <th>Username</th>
               <th>Password</th>
               <th>Email</th>
               <th>Admin</th>
+              <th>Page Count</th>
               <th>Pages</th>
               <th></th>
             </tr>
@@ -357,6 +357,7 @@
               <td><input type="text" name="email" class="input-block-level"/></td>
               <td><input type="checkbox" name="admin"/></td>
               <td></td>
+              <td></td>
               <td><button type="button" class="btn btn-primary btn-mini save-user">Save</button></td>
             </tr>
             <% _.each(users, function (user) { %>
@@ -365,6 +366,7 @@
                 <td></td>
                 <td><%- user.email %></td>
                 <td><input type="checkbox"<% if (user.admin) { %> checked<% } %>/></td>
+                <td><%- user.page_count %></td>
                 <td><%- user.pages %></td>
                 <td>
                   <button type="button" class="btn btn-mini assign-modal-button" data-toggle="modal" data-target="#assign-pages-modal" data-backdrop="false">
@@ -394,8 +396,6 @@
             <a href="#" class="btn btn-primary assign-send-button">Assign</a>
           </div>
         </div>
-      </div>
-      <div class="span6"></div>
     </script>
   </body>
 </html>

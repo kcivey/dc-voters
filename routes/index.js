@@ -5,7 +5,8 @@ module.exports = function (app) {
         passwordHash = require('password-hash'),
         db = require('../db'),
         pkg = require('../package.json'),
-        dcGisProxy = require('http-proxy').createProxyServer({target: 'http://citizenatlas.dc.gov'});
+        dcGisProxy = require('http-proxy').createProxyServer({target: 'http://citizenatlas.dc.gov'})
+        numberList = require('../number-list');
 
     function sendTsv(req, res, sql, values) {
         var filename, m;
@@ -350,13 +351,17 @@ module.exports = function (app) {
         },
 
         getUsers: function (req, res) {
-            var sql = 'SELECT u.id, u.username, u.email, u.admin, COUNT(DISTINCT l.page) AS pages ' +
+            var sql = 'SELECT u.id, u.username, u.email, u.admin, COUNT(DISTINCT l.page) AS page_count,' +
+                    'GROUP_CONCAT(DISTINCT l.page ORDER BY l.page) AS pages ' +
                     'FROM users u LEFT JOIN petition_lines l ON u.username = l.checker ' +
                     'GROUP BY u.username ORDER BY u.username';
             db.query(sql, function (err, rows) {
                 if (err) {
                     throw err;
                 }
+                rows.forEach(function (row) {
+                    row.pages = row.pages ? numberList.stringify(row.pages.split(',')) : '';
+                });
                 res.json(rows);
             });
         },
