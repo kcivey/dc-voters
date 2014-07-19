@@ -1,6 +1,7 @@
 jQuery(function ($) {
 
-    var voterRowTemplate = _.template($('#voter-row-template').html()),
+    var urlBase = '/voters/',
+        voterRowTemplate = _.template($('#voter-row-template').html()),
         checkFormTemplate = _.template($('#check-form-template').html()),
         alertTemplate = _.template($('#alert-template').html()),
         userTableTemplate = _.template($('#user-table-template').html()),
@@ -30,7 +31,7 @@ jQuery(function ($) {
                 }
             };
         },
-        urlRoot: '/voters/line',
+        urlRoot: urlBase + 'line',
         setSaved: function () {
             this.saved = true;
         },
@@ -157,7 +158,7 @@ jQuery(function ($) {
 
     function getStatus(callback) {
         $.ajax({
-            url: '/voters/status',
+            url: urlBase + 'status',
             dataType: 'json',
             cache: false,
             success: function (data) {
@@ -289,7 +290,7 @@ jQuery(function ($) {
         .on('click', '#blank-button, #rest-blank-button', function () {
             var rest = this.id.match(/^rest/),
                 rec = status.lineRecord,
-                url = '/voters/mark-blank/' + rec.page + '/' + rec.line;
+                url = urlBase + 'mark-blank/' + rec.page + '/' + rec.line;
             if (rest) {
                 url += '-' + 20;
             }
@@ -310,7 +311,7 @@ jQuery(function ($) {
                 page = +$('[name=page]', form).val(),
                 line = +$('[name=line]', form).val();
             $.ajax({
-                url: '/voters/line/' + page + '/' + line,
+                url: urlBase + 'line/' + page + '/' + line,
                 cache: false,
                 dataType: 'json',
                 success: function (lineRecord) {
@@ -340,7 +341,7 @@ jQuery(function ($) {
     $('#log-out').on('click', function (evt) {
         evt.preventDefault();
         $.ajax({
-            url: '/voters/status',
+            url: urlBase + 'status',
             dataType: 'json',
             username: '---',
             password: '',
@@ -362,7 +363,7 @@ jQuery(function ($) {
         }
         $('#top-row').hide();
         $('#bottom-row').show().html($('#line-table-template').html());
-        url = '/voters/dt-line';
+        url = urlBase + 'dt-line';
         if (!status.user.admin) {
             url += '/' + status.user.username;
         }
@@ -563,7 +564,7 @@ jQuery(function ($) {
 
     function showUsers() {
         $.ajax({
-            url: '/voters/users',
+            url: urlBase + 'users',
             dataType: 'json',
             success: function (users) {
                 $('#top-row').hide();
@@ -576,7 +577,7 @@ jQuery(function ($) {
     $('#bottom-row').on('click', '.save-user', function () {
         var $tr = $(this).closest('tr'),
             id = $tr.data('id'),
-            url = '/voters/users',
+            url = urlBase + 'users',
             method = 'POST',
             userData = {
                 username: $('[name=username]', $tr).val(),
@@ -612,7 +613,7 @@ jQuery(function ($) {
             username = $('.username', modal).text(),
             pages = $('[name=pages]', modal).val();
         $.ajax({
-            url: '/voters/users/' + username + '/pages',
+            url: urlBase + 'users/' + username + '/pages',
             data: JSON.stringify(stringToList(pages)),
             dataType: 'json',
             contentType: 'application/json',
