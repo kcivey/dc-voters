@@ -115,6 +115,7 @@
               </a>
               <ul class="dropdown-menu">
                   <li><a id="users-link" href="#">Users</a></li>
+                  <li><a id="totals-link" href="#">Totals</a></li>
               </ul>
             </li>
             <li><a id="log-out" href="/">Log Out</a></li>
@@ -396,6 +397,19 @@
             <a href="#" class="btn btn-primary assign-send-button">Assign</a>
           </div>
         </div>
+    </script>
+    <script type="text/template" id="total-table-template">
+      <button type="button" class="btn back-button">Back to Checking</button>
+      <table id="total-table" class="table table-striped" style="width: auto;">
+        <tbody>
+          <% _.each(totals, function (total, label) { %>
+            <tr>
+              <td><%- label %></td>
+              <td class="right"><%- total %></td>
+            </tr>
+          <% }); %>
+        </tbody>
+      </table>
     </script>
   </body>
 </html>

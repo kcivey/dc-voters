@@ -51,6 +51,7 @@ app.get(urlBase + 'users', routes.getUsers);
 app.post(urlBase + 'users', express.bodyParser(), routes.createOrUpdateUser);
 app.put(urlBase + 'users/:id', express.bodyParser(), routes.createOrUpdateUser);
 app.post(urlBase + 'users/:username/pages', express.bodyParser(), routes.assignPages);
+app.get(urlBase + 'totals', routes.getTotals);
 
 http.createServer(app).listen(app.get('port'), function(){
   console.log("Express server listening on port " + app.get('port'));

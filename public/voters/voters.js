@@ -5,6 +5,7 @@ jQuery(function ($) {
         checkFormTemplate = _.template($('#check-form-template').html()),
         alertTemplate = _.template($('#alert-template').html()),
         userTableTemplate = _.template($('#user-table-template').html()),
+        totalTableTemplate = _.template($('#total-table-template').html()),
         findingCodes = {
             OK: 'OK (name and address match)',
             A: 'address change',
@@ -627,6 +628,37 @@ jQuery(function ($) {
         var username = $(this).closest('tr').find('td:first').text();
         $('#assign-pages-modal .username').text(username);
     });
+
+    $('#totals-link').on('click', showTotals);
+
+    function showTotals() {
+        $.ajax({
+            url: urlBase + 'totals',
+            dataType: 'json',
+            success: function (rawTotals) {
+                var totals = {'Unprocessed': rawTotals['']},
+                    processedLines = 0,
+                    nonBlank;
+                _.each(findingCodes, function (label, code) {
+                    var count = rawTotals[code] || 0;
+                    label += ' [' + code + ']';
+                    totals[label] = count;
+                    if (code !== '' && code !== 'S') {
+                        processedLines += count;
+                    }
+                });
+                totals['Total lines processed'] = processedLines;
+                nonBlank = processedLines - (rawTotals['B'] || 0);
+                totals['Nonblank lines processed'] = nonBlank;
+                if (nonBlank) {
+                    totals['Valid percentage'] = (rawTotals['OK'] / nonBlank).toFixed(1) + '%';
+                }
+                $('#top-row').hide();
+                $('#bottom-row').html(totalTableTemplate({totals: totals})).show()
+                    .on('click', '.back-button', backToChecking);
+            }
+        });
+    }
 
     function stringToList(s) {
         var numbers = [],

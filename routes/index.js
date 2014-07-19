@@ -366,6 +366,20 @@ module.exports = function (app) {
             });
         },
 
+        getTotals: function (req, res) {
+            var sql = 'SELECT finding, COUNT(*) AS count FROM petition_lines GROUP BY finding';
+            db.query(sql, function (err, rows) {
+                if (err) {
+                    throw err;
+                }
+                var totals = {};
+                rows.forEach(function (row) {
+                    totals[row.finding] = +row.count;
+                });
+                res.json(totals);
+            });
+        },
+
         createOrUpdateUser: function (req, res) {
             var id = +req.param('id'),
                 userData = req.body,
