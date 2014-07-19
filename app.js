@@ -7,7 +7,8 @@ var express = require('express'),
     http = require('http'),
     path = require('path'),
     config = require('./config'),
-    verifyUser = require('./verify-user');
+    verifyUser = require('./verify-user'),
+    urlBase = '/voters/';
 
 var auth = express.basicAuth(verifyUser.auth, 'Validation');
 
@@ -35,21 +36,21 @@ app.configure('development', function(){
   app.use(express.errorHandler());
 });
 
-app.all('/voters/*', auth, function (req, res, next) { next(); }); // enforce authorization
+app.all(urlBase + '*', auth, function (req, res, next) { next(); }); // enforce authorization
 app.get('/search', express.bodyParser(), routes.search);
 app.get('/findLocation', routes.findLocation);
-app.get('/voters/line/:page/:line', routes.lineRead);
-app.get('/voters/line/:id', routes.lineRead);
-app.put('/voters/line/:id', express.bodyParser(), routes.lineUpdate);
-app.get('/voters/status', routes.status);
-app.post('/voters/mark-blank/:page/:line', routes.markBlank);
-app.get('/voters/completed.tsv', express.compress(), routes.completedTsv);
-app.get('/voters/dt-line/:checker', express.compress(), routes.dtLine);
-app.get('/voters/dt-line', express.compress(), routes.dtLine);
-app.get('/voters/users', routes.getUsers);
-app.post('/voters/users', express.bodyParser(), routes.createOrUpdateUser);
-app.put('/voters/users/:id', express.bodyParser(), routes.createOrUpdateUser);
-app.post('/voters/users/:username/pages', express.bodyParser(), routes.assignPages);
+app.get(urlBase + 'line/:page/:line', routes.lineRead);
+app.get(urlBase + 'line/:id', routes.lineRead);
+app.put(urlBase + 'line/:id', express.bodyParser(), routes.lineUpdate);
+app.get(urlBase + 'status', routes.status);
+app.post(urlBase + 'mark-blank/:page/:line', routes.markBlank);
+app.get(urlBase + 'completed.tsv', express.compress(), routes.completedTsv);
+app.get(urlBase + 'dt-line/:checker', express.compress(), routes.dtLine);
+app.get(urlBase + 'dt-line', express.compress(), routes.dtLine);
+app.get(urlBase + 'users', routes.getUsers);
+app.post(urlBase + 'users', express.bodyParser(), routes.createOrUpdateUser);
+app.put(urlBase + 'users/:id', express.bodyParser(), routes.createOrUpdateUser);
+app.post(urlBase + 'users/:username/pages', express.bodyParser(), routes.assignPages);
 
 http.createServer(app).listen(app.get('port'), function(){
   console.log("Express server listening on port " + app.get('port'));
