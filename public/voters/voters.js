@@ -573,6 +573,7 @@ jQuery(function ($) {
                     .on('click', '.back-button', backToChecking);
             }
         });
+        return false;
     }
 
     $('#bottom-row').on('click', '.save-user', function () {
@@ -658,6 +659,7 @@ jQuery(function ($) {
                     .on('click', '.back-button', backToChecking);
             }
         });
+        return false;
     }
 
     function stringToList(s) {
