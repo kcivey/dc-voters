@@ -652,7 +652,7 @@ jQuery(function ($) {
                 nonBlank = processedLines - (rawTotals['B'] || 0);
                 totals['Nonblank lines processed'] = nonBlank;
                 if (nonBlank) {
-                    totals['Valid percentage'] = (rawTotals['OK'] / nonBlank).toFixed(1) + '%';
+                    totals['Valid percentage'] = (100 * rawTotals['OK'] / nonBlank).toFixed(1) + '%';
                 }
                 $('#top-row').hide();
                 $('#bottom-row').html(totalTableTemplate({totals: totals})).show()
