@@ -316,7 +316,7 @@
       </div>
       <% _.each(extraFields, function (field, code) { %>
         <div class="control-group">
-          <label class="control-label" for="date_signed"><%- field.label %></label>
+          <label class="control-label" for="<%- code %>"><%- field.label %></label>
           <div class="controls">
             <% if (field.type == 'boolean') { %>
               <input type="checkbox" name="<%- code %>" id="<%- code %>" value="1"/>
