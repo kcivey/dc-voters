@@ -1,0 +1,15 @@
+{
+  "findingCodes": {
+    "OK": "OK (name and address match)",
+    "A": "address change",
+    "NM": "possible name variation/change (address matches)",
+    "NR": "not registered",
+    "I": "illegible",
+    "MD": "missing date",
+    "MS": "missing signature",
+    "B": "blank",
+    "S": "skip for now and deal with it later"
+  },
+  "extraFields": {
+  }
+}

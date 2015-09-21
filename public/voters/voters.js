@@ -1,23 +1,19 @@
-jQuery(function ($) {
-
+(function ($) {
     var urlBase = '/voters/',
-        voterRowTemplate = _.template($('#voter-row-template').html()),
+        findingCodes, extraFields;
+
+    $.getJSON(urlBase + '/config.json', function (data) {
+        findingCodes = data.findingCodes;
+        extraFields = data.extraFields;
+        $(init);
+    });
+
+function init() {
+    var voterRowTemplate = _.template($('#voter-row-template').html()),
         checkFormTemplate = _.template($('#check-form-template').html()),
         alertTemplate = _.template($('#alert-template').html()),
         userTableTemplate = _.template($('#user-table-template').html()),
         totalTableTemplate = _.template($('#total-table-template').html()),
-        findingCodes = {
-            OK: 'OK (name and address match)',
-            A: 'address change',
-            NM: 'possible name variation/change (address matches)',
-            NR: 'not registered',
-            I: 'illegible',
-            MD: 'missing date',
-            MS: 'missing signature',
-            B: 'blank',
-            S: 'skip for now and deal with it later'
-        },
-        extraFields = {},
         status = {},
         lineView, searchTimeout;
 
@@ -139,7 +135,7 @@ jQuery(function ($) {
             name = v.lastname + ', ' + name;
         }
         else {
-            name += ' '  + v.lastname;
+            name += ' ' + v.lastname;
         }
         if (v.suffix) {
             if (reversed) {
@@ -687,4 +683,5 @@ jQuery(function ($) {
     function sortNumber(a, b) {
         return a - b;
     }
-});
+}
+})(jQuery);
