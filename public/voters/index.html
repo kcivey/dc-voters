@@ -277,7 +277,7 @@
       <div class="control-group">
         <label class="control-label" for="finding">Finding</label>
         <div class="controls" id="finding">
-          <% _.each(codes, function (label, value) { %>
+          <% _.each(findingCodes, function (label, value) { %>
             <label class="radio">
               <input type="radio" name="finding" value="<%- value %>"/> <%= label %> [<%- value %>]
             </label>
@@ -314,6 +314,14 @@
           <input type="text" name="date_signed" id="date_signed" class="input-small"/>
         </div>
       </div>
+      <% _.each(extraFields, function (label, code) { %>
+        <div class="control-group">
+          <label class="control-label" for="date_signed"><%- label %></label>
+          <div class="controls">
+            <input type="text" name="<%- code %>" id="<%- code %>" class="input-block-level"/>
+          </div>
+        </div>
+      <% }); %>
       <div class="control-group">
         <label class="control-label" for="notes">Notes</label>
         <div class="controls">

@@ -17,6 +17,7 @@ jQuery(function ($) {
             B: 'blank',
             S: 'skip for now and deal with it later'
         },
+        extraFields = {},
         status = {},
         lineView, searchTimeout;
 
@@ -42,7 +43,7 @@ jQuery(function ($) {
     });
 
     var LineView = Backbone.View.extend({
-        html: _.template($('#line-form-template').html(), {codes: findingCodes}),
+        html: _.template($('#line-form-template').html(), {findingCodes: findingCodes, extraFields: extraFields}),
         initialize: function () {
             this.modelBinder = new Backbone.ModelBinder();
             this.render();
