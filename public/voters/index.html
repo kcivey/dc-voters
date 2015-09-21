@@ -314,11 +314,15 @@
           <input type="text" name="date_signed" id="date_signed" class="input-small"/>
         </div>
       </div>
-      <% _.each(extraFields, function (label, code) { %>
+      <% _.each(extraFields, function (field, code) { %>
         <div class="control-group">
-          <label class="control-label" for="date_signed"><%- label %></label>
+          <label class="control-label" for="date_signed"><%- field.label %></label>
           <div class="controls">
-            <input type="text" name="<%- code %>" id="<%- code %>" class="input-block-level"/>
+            <% if (field.type == 'boolean') { %>
+              <input type="checkbox" name="<%- code %>" id="<%- code %>" value="1"/>
+            <% } else { %>
+              <input type="text" name="<%- code %>" id="<%- code %>" class="input-block-level"/>
+            <% } %>
           </div>
         </div>
       <% }); %>
