@@ -114,12 +114,6 @@ module.exports = function (app) {
             });
         },
 
-        findLocation: function (req, res) {
-            req.headers.host = 'citizenatlas.dc.gov';
-            req.url = '/newwebservices/locationverifier.asmx' + req.url;
-            dcGisProxy.web(req, res);
-        },
-
         lineRead: function (req, res) {
             var id = +req.param('id'),
                 page = +req.param('page'),

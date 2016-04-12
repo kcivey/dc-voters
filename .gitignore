@@ -2,4 +2,4 @@
 /config/config-local.json
 .idea
 /dev/voters.sql
-/public/voters/config.json
+/public/config.json

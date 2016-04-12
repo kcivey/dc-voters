@@ -8,7 +8,7 @@ var express = require('express'),
     path = require('path'),
     config = require('./config'),
     verifyUser = require('./verify-user'),
-    urlBase = '/voters/';
+    urlBase = '/';
 
 var auth = express.basicAuth(verifyUser.auth, 'Validation');
 
@@ -38,7 +38,6 @@ app.configure('development', function(){
 
 app.all(urlBase + '*', auth, function (req, res, next) { next(); }); // enforce authorization
 app.get('/search', express.bodyParser(), routes.search);
-app.get('/findLocation', routes.findLocation);
 app.get(urlBase + 'line/:page/:line', routes.lineRead);
 app.get(urlBase + 'line/:id', routes.lineRead);
 app.put(urlBase + 'line/:id', express.bodyParser(), routes.lineUpdate);

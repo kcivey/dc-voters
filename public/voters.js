@@ -1,5 +1,5 @@
 (function ($) {
-    var urlBase = '/voters/',
+    var urlBase = '',
         findingCodes, extraFields;
 
     $.getJSON(urlBase + '/config.json', function (data) {
