@@ -5,7 +5,6 @@ module.exports = function (app) {
         passwordHash = require('password-hash'),
         db = require('../db'),
         pkg = require('../package.json'),
-        dcGisProxy = require('http-proxy').createProxyServer({target: 'http://citizenatlas.dc.gov'})
         numberList = require('../number-list');
 
     function sendTsv(req, res, sql, values) {

@@ -4,52 +4,49 @@
  */
 
 var express = require('express'),
+    jsonParser = require('body-parser').json(),
+    compression = require('compression'),
+    morgan = require('morgan'),
+    errorHandler = require('errorhandler'),
+    passport = require('passport'),
+    BasicStrategy = require('passport-http').BasicStrategy,
     http = require('http'),
     path = require('path'),
     config = require('./config'),
     verifyUser = require('./verify-user'),
     urlBase = '/';
 
-var auth = express.basicAuth(verifyUser.auth, 'Validation');
+passport.use(new BasicStrategy(verifyUser.auth));
 
 var app = express();
 
-express.logger.token('user', function (req, res) {
-    return req.user || '-';
-});
-var logFormat = ':remote-addr :user - [:date] ":method :url HTTP/:http-version" :status :res[content-length] ":referrer" ":user-agent"';
-
-app.configure(function(){
-  app.set('port', process.env.PORT || 3000);
-  app.set('views', __dirname + '/views');
-  app.set('view engine', 'jade');
-  app.use(express.favicon());
-  app.use(express.logger(logFormat));
-  app.use(express.methodOverride());
-  app.use(app.router);
-  app.use(express.static(path.join(__dirname, 'public')));
-});
+app.set('port', process.env.PORT || 3000);
+app.set('views', __dirname + '/views');
+app.set('view engine', 'jade');
+app.use(morgan('combined'));
+app.use(express.static(path.join(__dirname, 'public')));
 
 var routes = require('./routes')(app);
 
-app.configure('development', function(){
-  app.use(express.errorHandler());
-});
+var env = process.env.NODE_ENV || 'development';
+if ('development' == env) {
+  app.use(errorHandler());
+}
 
-app.all(urlBase + '*', auth, function (req, res, next) { next(); }); // enforce authorization
-app.get('/search', express.bodyParser(), routes.search);
+app.all(urlBase + '*',   passport.authenticate('basic', { session: false }), function (req, res, next) { next(); }); // enforce authorization
+app.get('/search', routes.search);
 app.get(urlBase + 'line/:page/:line', routes.lineRead);
 app.get(urlBase + 'line/:id', routes.lineRead);
-app.put(urlBase + 'line/:id', express.bodyParser(), routes.lineUpdate);
+app.put(urlBase + 'line/:id', jsonParser, routes.lineUpdate);
 app.get(urlBase + 'status', routes.status);
 app.post(urlBase + 'mark-blank/:page/:line', routes.markBlank);
-app.get(urlBase + 'completed.tsv', express.compress(), routes.completedTsv);
-app.get(urlBase + 'dt-line/:checker', express.compress(), routes.dtLine);
-app.get(urlBase + 'dt-line', express.compress(), routes.dtLine);
+app.get(urlBase + 'completed.tsv', compression(), routes.completedTsv);
+app.get(urlBase + 'dt-line/:checker', compression(), routes.dtLine);
+app.get(urlBase + 'dt-line', compression(), routes.dtLine);
 app.get(urlBase + 'users', routes.getUsers);
-app.post(urlBase + 'users', express.bodyParser(), routes.createOrUpdateUser);
-app.put(urlBase + 'users/:id', express.bodyParser(), routes.createOrUpdateUser);
-app.post(urlBase + 'users/:username/pages', express.bodyParser(), routes.assignPages);
+app.post(urlBase + 'users', jsonParser, routes.createOrUpdateUser);
+app.put(urlBase + 'users/:id', jsonParser, routes.createOrUpdateUser);
+app.post(urlBase + 'users/:username/pages', jsonParser, routes.assignPages);
 app.get(urlBase + 'totals', routes.getTotals);
 
 http.createServer(app).listen(app.get('port'), function(){

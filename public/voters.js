@@ -339,7 +339,7 @@ function init() {
     $('#log-out').on('click', function (evt) {
         evt.preventDefault();
         $.ajax({
-            url: urlBase + 'status',
+            url: urlBase,
             dataType: 'json',
             username: '---',
             password: '',

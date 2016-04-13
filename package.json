@@ -1,20 +1,24 @@
 {
   "name": "dc-voters",
-  "version": "1.2.1",
+  "version": "2.0.0",
   "private": true,
   "scripts": {
     "start": "node app"
   },
   "dependencies": {
-    "express": "3.0.0rc2",
-    "jade": "*",
-    "mysql": "2.0.0-alpha3",
-    "nconf": "*",
-    "http-proxy": "*",
-    "password-hash": "*",
-    "underscore": "*",
-    "async": "*",
-    "moment": "*",
-    "request": "*"
+    "async": "^1.5.2",
+    "body-parser": "^1.15.0",
+    "compression": "^1.6.1",
+    "errorhandler": "^1.4.3",
+    "express": "^4.13.4",
+    "moment": "^2.12.0",
+    "morgan": "^1.7.0",
+    "mysql": "^2.10.2",
+    "nconf": "^0.8.4",
+    "passport": "^0.3.2",
+    "passport-http": "^0.3.0",
+    "password-hash": "^1.2.2",
+    "request": "^2.71.0",
+    "underscore": "^1.8.3"
   }
 }
