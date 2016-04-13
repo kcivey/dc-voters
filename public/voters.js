@@ -182,8 +182,16 @@ function init() {
             if (err) {
                 alert(err);
             }
-            if (!status.user.admin) {
-                $('.admin-only').remove();
+            if (!status.user) {
+                $('#top-nav,#main-container').hide();
+                $('#login-form').show();
+            }
+            else {
+                $('#top-nav,#main-container').show();
+                $('#login-form').hide();
+                if (!status.user.admin) {
+                    $('.admin-only').remove();
+                }
             }
             setStatus(status);
         });

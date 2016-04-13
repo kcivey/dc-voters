@@ -4,5 +4,6 @@
     "database": "dc_voters",
     "user": "USER",
     "password": "PASSWORD"
-  }
+  },
+  "secret": "SECRET"
 }

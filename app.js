@@ -1,22 +1,20 @@
-
-/**
- * Module dependencies.
- */
-
 var express = require('express'),
     jsonParser = require('body-parser').json(),
     compression = require('compression'),
     morgan = require('morgan'),
     errorHandler = require('errorhandler'),
     passport = require('passport'),
-    BasicStrategy = require('passport-http').BasicStrategy,
+    LocalStrategy = require('passport-local').Strategy,
+    session = require('express-session'),
     http = require('http'),
     path = require('path'),
     config = require('./config'),
     verifyUser = require('./verify-user'),
     urlBase = '/';
 
-passport.use(new BasicStrategy(verifyUser.auth));
+passport.use(new LocalStrategy(verifyUser.auth));
+passport.serializeUser(verifyUser.serialize);
+passport.deserializeUser(verifyUser.deserialize);
 
 var app = express();
 
@@ -25,6 +23,9 @@ app.set('views', __dirname + '/views');
 app.set('view engine', 'jade');
 app.use(morgan('combined'));
 app.use(express.static(path.join(__dirname, 'public')));
+app.use(session({secret: config.get('secret'), resave: false, saveUninitialized: false}));
+app.use(passport.initialize());
+app.use(passport.session());
 
 var routes = require('./routes')(app);
 
@@ -33,7 +34,7 @@ if ('development' == env) {
   app.use(errorHandler());
 }
 
-app.all(urlBase + '*',   passport.authenticate('basic', { session: false }), function (req, res, next) { next(); }); // enforce authorization
+app.all(urlBase + '*',   passport.authenticate('local', {failureRedirect: urlBase}), function (req, res, next) { next(); }); // enforce authorization
 app.get('/search', routes.search);
 app.get(urlBase + 'line/:page/:line', routes.lineRead);
 app.get(urlBase + 'line/:id', routes.lineRead);
