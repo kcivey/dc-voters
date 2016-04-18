@@ -1,5 +1,5 @@
 var express = require('express'),
-    jsonParser = require('body-parser').json(),
+    bodyParser = require('body-parser'),
     compression = require('compression'),
     morgan = require('morgan'),
     errorHandler = require('errorhandler'),
@@ -10,9 +10,10 @@ var express = require('express'),
     path = require('path'),
     config = require('./config'),
     verifyUser = require('./verify-user'),
-    urlBase = '/';
+    urlBase = '/',
+    apiUrlBase = urlBase + 'api/';
 
-passport.use(new LocalStrategy(verifyUser.auth));
+passport.use('local', new LocalStrategy(verifyUser.auth));
 passport.serializeUser(verifyUser.serialize);
 passport.deserializeUser(verifyUser.deserialize);
 
@@ -26,6 +27,8 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(session({secret: config.get('secret'), resave: false, saveUninitialized: false}));
 app.use(passport.initialize());
 app.use(passport.session());
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({extended: true}));
 
 var routes = require('./routes')(app);
 
@@ -34,22 +37,29 @@ if ('development' == env) {
   app.use(errorHandler());
 }
 
-app.all(urlBase + '*',   passport.authenticate('local', {failureRedirect: urlBase}), function (req, res, next) { next(); }); // enforce authorization
-app.get('/search', routes.search);
-app.get(urlBase + 'line/:page/:line', routes.lineRead);
-app.get(urlBase + 'line/:id', routes.lineRead);
-app.put(urlBase + 'line/:id', jsonParser, routes.lineUpdate);
-app.get(urlBase + 'status', routes.status);
-app.post(urlBase + 'mark-blank/:page/:line', routes.markBlank);
-app.get(urlBase + 'completed.tsv', compression(), routes.completedTsv);
-app.get(urlBase + 'dt-line/:checker', compression(), routes.dtLine);
-app.get(urlBase + 'dt-line', compression(), routes.dtLine);
-app.get(urlBase + 'users', routes.getUsers);
-app.post(urlBase + 'users', jsonParser, routes.createOrUpdateUser);
-app.put(urlBase + 'users/:id', jsonParser, routes.createOrUpdateUser);
-app.post(urlBase + 'users/:username/pages', jsonParser, routes.assignPages);
-app.get(urlBase + 'totals', routes.getTotals);
+app.post(urlBase + 'login', passport.authenticate('local', {successRedirect: urlBase, failureRedirect: urlBase}));
+app.all(apiUrlBase + '*', isAuthenticated);
+app.get(apiUrlBase + 'search', routes.search);
+app.get(apiUrlBase + 'line/:page/:line', routes.lineRead);
+app.get(apiUrlBase + 'line/:id', routes.lineRead);
+app.put(apiUrlBase + 'line/:id', routes.lineUpdate);
+app.get(apiUrlBase + 'status', routes.status);
+app.post(apiUrlBase + 'mark-blank/:page/:line', routes.markBlank);
+app.get(apiUrlBase + 'completed.tsv', compression(), routes.completedTsv);
+app.get(apiUrlBase + 'dt-line/:checker', compression(), routes.dtLine);
+app.get(apiUrlBase + 'dt-line', compression(), routes.dtLine);
+app.get(apiUrlBase + 'users', routes.getUsers);
+app.post(apiUrlBase + 'users', routes.createOrUpdateUser);
+app.put(apiUrlBase + 'users/:id', routes.createOrUpdateUser);
+app.post(apiUrlBase + 'users/:username/pages', routes.assignPages);
+app.get(apiUrlBase + 'totals', routes.getTotals);
 
 http.createServer(app).listen(app.get('port'), function(){
   console.log("Express server listening on port " + app.get('port'));
 });
+
+function isAuthenticated(req, res, next) {
+  if (req.isAuthenticated())
+    return next();
+  res.sendStatus(401);
+}

@@ -7,6 +7,7 @@ module.exports = {
             'SELECT * FROM users WHERE username = ?',
             [username],
             function (err, rows) {
+                console.log('db result', err, rows[0]);
                 if (err) {
                     callback(err);
                 }
@@ -20,7 +21,6 @@ module.exports = {
         );
     },
     serialize: function (user, done) {
-        console.log('deserializing user', user);
         done(null, user.id);
     },
     deserialize: function (id, done) {
@@ -29,14 +29,13 @@ module.exports = {
             [id],
             function (err, rows) {
                 if (err) {
-                    callback(err);
+                    done(err);
                 }
                 else if (rows.length) {
-                    console.log('deserializing user', rows[0]);
-                    callback(null, rows[0]);
+                    done(null, rows[0]);
                 }
                 else {
-                    callback(null, null);
+                    done(null, null);
                 }
             }
         );

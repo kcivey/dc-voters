@@ -1,8 +1,10 @@
 (function ($) {
-    var urlBase = '',
+    var urlBase = '/',
+        apiUrlBase = urlBase + 'api/',
+        user = null,
         findingCodes, extraFields;
 
-    $.getJSON(urlBase + '/config.json', function (data) {
+    $.getJSON(urlBase + 'config.json', function (data) {
         findingCodes = data.findingCodes;
         extraFields = data.extraFields;
         $(init);
@@ -29,7 +31,7 @@ function init() {
                 }
             };
         },
-        urlRoot: urlBase + 'line',
+        urlRoot: apiUrlBase + 'line',
         setSaved: function () {
             this.saved = true;
         },
@@ -156,7 +158,7 @@ function init() {
 
     function getStatus(callback) {
         $.ajax({
-            url: urlBase + 'status',
+            url: apiUrlBase + 'status',
             dataType: 'json',
             cache: false,
             success: function (data) {
@@ -172,7 +174,9 @@ function init() {
                 callback(null, status); // null for no error
             },
             error: function (jqXhr, textStatus, errorThrown) {
-                callback('Unexpected problem: ' + textStatus + ' (' + errorThrown + ')');
+                if (errorThrown != 'Unauthorized') {
+                    callback('Unexpected problem: ' + textStatus + ' (' + errorThrown + ')');
+                }
             }
         });
     }
@@ -296,7 +300,7 @@ function init() {
         .on('click', '#blank-button, #rest-blank-button', function () {
             var rest = this.id.match(/^rest/),
                 rec = status.lineRecord,
-                url = urlBase + 'mark-blank/' + rec.page + '/' + rec.line;
+                url = apiUrlBase + 'mark-blank/' + rec.page + '/' + rec.line;
             if (rest) {
                 url += '-' + 20;
             }
@@ -317,7 +321,7 @@ function init() {
                 page = +$('[name=page]', form).val(),
                 line = +$('[name=line]', form).val();
             $.ajax({
-                url: urlBase + 'line/' + page + '/' + line,
+                url: apiUrlBase + 'line/' + page + '/' + line,
                 cache: false,
                 dataType: 'json',
                 success: function (lineRecord) {
@@ -369,7 +373,7 @@ function init() {
         }
         $('#top-row').hide();
         $('#bottom-row').show().html($('#line-table-template').html());
-        url = urlBase + 'dt-line';
+        url = apiUrlBase + 'dt-line';
         if (!status.user.admin) {
             url += '/' + status.user.username;
         }
@@ -570,7 +574,7 @@ function init() {
 
     function showUsers() {
         $.ajax({
-            url: urlBase + 'users',
+            url: apiUrlBase + 'users',
             dataType: 'json',
             success: function (users) {
                 $('#top-row').hide();
@@ -584,7 +588,7 @@ function init() {
     $('#bottom-row').on('click', '.save-user', function () {
         var $tr = $(this).closest('tr'),
             id = $tr.data('id'),
-            url = urlBase + 'users',
+            url = apiUrlBase + 'users',
             method = 'POST',
             userData = {
                 username: $('[name=username]', $tr).val(),
@@ -620,7 +624,7 @@ function init() {
             username = $('.username', modal).text(),
             pages = $('[name=pages]', modal).val();
         $.ajax({
-            url: urlBase + 'users/' + username + '/pages',
+            url: apiUrlBase + 'users/' + username + '/pages',
             data: JSON.stringify(stringToList(pages)),
             dataType: 'json',
             contentType: 'application/json',
@@ -639,7 +643,7 @@ function init() {
 
     function showTotals() {
         $.ajax({
-            url: urlBase + 'totals',
+            url: apiUrlBase + 'totals',
             dataType: 'json',
             success: function (rawTotals) {
                 var totals = {'Unprocessed': rawTotals['']},
