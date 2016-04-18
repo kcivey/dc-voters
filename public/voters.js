@@ -174,7 +174,10 @@ function init() {
                 callback(null, status); // null for no error
             },
             error: function (jqXhr, textStatus, errorThrown) {
-                if (errorThrown != 'Unauthorized') {
+                if (errorThrown == 'Unauthorized') {
+                    callback(null, {});
+                }
+                else {
                     callback('Unexpected problem: ' + textStatus + ' (' + errorThrown + ')');
                 }
             }
@@ -275,6 +278,18 @@ function init() {
         lineForm.show();
     }
 
+    $('#login-button').on('click', function () {
+        var username = $('#login-username').val(),
+            password = $('#login-password').val();
+        console.log('click', username, password);
+        if (username && password) {
+            $.ajax({
+                url: urlBase + 'login',
+                data: {username: username, password: password},
+                type: 'post'
+            }).then(start);
+        }
+    });
     $('#voter-table')
         .on('click', '.match', function () {
             var voterData = $(this).closest('tr').data('voterData');
@@ -307,11 +322,8 @@ function init() {
             $.ajax({
                 url: url,
                 type: 'post',
-                dataType: 'json',
-                success: function (data) {
-                    start();
-                }
-            });
+                dataType: 'json'
+            }).then(start);
         })
         .on('click', '#illegible-button', function () {
             editLine({finding: 'I'});
@@ -346,20 +358,13 @@ function init() {
             });
         });
 
-    // Somewhat klugy way to handle logging out of HTTP authentication
-    // by forcing a login with bad credentials
     $('#log-out').on('click', function (evt) {
         evt.preventDefault();
+        user = null;
         $.ajax({
-            url: urlBase,
-            dataType: 'json',
-            username: '---',
-            password: '',
-            cache: false,
-            complete: function () {
-                location.href = '/';
-            }
-        });
+            url: urlBase + 'logout',
+            cache: false
+        }).then(start);
     });
 
     $('#review-links').on('click', 'a', function (evt) {

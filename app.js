@@ -38,6 +38,10 @@ if ('development' == env) {
 }
 
 app.post(urlBase + 'login', passport.authenticate('local', {successRedirect: urlBase, failureRedirect: urlBase}));
+app.get(urlBase + 'logout', function (req, res) {
+  req.logout();
+  res.redirect('/');
+});
 app.all(apiUrlBase + '*', isAuthenticated);
 app.get(apiUrlBase + 'search', routes.search);
 app.get(apiUrlBase + 'line/:page/:line', routes.lineRead);
