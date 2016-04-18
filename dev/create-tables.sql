@@ -2,15 +2,15 @@ CREATE TABLE IF NOT EXISTS pages (
   `id` SMALLINT UNSIGNED NOT NULL,
   `circulator_id` SMALLINT UNSIGNED NOT NULL,
   `date_signed` DATE DEFAULT NULL,
+  `notes` TEXT DEFAULT '' NOT NULL,
   PRIMARY KEY (`id`),
   KEY (`circulator_id`)
 );
 
 CREATE TABLE IF NOT EXISTS circulators (
   `id` SMALLINT UNSIGNED NOT NULL AUTO_INCREMENT,
-  `last_name` VARCHAR(255) NOT NULL,
-  `first_name` VARCHAR(255) NOT NULL,
-  `suffix` VARCHAR(255) DEFAULT '' NOT NULL,
+  `name` VARCHAR(255) NOT NULL,
+  `notes` TEXT DEFAULT '' NOT NULL,
   PRIMARY KEY (`id`)
 );
 
