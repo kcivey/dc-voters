@@ -433,6 +433,11 @@ module.exports = function (app) {
                     res.send(204);
                 }
             )
+        },
+
+        logOut: function (req, res) {
+            req.logOut();
+            res.redirect('/');
         }
     };
 };

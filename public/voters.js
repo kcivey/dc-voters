@@ -364,7 +364,9 @@ function init() {
         $.ajax({
             url: urlBase + 'logout',
             cache: false
-        }).then(start);
+        }).then(function () {
+            location.href = urlBase;
+        });
     });
 
     $('#review-links').on('click', 'a', function (evt) {
