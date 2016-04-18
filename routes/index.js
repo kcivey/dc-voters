@@ -373,6 +373,82 @@ module.exports = function (app) {
             });
         },
 
+        createOrUpdateCirculator: function (req, res) {
+            var table = 'circulators',
+                id = +req.param('id'),
+                data = req.body,
+                values = [data],
+                sql;
+            if (id) {
+                delete data.id;
+                sql = 'UPDATE ' + table + ' SET ? WHERE id = ?';
+                values.push(id);
+            }
+            else {
+                if (!data.last_name || !data.first_name) {
+                    res.send(400);
+                    return;
+                }
+                sql = 'INSERT INTO ' + table + ' SET ?';
+            }
+            db.query(sql, values, function (err, result) {
+                if (err) {
+                    console.log(table + ' SQL error', err);
+                    res.send(500);
+                    return;
+                }
+                if (result.insertId) {
+                    id = result.insertId;
+                }
+                if (!id) {
+                    res.send(500);
+                    return;
+                }
+                db.query(
+                    'SELECT * FROM ' + table + ' WHERE id = ?',
+                    [id],
+                    function (err, rows) {
+                        res.json(rows[0]);
+                    }
+                );
+            });
+        },
+
+        createOrUpdatePage: function (req, res) {
+            var table = 'pages',
+                id = +req.param('id'),
+                data = req.body,
+                values = [data],
+                sql;
+            if (id) {
+                delete data.id;
+                sql = 'UPDATE ' + table + ' SET ? WHERE id = ?';
+                values.push(id);
+            }
+            else {
+                if (!data.id) {
+                    res.send(400);
+                    return;
+                }
+                id = data.id;
+                sql = 'INSERT INTO ' + table + ' SET ?';
+            }
+            db.query(sql, values, function (err, result) {
+                if (err) {
+                    console.log(table + ' SQL error', err);
+                    res.send(500);
+                    return;
+                }
+                db.query(
+                    'SELECT * FROM ' + table + ' WHERE id = ?',
+                    [id],
+                    function (err, rows) {
+                        res.json(rows[0]);
+                    }
+                );
+            });
+        },
+
         createOrUpdateUser: function (req, res) {
             var id = +req.param('id'),
                 userData = req.body,
