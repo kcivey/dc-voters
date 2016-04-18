@@ -41,7 +41,7 @@ function init() {
     });
 
     var LineView = Backbone.View.extend({
-        html: _.template($('#line-form-template').html(), {findingCodes: findingCodes, extraFields: extraFields}),
+        template: _.template($('#line-form-template').html()),
         initialize: function () {
             this.modelBinder = new Backbone.ModelBinder();
             this.render();
@@ -80,7 +80,7 @@ function init() {
             input.focus();
         },
         render: function () {
-            this.$el.html(this.html);
+            this.$el.html(this.template({findingCodes: findingCodes, extraFields: extraFields}));
             this.modelBinder.bind(this.model, this.el);
             return this;
         },
