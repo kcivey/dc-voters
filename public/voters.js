@@ -278,10 +278,10 @@ function init() {
         lineForm.show();
     }
 
-    $('#login-button').on('click', function () {
+    $('#login-form').on('submit', function (e) {
         var username = $('#login-username').val(),
             password = $('#login-password').val();
-        console.log('click', username, password);
+        e.preventDefault();
         if (username && password) {
             $.ajax({
                 url: urlBase + 'login',
