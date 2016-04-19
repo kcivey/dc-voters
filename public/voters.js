@@ -545,7 +545,7 @@ function init() {
             10000
         );
         $.ajax({
-            url: '/search',
+            url: apiUrlBase + 'search',
             data: searchData,
             dataType: 'json',
             success: handleResults,
