@@ -6,6 +6,9 @@ var express = require('express'),
     passport = require('passport'),
     LocalStrategy = require('passport-local').Strategy,
     session = require('express-session'),
+    MySQLStore = require('express-mysql-session')(session),
+    db = require('./db'),
+    sessionStore = new MySQLStore({}, db),
     http = require('http'),
     path = require('path'),
     config = require('./config'),
@@ -24,7 +27,7 @@ app.set('views', __dirname + '/views');
 app.set('view engine', 'jade');
 app.use(morgan('combined'));
 app.use(express.static(path.join(__dirname, 'public')));
-app.use(session({secret: config.get('secret'), resave: false, saveUninitialized: false}));
+app.use(session({secret: config.get('secret'), store: sessionStore, resave: false, saveUninitialized: false}));
 app.use(passport.initialize());
 app.use(passport.session());
 app.use(bodyParser.json());

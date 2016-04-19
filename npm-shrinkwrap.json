@@ -287,6 +287,11 @@
       "from": "express@4.13.4",
       "resolved": "https://registry.npmjs.org/express/-/express-4.13.4.tgz"
     },
+    "express-mysql-session": {
+      "version": "1.0.0-rc.0",
+      "from": "express-mysql-session@latest",
+      "resolved": "https://registry.npmjs.org/express-mysql-session/-/express-mysql-session-1.0.0-rc.0.tgz"
+    },
     "express-session": {
       "version": "1.13.0",
       "from": "express-session@latest",
@@ -523,6 +528,23 @@
       "version": "2.10.2",
       "from": "mysql@2.10.2",
       "resolved": "https://registry.npmjs.org/mysql/-/mysql-2.10.2.tgz"
+    },
+    "mysql-connection-manager": {
+      "version": "0.0.12",
+      "from": "mysql-connection-manager@0.0.12",
+      "resolved": "https://registry.npmjs.org/mysql-connection-manager/-/mysql-connection-manager-0.0.12.tgz",
+      "dependencies": {
+        "bignumber.js": {
+          "version": "2.1.2",
+          "from": "bignumber.js@2.1.2",
+          "resolved": "https://registry.npmjs.org/bignumber.js/-/bignumber.js-2.1.2.tgz"
+        },
+        "mysql": {
+          "version": "2.10.0",
+          "from": "mysql@2.10.0",
+          "resolved": "https://registry.npmjs.org/mysql/-/mysql-2.10.0.tgz"
+        }
+      }
     },
     "nconf": {
       "version": "0.8.4",
