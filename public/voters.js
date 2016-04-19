@@ -579,8 +579,10 @@ function init() {
 
     $('.table-link').on('click', showTable);
 
-    function showTable() {
-        var name = $(this).data('name');
+    function showTable(name) {
+        if (!name) {
+            name = $(this).data('name');
+        }
         $.ajax({
             url: apiUrlBase + name,
             dataType: 'json',
@@ -617,7 +619,7 @@ function init() {
             data: userData,
             type: method,
             success: function (data) {
-                showUsers();
+                showTable('users');
             }
         });
     }).on('click', '.user-create-row', function () {
@@ -642,7 +644,7 @@ function init() {
             type: 'POST',
             success: function () {
                 $('#assign-pages-modal').modal('hide');
-                showUsers();
+                showTable('users');
             }
         });
     }).on('click', '.assign-modal-button', function () {
