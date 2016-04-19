@@ -199,8 +199,8 @@ function init() {
                 if (!status.user.admin) {
                     $('.admin-only').remove();
                 }
+                setStatus(status);
             }
-            setStatus(status);
         });
     }
 
