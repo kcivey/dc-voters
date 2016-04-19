@@ -11,11 +11,8 @@
     });
 
 function init() {
-    var voterRowTemplate = _.template($('#voter-row-template').html()),
-        checkFormTemplate = _.template($('#check-form-template').html()),
-        alertTemplate = _.template($('#alert-template').html()),
-        userTableTemplate = _.template($('#user-table-template').html()),
-        totalTableTemplate = _.template($('#total-table-template').html()),
+    var templateCache = {},
+        alertTemplate = getTemplate('alert'),
         status = {},
         lineView, searchTimeout;
 
@@ -41,7 +38,7 @@ function init() {
     });
 
     var LineView = Backbone.View.extend({
-        template: _.template($('#line-form-template').html()),
+        template: getTemplate('line-form'),
         initialize: function () {
             this.modelBinder = new Backbone.ModelBinder();
             this.render();
@@ -85,7 +82,7 @@ function init() {
             return this;
         },
         showAlert: function (successful, text) {
-            var alert = $(alertTemplate({successful: successful, text: text || ''}));
+            var alert = alertTemplate({successful: successful, text: text || ''});
             // remove any earlier alerts
             while (this.$el.prev().hasClass('alert')) {
                 this.$el.prev().remove();
@@ -210,6 +207,7 @@ function init() {
 
     function setStatus(status) {
         var statusDiv = $('#status'),
+            checkFormTemplate = getTemplate('check-form'),
             rec = status.lineRecord || {},
             total = status.incomplete + status.complete,
             overall = status.overall,
@@ -342,7 +340,7 @@ function init() {
                 },
                 error: function (jqXhr, textStatus, errorThrown) {
                     var message = textStatus + ' (' + errorThrown + ')',
-                        alert = $(alertTemplate({successful: false, text: message})),
+                        alert = alertTemplate({successful: false, text: message}),
                         timeoutHandle = setTimeout(function () {
                             alert.alert('close');
                         }, 2500);
@@ -373,13 +371,14 @@ function init() {
         evt.preventDefault();
         var linkText = $(this).text(),
             value = $(this).data('value'),
+            lineTableTemplate = getTemplate('line-table'),
             dataTable, url;
         if (/^Back/.test(linkText)) {
             backToChecking();
             return;
         }
         $('#top-row').hide();
-        $('#bottom-row').show().html($('#line-table-template').html());
+        $('#bottom-row').show().html(lineTableTemplate({}));
         url = apiUrlBase + 'dt-line';
         if (!status.user.admin) {
             url += '/' + status.user.username;
@@ -559,7 +558,8 @@ function init() {
     function handleResults(data) {
         var tbody = $('#voter-table tbody').empty(),
             explanation = $('#explanation').empty(),
-            results = data.results;
+            results = data.results,
+            voterRowTemplate = getTemplate('voter-row');
         $('#result-div > *').hide();
         $('#voter-table').show();
         $.each(results, function (i, v) {
@@ -577,15 +577,19 @@ function init() {
         $('#explanation').append(data.explanation).show();
     }
 
-    $('#users-link').on('click', showUsers);
+    $('.table-link').on('click', showTable);
 
-    function showUsers() {
+    function showTable() {
+        var name = $(this).data('name');
         $.ajax({
-            url: apiUrlBase + 'users',
+            url: apiUrlBase + name,
             dataType: 'json',
-            success: function (users) {
+            success: function (data) {
+                var template = getTemplate(name.replace(/s$/, '') + '-table'),
+                    values = {};
+                values[name] = data;
                 $('#top-row').hide();
-                $('#bottom-row').html(userTableTemplate({users: users})).show()
+                $('#bottom-row').html(template(values)).show()
                     .on('click', '.back-button', backToChecking);
             }
         });
@@ -649,11 +653,12 @@ function init() {
     $('#totals-link').on('click', showTotals);
 
     function showTotals() {
+        var totalTableTemplate = getTemplate('total-table');
         $.ajax({
             url: apiUrlBase + 'totals',
             dataType: 'json',
             success: function (rawTotals) {
-                var totals = {'Unprocessed': rawTotals['']},
+                var totals = {'Unprocessed': rawTotals[''] || 0},
                     processedLines = 0,
                     nonBlank;
                 _.each(findingCodes, function (label, code) {
@@ -676,6 +681,13 @@ function init() {
             }
         });
         return false;
+    }
+
+    function getTemplate(name) {
+        if (!templateCache[name]) {
+            templateCache[name] = _.template($('#' + name + '-template').html());
+        }
+        return templateCache[name];
     }
 
     function stringToList(s) {

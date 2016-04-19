@@ -134,8 +134,10 @@
                   <b class="caret"></b>
               </a>
               <ul class="dropdown-menu">
-                  <li><a id="users-link" href="#">Users</a></li>
-                  <li><a id="totals-link" href="#">Totals</a></li>
+                <li><a class="table-link" data-name="circulators" href="#">Circulators</a></li>
+                <li><a class="table-link" data-name="pages" href="#">Pages</a></li>
+                <li><a class="table-link" data-name="users" href="#">Users</a></li>
+                <li><a id="totals-link" href="#">Totals</a></li>
               </ul>
             </li>
             <li><a id="log-out" href="/">Log Out</a></li>
@@ -406,6 +408,52 @@
     </script>
     <script type="text/template" id="line-table-template">
       <table id="line-table" class="table table-condensed table-striped"></table>
+    </script>
+    <script type="text/template" id="circulator-table-template">
+      <button type="button" class="btn back-button">Back to Checking</button>
+      <table id="circulator-table" class="table table-condensed table-striped" style="width: auto;">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Page Count</th>
+            <th>Notes</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% _.each(circulators, function (c) { %>
+            <tr data-id="<%- c.id %>">
+              <td><%- c.id %></td>
+              <td><%- c.name %></td>
+              <td><%- c.page_count %></td>
+              <td><%- c.notes %></td>
+            </tr>
+          <% }); %>
+        </tbody>
+      </table>
+    </script>
+    <script type="text/template" id="page-table-template">
+      <button type="button" class="btn back-button">Back to Checking</button>
+      <table id="page-table" class="table table-condensed table-striped" style="width: auto;">
+        <thead>
+        <tr>
+          <th>#</th>
+          <th>Circulator</th>
+          <th>Date</th>
+          <th>Notes</th>
+        </tr>
+        </thead>
+        <tbody>
+        <% _.each(pages, function (p) { %>
+        <tr data-id="<%- c.id %>">
+          <td><%- p.id %></td>
+          <td><%- p.circulator %></td>
+          <td><%- p.date %></td>
+          <td><%- p.notes %></td>
+        </tr>
+        <% }); %>
+        </tbody>
+      </table>
     </script>
     <script type="text/template" id="user-table-template">
         <button type="button" class="btn back-button">Back to Checking</button>

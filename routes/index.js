@@ -343,6 +343,29 @@ module.exports = function (app) {
             });
         },
 
+        getCirculators: function (req, res) {
+            var sql = 'SELECT c.*, COUNT(p.id) AS page_count ' +
+                    'FROM circulators c LEFT JOIN pages p ON p.circulator_id = c.id ' +
+                    'GROUP BY c.id ORDER BY c.name';
+            db.query(sql, function (err, rows) {
+                if (err) {
+                    throw err;
+                }
+                res.json(rows);
+            });
+        },
+
+        getPages: function (req, res) {
+            var sql = 'SELECT p.*, c.name AS circulator_name ' +
+                    'FROM pages p LEFT JOIN circulators c ON p.circulator_id = c.id ORDER BY p.id';
+            db.query(sql, function (err, rows) {
+                if (err) {
+                    throw err;
+                }
+                res.json(rows);
+            });
+        },
+
         getUsers: function (req, res) {
             var sql = 'SELECT u.id, u.username, u.email, u.admin, COUNT(DISTINCT l.page) AS page_count,' +
                     'GROUP_CONCAT(DISTINCT l.page ORDER BY l.page) AS pages ' +
