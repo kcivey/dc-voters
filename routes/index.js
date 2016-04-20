@@ -114,9 +114,9 @@ module.exports = function (app) {
         },
 
         lineRead: function (req, res) {
-            var id = +req.param('id'),
-                page = +req.param('page'),
-                line = +req.param('line'),
+            var id = +req.params.id,
+                page = +req.params.page,
+                line = +req.params.line,
                 sql = 'SELECT * FROM petition_lines WHERE ',
                 values = [];
             if (id) {
@@ -142,7 +142,7 @@ module.exports = function (app) {
         },
 
         lineUpdate: function (req, res) {
-            var id = +req.param('id'),
+            var id = +req.params.id,
                 lineData = req.body;
             delete lineData.id;
             lineData.check_time = new Date();
@@ -247,8 +247,8 @@ module.exports = function (app) {
         },
 
         markBlank: function (req, res) {
-            var page = +req.param('page'),
-                line = req.param('line'),
+            var page = +req.params.page,
+                line = req.params.line,
                 sql = "UPDATE petition_lines SET ? WHERE checker = ? AND page = ? AND line ",
                 values = [
                     {finding: 'B', checker: req.user.username, check_time: new Date()},
@@ -278,14 +278,14 @@ module.exports = function (app) {
         },
 
         dtLine: function (req, res) {
-            var start = +req.param('iDisplayStart') || 0,
-                length = +req.param('iDisplayLength') || 100,
-                data = {sEcho: +req.param('sEcho') || 1},
-                search = req.param('sSearch'),
-                sortingCols = +req.param('iSortingCols') || 0,
-                checker = req.param('checker'),
-                filterColumn = req.param('filterColumn') || '',
-                filterValue = req.param('filterValue'),
+            var start = +req.params.iDisplayStart || 0,
+                length = +req.params.iDisplayLength || 100,
+                data = {sEcho: +req.params.sEcho || 1},
+                search = req.params.sSearch,
+                sortingCols = +req.params.iSortingCols || 0,
+                checker = req.params.checker,
+                filterColumn = req.params.filterColumn || '',
+                filterValue = req.params.filterValue,
                 table = 'petition_lines',
                 sql = 'SELECT COUNT(*) AS `count` FROM ' + table,
                 where = " WHERE finding <> ''",
@@ -322,10 +322,10 @@ module.exports = function (app) {
                         sql += ')';
                     }
                     for (i = 0; i < sortingCols; i++) {
-                        sortColumnIndex = +req.param('iSortCol_' + i) || 0;
-                        sortColumn = req.param('mDataProp_' + sortColumnIndex);
+                        sortColumnIndex = +req.params['iSortCol_' + i] || 0;
+                        sortColumn = req.params['mDataProp_' + sortColumnIndex];
                         if (/^\w+$/.test(sortColumn) && sortColumn != 'function') {
-                            sortDirection = req.param('sSortDir_' + i);
+                            sortDirection = req.params['sSortDir_' + i];
                             order.push(sortColumn + (sortDirection == 'desc' ? ' DESC' : ''));
                         }
                     }
@@ -344,7 +344,7 @@ module.exports = function (app) {
         },
 
         getCirculator: function (req, res) {
-            var id = +req.param('id'),
+            var id = +req.params.id,
                 sql = 'SELECT * FROM circulators WHERE id = ?';
             db.query(sql, [id], function (err, rows) {
                 if (err) {
@@ -372,7 +372,7 @@ module.exports = function (app) {
         },
 
         getPage: function (req, res) {
-            var id = +req.param('id'),
+            var id = +req.params.id,
                 sql = 'SELECT * FROM pages WHERE id = ?';
             db.query(sql, [id], function (err, rows) {
                 if (err) {
@@ -430,7 +430,7 @@ module.exports = function (app) {
 
         createOrUpdateCirculator: function (req, res) {
             var table = 'circulators',
-                id = +req.param('id'),
+                id = +req.params.id,
                 data = req.body,
                 values = [data],
                 sql;
@@ -471,7 +471,7 @@ module.exports = function (app) {
 
         createOrUpdatePage: function (req, res) {
             var table = 'pages',
-                id = +req.param('id'),
+                id = +req.params.id,
                 data = req.body,
                 values = [data],
                 sql;
@@ -504,7 +504,7 @@ module.exports = function (app) {
         },
 
         createOrUpdateUser: function (req, res) {
-            var id = +req.param('id'),
+            var id = +req.params.id,
                 userData = req.body,
                 values = [userData],
                 sql;
@@ -547,7 +547,7 @@ module.exports = function (app) {
         },
 
         assignPages: function (req, res) {
-            var username = req.param('username'),
+            var username = req.params.username,
                 pages = req.body;
             if (!Array.isArray(pages) || pages.filter(function (v) { return !/^\d+$/.test(v); }).length) {
                 res.sendStatus(400);
