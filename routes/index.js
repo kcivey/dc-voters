@@ -136,7 +136,7 @@ module.exports = function (app) {
                     res.json(rows[0]);
                 }
                 else {
-                    res.send(404);
+                    res.sendStatus(404);
                 }
             });
         },
@@ -409,7 +409,7 @@ module.exports = function (app) {
             }
             else {
                 if (!data.last_name || !data.first_name) {
-                    res.send(400);
+                    res.sendStatus(400);
                     return;
                 }
                 sql = 'INSERT INTO ' + table + ' SET ?';
@@ -417,14 +417,14 @@ module.exports = function (app) {
             db.query(sql, values, function (err, result) {
                 if (err) {
                     console.log(table + ' SQL error', err);
-                    res.send(500);
+                    res.sendStatus(500);
                     return;
                 }
                 if (result.insertId) {
                     id = result.insertId;
                 }
                 if (!id) {
-                    res.send(500);
+                    res.sendStatus(500);
                     return;
                 }
                 db.query(
@@ -450,7 +450,7 @@ module.exports = function (app) {
             }
             else {
                 if (!data.id) {
-                    res.send(400);
+                    res.sendStatus(400);
                     return;
                 }
                 id = data.id;
@@ -459,7 +459,7 @@ module.exports = function (app) {
             db.query(sql, values, function (err, result) {
                 if (err) {
                     console.log(table + ' SQL error', err);
-                    res.send(500);
+                    res.sendStatus(500);
                     return;
                 }
                 db.query(
@@ -484,7 +484,7 @@ module.exports = function (app) {
             }
             else {
                 if (!userData.username || !userData.password) {
-                    res.send(400);
+                    res.sendStatus(400);
                     return;
                 }
                 sql = 'INSERT INTO users SET ?';
@@ -495,14 +495,14 @@ module.exports = function (app) {
             db.query(sql, values, function (err, result) {
                 if (err) {
                     console.log('user SQL error', err);
-                    res.send(500);
+                    res.sendStatus(500);
                     return;
                 }
                 if (result.insertId) {
                     id = result.insertId;
                 }
                 if (!id) {
-                    res.send(500);
+                    res.sendStatus(500);
                     return;
                 }
                 db.query(
@@ -519,7 +519,7 @@ module.exports = function (app) {
             var username = req.param('username'),
                 pages = req.body;
             if (!Array.isArray(pages) || pages.filter(function (v) { return !/^\d+$/.test(v); }).length) {
-                res.send(400);
+                res.sendStatus(400);
                 return;
             }
             db.query(
@@ -529,7 +529,7 @@ module.exports = function (app) {
                     if (err) {
                         throw err;
                     }
-                    res.send(204);
+                    res.sendStatus(204);
                 }
             )
         },

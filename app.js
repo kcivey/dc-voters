@@ -9,7 +9,6 @@ var express = require('express'),
     MySQLStore = require('express-mysql-session')(session),
     db = require('./db'),
     sessionStore = new MySQLStore({}, db),
-    http = require('http'),
     path = require('path'),
     config = require('./config'),
     verifyUser = require('./verify-user'),
@@ -64,7 +63,7 @@ app.put(apiUrlBase + 'users/:id', routes.createOrUpdateUser);
 app.post(apiUrlBase + 'users/:username/pages', routes.assignPages);
 app.get(apiUrlBase + 'totals', routes.getTotals);
 
-http.createServer(app).listen(app.get('port'), function(){
+app.listen(app.get('port'), function(){
   console.log("Express server listening on port " + app.get('port'));
 });
 
