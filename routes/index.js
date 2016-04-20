@@ -343,6 +343,22 @@ module.exports = function (app) {
             });
         },
 
+        getCirculator: function (req, res) {
+            var id = +req.param('id'),
+                sql = 'SELECT * FROM circulators WHERE id = ?';
+            db.query(sql, [id], function (err, rows) {
+                if (err) {
+                    throw err;
+                }
+                if (rows.length) {
+                    res.json(rows[0]);
+                }
+                else {
+                    res.sendStatus(404);
+                }
+            });
+        },
+
         getCirculators: function (req, res) {
             var sql = 'SELECT c.*, COUNT(p.id) AS page_count ' +
                     'FROM circulators c LEFT JOIN pages p ON p.circulator_id = c.id ' +
@@ -352,6 +368,22 @@ module.exports = function (app) {
                     throw err;
                 }
                 res.json(rows);
+            });
+        },
+
+        getPage: function (req, res) {
+            var id = +req.param('id'),
+                sql = 'SELECT * FROM pages WHERE id = ?';
+            db.query(sql, [id], function (err, rows) {
+                if (err) {
+                    throw err;
+                }
+                if (rows.length) {
+                    res.json(rows[0]);
+                }
+                else {
+                    res.sendStatus(404);
+                }
             });
         },
 
@@ -408,7 +440,7 @@ module.exports = function (app) {
                 values.push(id);
             }
             else {
-                if (!data.last_name || !data.first_name) {
+                if (!data.name) {
                     res.sendStatus(400);
                     return;
                 }
@@ -444,9 +476,8 @@ module.exports = function (app) {
                 values = [data],
                 sql;
             if (id) {
-                delete data.id;
-                sql = 'UPDATE ' + table + ' SET ? WHERE id = ?';
-                values.push(id);
+                data.id = id;
+                sql = 'REPLACE INTO ' + table + ' SET ?';
             }
             else {
                 if (!data.id) {

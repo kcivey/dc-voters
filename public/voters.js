@@ -44,38 +44,10 @@ function init() {
             this.render();
         },
         events: {
-            'click #save': 'save',
+            'click .save': 'save',
             'change #date_signed': 'checkDateSigned'
         },
-        checkDateSigned: function () {
-            // This is a mess. Need proper date functions.
-            var input = this.$('#date_signed'),
-                value = input.val(),
-                currentYear = (new Date()).getFullYear(),
-                parts, i, dd, mm, yy;
-            if (!value) {
-                return;
-            }
-            if (parts = value.match(/\d+/g)) {
-                mm = +parts[0];
-                dd = +parts[1];
-                yy = +(parts[2] || currentYear);
-                if (yy < 100) {
-                    yy += 2000;
-                }
-                if (dd >= 1 && dd <= 31 && mm >= 1 && mm <= 12 && yy == currentYear) {
-                    if (dd < 10) {
-                        dd = '0' + dd;
-                    }
-                    if (mm < 10) {
-                        mm = '0' + mm;
-                    }
-                    input.val(mm + '/' + dd + '/' + yy);
-                    return;
-                }
-            }
-            input.focus();
-        },
+        checkDateSigned: checkDateSigned,
         render: function () {
             this.$el.html(this.template({findingCodes: findingCodes, extraFields: extraFields}));
             this.modelBinder.bind(this.model, this.el);
@@ -124,6 +96,117 @@ function init() {
             }
         }
     });
+
+    var Circulator = Backbone.Model.extend({
+        urlRoot: apiUrlBase + 'circulators'
+    });
+
+    var CirculatorView = Backbone.View.extend({
+        template: getTemplate('circulator-form'),
+        tableName: 'circulators',
+        initialize: function () {
+            this.modelBinder = new Backbone.ModelBinder();
+            this.render();
+        },
+        events: {
+            'click .save': 'save'
+        },
+        render: function () {
+            this.$el.html(this.template());
+            this.modelBinder.bind(this.model, this.el);
+            return this;
+        },
+        showAlert: function (successful, text) {
+            var alert = $(alertTemplate({successful: successful, text: text || ''}));
+            // remove any earlier alerts
+            while (this.$el.prev().hasClass('alert')) {
+                this.$el.prev().remove();
+            }
+            return alert.insertBefore(this.$el);
+        },
+        save: function () {
+            var error = this.check(),
+                that = this, // save to use in inner functions
+                jqXhr;
+            if (!error && (jqXhr = this.model.save())) {
+                jqXhr
+                    .done(function (data) {
+                        var message = 'Record saved',
+                            alert = that.showAlert(true, message),
+                            timeoutHandle = setTimeout(function () {
+                                alert.alert('close');
+                            }, 4000);
+                        alert.on('closed', function () {
+                            clearTimeout(timeoutHandle);
+                            alert.closest('.modal').modal('hide');
+                        });
+                        showTable(that.tableName);
+                    })
+                    .fail(function (err) {
+                        console.log(err);
+                        that.showAlert(false);
+                    });
+            }
+            else {
+                this.showAlert(false, error);
+            }
+        },
+        check: function () {
+            var circulator = this.model;
+            return null;
+        }
+    });
+
+    var Page = Backbone.Model.extend({
+        urlRoot: apiUrlBase + 'pages'
+    });
+
+    var PageView = CirculatorView.extend({
+        template: getTemplate('page-form'),
+        tableName: 'pages',
+        events: {
+            'click .save': 'save',
+            'change name[date_signed]': 'checkDateSigned'
+        },
+        checkDateSigned: checkDateSigned,
+        render: function () {
+            $.getJSON(apiUrlBase + 'circulators').then(function (circulators) {
+                this.$el.html(this.template({circulators: circulators}));
+                this.modelBinder.bind(this.model, this.el);
+            }.bind(this));
+            return this;
+        }
+    });
+
+    function checkDateSigned() {
+        // This is a mess. Need proper date functions.
+        var input = this.$('#date_signed'),
+            value = input.val(),
+            currentYear = (new Date()).getFullYear(),
+            parts, i, dd, mm, yy;
+        if (!value) {
+            return;
+        }
+        if (parts = value.match(/\d+/g)) {
+            mm = +parts[0];
+            dd = +parts[1];
+            yy = +(parts[2] || currentYear);
+            if (yy < 100) {
+                yy += 2000;
+            }
+            if (dd >= 1 && dd <= 31 && mm >= 1 && mm <= 12 && yy == currentYear) {
+                if (dd < 10) {
+                    dd = '0' + dd;
+                }
+                if (mm < 10) {
+                    mm = '0' + mm;
+                }
+                input.val(mm + '/' + dd + '/' + yy);
+                return;
+            }
+        }
+        input.focus();
+    }
 
     function makeName(v, reversed) {
         var name = v.firstname;
@@ -274,6 +357,42 @@ function init() {
         }
         $('#result-div > *').hide();
         lineForm.show();
+    }
+
+    $('#main-container').on('click', '.circulator-edit-button', editCirculator);
+    function editCirculator() {
+        var id = $(this).data('id');
+        if (id) {
+            $.ajax({
+                url: apiUrlBase + 'circulators' + '/' + id,
+                dataType: 'json'
+            }).then(showForm);
+        }
+        else {
+            showForm();
+        }
+        function showForm(data) {
+            var view = new CirculatorView({model: new Circulator(data)});
+            openModal('Circulator', view.$el);
+        }
+    }
+
+    $('#main-container').on('click', '.page-edit-button', editPage);
+    function editPage() {
+        var id = $(this).data('id');
+        if (id) {
+            $.ajax({
+                url: apiUrlBase + 'pages' + '/' + id,
+                dataType: 'json'
+            }).then(showForm);
+        }
+        else {
+            showForm();
+        }
+        function showForm(data) {
+            var view = new PageView({model: new Page(data)});
+            openModal('Page', view.$el);
+        }
     }
 
     $('#login-form').on('submit', function (e) {
@@ -580,7 +699,7 @@ function init() {
     $('.table-link').on('click', showTable);
 
     function showTable(name) {
-        if (!name) {
+        if (!_.isString(name)) {
             name = $(this).data('name');
         }
         $.ajax({
@@ -590,6 +709,7 @@ function init() {
                 var template = getTemplate(name.replace(/s$/, '') + '-table'),
                     values = {};
                 values[name] = data;
+                console.log(values);
                 $('#top-row').hide();
                 $('#bottom-row').html(template(values)).show()
                     .on('click', '.back-button', backToChecking);
@@ -690,6 +810,13 @@ function init() {
             templateCache[name] = _.template($('#' + name + '-template').html());
         }
         return templateCache[name];
+    }
+
+    function openModal(title, body) {
+        var $modal = $('#global-modal');
+        $('.modal-title', $modal).text(title);
+        $('.modal-body', $modal).html(body);
+        $modal.modal();
     }
 
     function stringToList(s) {

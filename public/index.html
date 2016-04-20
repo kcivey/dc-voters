@@ -231,6 +231,15 @@
       </div>
     </div>
 
+    <div class="modal hide fade" id="global-modal">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h3></h3>
+      </div>
+      <div class="modal-body">
+      </div>
+    </div>
+
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
     <script src="https://ajax.aspnetcdn.com/ajax/jquery.dataTables/1.9.3/jquery.dataTables.min.js"></script>
     <script src="/js/bootstrap.min.js"></script>
@@ -352,53 +361,64 @@
         <input type="hidden" name="page"/>
         <input type="hidden" name="line"/>
         <input type="hidden" name="checker"/>
-        <button type="button" class="btn btn-primary btn" id="save">Save</button>
+        <button type="button" class="btn btn-primary btn save">Save</button>
       </div>
     </script>
-    <script type="text/template" id="page-template">
-      <div class="control-group">
-        <label class="control-label" for="page-id">Page Number</label>
-        <div class="controls">
-          <input type="text" name="id" id="page-id"/>
+    <script type="text/template" id="page-form-template">
+      <form action="/" id="page-form" class="form-horizontal">
+        <div class="control-group">
+          <label class="control-label" for="page-id">Page Number</label>
+          <div class="controls">
+            <input type="text" name="id" id="page-id"/>
+          </div>
         </div>
-      </div>
-      <div class="control-group">
-        <label class="control-label" for="page-circulator-id">Circulator</label>
-        <div class="controls">
-          <select name="circulator_id" id="page-circulator-id">
-            <% _.each(circulators, function (name, id) { %>
-              <option value="<%- id %>"><%- name %></option>
-            <% }); %>
-          </select>
+        <div class="control-group">
+          <label class="control-label" for="page-circulator-id">Circulator</label>
+          <div class="controls">
+            <select name="circulator_id" id="page-circulator-id">
+              <option value="">-- Select --</option>
+              <% _.each(circulators, function (c) { %>
+                <option value="<%- c.id %>"><%- c.name %></option>
+              <% }); %>
+            </select>
+          </div>
         </div>
-      </div>
-      <div class="control-group">
-        <label class="control-label" for="page-notes">Notes</label>
-        <div class="controls">
-          <textarea name="notes" id="page-notes" class="input-block-level"></textarea>
+        <div class="control-group">
+          <label class="control-label" for="page-id">Date Signed</label>
+          <div class="controls">
+            <input type="text" name="date_signed" id="page-date-signed"/>
+          </div>
         </div>
-      </div>
-      <div class="control-group">
-        <button type="button" class="btn btn-primary btn" id="page-save">Save</button>
-      </div>
+        <div class="control-group">
+          <label class="control-label" for="page-notes">Notes</label>
+          <div class="controls">
+            <textarea name="notes" id="page-notes" class="input-block-level"></textarea>
+          </div>
+        </div>
+        <div class="control-group">
+          <button type="button" class="btn btn-primary btn save">Save</button>
+        </div>
+      </form>
     </script>
-    <script type="text/template" id="circulator-template">
-      <div class="control-group">
-        <label class="control-label" for="circulator-name">Name</label>
-        <div class="controls">
-          <input type="text" name="last_name" id="circulator-name"/>
+    <script type="text/template" id="circulator-form-template">
+      <form action="/" id="circulator-form" class="form-horizontal">
+        <div class="control-group">
+          <label class="control-label" for="circulator-name">Name</label>
+          <div class="controls">
+            <input type="text" name="name" id="circulator-name"/>
+          </div>
         </div>
-      </div>
-      <div class="control-group">
-        <label class="control-label" for="circulator-notes">Notes</label>
-        <div class="controls">
-          <textarea name="notes" id="circulator-notes" class="input-block-level"></textarea>
+        <div class="control-group">
+          <label class="control-label" for="circulator-notes">Notes</label>
+          <div class="controls">
+            <textarea name="notes" id="circulator-notes" class="input-block-level"></textarea>
+          </div>
         </div>
-      </div>
-      <div class="control-group">
-        <input type="hidden" name="id"/>
-        <button type="button" class="btn btn-primary btn" id="circulator-save">Save</button>
-      </div>
+        <div class="control-group">
+          <input type="hidden" name="id"/>
+          <button type="button" class="btn btn-primary btn save">Save</button>
+        </div>
+      </form>
     </script>
     <script type="text/template" id="alert-template">
       <div class="alert fade in<%- successful ? '' : ' alert-danger' %>">
@@ -411,6 +431,7 @@
     </script>
     <script type="text/template" id="circulator-table-template">
       <button type="button" class="btn back-button">Back to Checking</button>
+      <button type="button" class="btn btn-primary circulator-edit-button">New Circulator</button>
       <table id="circulator-table" class="table table-condensed table-striped" style="width: auto;">
         <thead>
           <tr>
@@ -418,15 +439,17 @@
             <th>Name</th>
             <th>Page Count</th>
             <th>Notes</th>
+            <th></th>
           </tr>
         </thead>
         <tbody>
           <% _.each(circulators, function (c) { %>
-            <tr data-id="<%- c.id %>">
+            <tr>
               <td><%- c.id %></td>
               <td><%- c.name %></td>
               <td><%- c.page_count %></td>
               <td><%- c.notes %></td>
+              <td><button type="button" class="btn btn-mini circulator-edit-button" data-id="<%- c.id %>">Edit</button></td>
             </tr>
           <% }); %>
         </tbody>
@@ -434,6 +457,7 @@
     </script>
     <script type="text/template" id="page-table-template">
       <button type="button" class="btn back-button">Back to Checking</button>
+      <button type="button" class="btn btn-primary page-edit-button">New Page</button>
       <table id="page-table" class="table table-condensed table-striped" style="width: auto;">
         <thead>
         <tr>
@@ -441,15 +465,17 @@
           <th>Circulator</th>
           <th>Date</th>
           <th>Notes</th>
+          <th></th>
         </tr>
         </thead>
         <tbody>
         <% _.each(pages, function (p) { %>
-        <tr data-id="<%- c.id %>">
+        <tr>
           <td><%- p.id %></td>
-          <td><%- p.circulator %></td>
-          <td><%- p.date %></td>
+          <td><%- p.circulator_name %></td>
+          <td><%- p.date_signed %></td>
           <td><%- p.notes %></td>
+          <td><button type="button" class="btn btn-mini page-edit-button" data-id="<%- p.id %>">Edit</button></td>
         </tr>
         <% }); %>
         </tbody>
