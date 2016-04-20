@@ -497,13 +497,29 @@ module.exports = function (app) {
                     res.sendStatus(500);
                     return;
                 }
-                db.query(
-                    'SELECT * FROM ' + table + ' WHERE id = ?',
-                    [id],
-                    function (err, rows) {
-                        res.json(rows[0]);
+                var sql = 'INSERT IGNORE INTO petition_lines (page, line) VALUES ',
+                    linesPerPage = 20,
+                    line;
+                for (line = 1; line <= linesPerPage; line++) {
+                    if (line > 1) {
+                        sql += ',';
                     }
-                );
+                    sql += '(' + id + ',' + line + ')';
+                }
+                db.query(sql, function (err, result) {
+                    if (err) {
+                        console.log(table + ' SQL error', err);
+                        res.sendStatus(500);
+                        return;
+                    }
+                    db.query(
+                        'SELECT * FROM ' + table + ' WHERE id = ?',
+                        [id],
+                        function (err, rows) {
+                            res.json(rows[0]);
+                        }
+                    );
+                });
             });
         },
 
