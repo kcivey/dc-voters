@@ -82,7 +82,7 @@ function init() {
             return this;
         },
         showAlert: function (successful, text) {
-            var alert = alertTemplate({successful: successful, text: text || ''});
+            var alert = $(alertTemplate({successful: successful, text: text || ''}));
             // remove any earlier alerts
             while (this.$el.prev().hasClass('alert')) {
                 this.$el.prev().remove();
@@ -340,7 +340,7 @@ function init() {
                 },
                 error: function (jqXhr, textStatus, errorThrown) {
                     var message = textStatus + ' (' + errorThrown + ')',
-                        alert = alertTemplate({successful: false, text: message}),
+                        alert = $(alertTemplate({successful: false, text: message})),
                         timeoutHandle = setTimeout(function () {
                             alert.alert('close');
                         }, 2500);
