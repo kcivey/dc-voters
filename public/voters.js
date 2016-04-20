@@ -166,7 +166,7 @@ function init() {
         tableName: 'pages',
         events: {
             'click .save': 'save',
-            'change name[date_signed]': 'checkDateSigned'
+            'change [name=date_signed]': 'checkDateSigned'
         },
         checkDateSigned: checkDateSigned,
         render: function () {
@@ -180,10 +180,10 @@ function init() {
 
     function checkDateSigned() {
         // This is a mess. Need proper date functions.
-        var input = this.$('#date_signed'),
+        var input = this.$('[name=date_signed]'),
             value = input.val(),
             currentYear = (new Date()).getFullYear(),
-            parts, i, dd, mm, yy;
+            parts, dd, mm, yy;
         if (!value) {
             return;
         }
@@ -709,7 +709,6 @@ function init() {
                 var template = getTemplate(name.replace(/s$/, '') + '-table'),
                     values = {};
                 values[name] = data;
-                console.log(values);
                 $('#top-row').hide();
                 $('#bottom-row').html(template(values)).show()
                     .on('click', '.back-button', backToChecking);
