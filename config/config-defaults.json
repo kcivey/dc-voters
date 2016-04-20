@@ -3,7 +3,8 @@
     "host": "localhost",
     "database": "dc_voters",
     "user": "USER",
-    "password": "PASSWORD"
+    "password": "PASSWORD",
+    "dateStrings": true
   },
   "secret": "SECRET"
 }

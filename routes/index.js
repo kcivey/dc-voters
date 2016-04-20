@@ -475,6 +475,10 @@ module.exports = function (app) {
                 data = req.body,
                 values = [data],
                 sql;
+            if (data.date_signed) {
+                data.date_signed = data.date_signed
+                    .replace(/^(\d+)\/(\d+)\/(\d+)$/, '$3-$1-$2');
+            }
             if (id) {
                 data.id = id;
                 sql = 'REPLACE INTO ' + table + ' SET ?';
