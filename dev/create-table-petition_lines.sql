@@ -12,7 +12,7 @@ CREATE TABLE petition_lines (
   `date_signed` DATE DEFAULT NULL,
   `notes` TEXT DEFAULT '' NOT NULL,
   PRIMARY KEY (`id`),
-  KEY `page_line` (`page`, `line`),
+  UNIQUE `page_line` (`page`, `line`),
   KEY (`checker`),
   KEY (`check_time`),
   KEY (`voter_id`),
