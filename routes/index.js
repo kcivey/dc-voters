@@ -49,7 +49,7 @@ module.exports = function (app) {
                 address = req.query.address,
                 voterId = req.query.voter_id,
                 values = [],
-                limit = 10,
+                limit = Math.min(100, Math.max(0, Math.round(+req.query.limit))) || 10,
                 explanation = '',
                 match, sql, m;
             if (q) {

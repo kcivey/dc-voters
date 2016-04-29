@@ -626,7 +626,7 @@ function init() {
         start();
     }
 
-    $('#search-button').on('click', doSearch);
+    $('#search-button,#more-button').on('click', doSearch);
     $('#search-form input').on('change input', function () {
         if (searchTimeout) {
             clearTimeout(searchTimeout);
@@ -641,6 +641,7 @@ function init() {
             resetButton = function () {
                 button.text('Search').removeAttr('disabled');
             },
+            more = this.id && this.id == 'more-button',
             timeoutHandle;
         $.each(['q', 'name', 'address'], function (i, name) {
             var value = $.trim($('#' + name).val());
@@ -662,6 +663,9 @@ function init() {
             },
             10000
         );
+        if (more) {
+            searchData.limit = 50;
+        }
         $.ajax({
             url: apiUrlBase + 'search',
             data: searchData,
@@ -693,7 +697,8 @@ function init() {
                 '<tr><td colspan="7"><i>No matching voter records found.</i></td></tr>'
             );
         }
-        $('#explanation').append(data.explanation).show();
+        $('#voter-table tfoot').toggle(results.length == 10); // show "More" only if there are exactly 10 results
+        explanation.append(data.explanation).show();
     }
 
     $('.table-link').on('click', showTable);
