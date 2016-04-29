@@ -110,6 +110,7 @@ module.exports = function (app) {
                     (results.length < limit ? '' : ' or more') +
                     ' record' + (results.length == 1 ? '' : 's') +  '\n' +
                     explanation;
+                res.set('Cache-Control', 'max-age=600'); // cache for 10 min
                 res.json({
                     explanation: explanation,
                     results: results
