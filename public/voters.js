@@ -759,18 +759,21 @@ function init() {
     }).on('click', '.assign-send-button', function () {
         var modal = $('#assign-pages-modal'),
             username = $('.username', modal).text(),
-            pages = $('[name=pages]', modal).val();
-        $.ajax({
-            url: apiUrlBase + 'users/' + username + '/pages',
-            data: JSON.stringify(stringToList(pages)),
-            dataType: 'json',
-            contentType: 'application/json',
-            type: 'POST',
-            success: function () {
-                $('#assign-pages-modal').modal('hide');
-                showTable('users');
-            }
-        });
+            pageString = $('[name=pages]', modal).val(),
+            pages = stringToList(pageString);
+        if (pages.length) {
+            $.ajax({
+                url: apiUrlBase + 'users/' + username + '/pages',
+                data: JSON.stringify(pages),
+                dataType: 'json',
+                contentType: 'application/json',
+                type: 'POST',
+                success: function () {
+                    $('#assign-pages-modal').modal('hide');
+                    showTable('users');
+                }
+            });
+        }
     }).on('click', '.assign-modal-button', function () {
         var username = $(this).closest('tr').find('td:first').text();
         $('#assign-pages-modal .username').text(username);
