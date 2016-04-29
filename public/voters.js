@@ -73,7 +73,7 @@ function init() {
                             alert = that.showAlert(true, message),
                             timeoutHandle = setTimeout(function () {
                                 alert.alert('close');
-                            }, 4000);
+                            }, 1000);
                         alert.on('closed', function () {
                             clearTimeout(timeoutHandle);
                         });
@@ -135,7 +135,7 @@ function init() {
                             alert = that.showAlert(true, message),
                             timeoutHandle = setTimeout(function () {
                                 alert.alert('close');
-                            }, 4000);
+                            }, 1000);
                         alert.on('closed', function () {
                             clearTimeout(timeoutHandle);
                             alert.closest('.modal').modal('hide');
