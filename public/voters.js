@@ -140,6 +140,11 @@ function init() {
                             clearTimeout(timeoutHandle);
                             alert.closest('.modal').modal('hide');
                         });
+                        if (that.tableName == 'pages') {
+                            // default to same values on next page
+                            status.defaultPage = _.pick(data, 'id', 'circulator_id', 'date_signed');
+                            status.defaultPage.id++;
+                        }
                         showTable(that.tableName);
                     })
                     .fail(function (err) {
@@ -245,6 +250,9 @@ function init() {
                 // If we're still on the same page, keep the date signed
                 if (status.lineRecord && data.lineRecord && status.lineRecord.page == data.lineRecord.page) {
                     data.defaultDateSigned = status.defaultDateSigned;
+                }
+                if (status.defaultPage) {
+                    data.defaultPage = status.defaultPage;
                 }
                 // Reload page if version has changed
                 if (status.version && status.version != data.version) {
@@ -387,7 +395,7 @@ function init() {
             }).then(showForm);
         }
         else {
-            showForm();
+            showForm(status.defaultPage);
         }
         function showForm(data) {
             var view = new PageView({model: new Page(data)});
