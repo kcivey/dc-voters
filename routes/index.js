@@ -285,14 +285,14 @@ module.exports = function (app) {
         },
 
         dtLine: function (req, res) {
-            var start = +req.params.iDisplayStart || 0,
-                length = +req.params.iDisplayLength || 100,
-                data = {sEcho: +req.params.sEcho || 1},
-                search = req.params.sSearch,
-                sortingCols = +req.params.iSortingCols || 0,
-                checker = req.params.checker,
-                filterColumn = req.params.filterColumn || '',
-                filterValue = req.params.filterValue,
+            var start = +req.query.iDisplayStart || 0,
+                length = +req.query.iDisplayLength || 100,
+                data = {sEcho: +req.query.sEcho || 1},
+                search = req.query.sSearch,
+                sortingCols = +req.query.iSortingCols || 0,
+                checker = req.query.checker,
+                filterColumn = req.query.filterColumn || '',
+                filterValue = req.query.filterValue,
                 table = 'petition_lines',
                 sql = 'SELECT COUNT(*) AS `count` FROM ' + table,
                 where = " WHERE finding <> ''",
@@ -321,24 +321,27 @@ module.exports = function (app) {
                     sql = 'SELECT * FROM ' + table + where;
                     if (search) {
                         search = '%' + search + '%';
-                        sql += ' AND (0';
-                        ['voter_name', 'address'].forEach(function (column) {
-                            sql += ' OR ' + column + ' LIKE ?';
+                        sql += ' AND (';
+                        ['voter_name', 'address'].forEach(function (column, i) {
+                            if (i != 0) {
+                                sql += ' OR '
+                            }
+                            sql += column + ' LIKE ?';
                             values.push(search);
                         });
                         sql += ')';
                     }
                     for (i = 0; i < sortingCols; i++) {
-                        sortColumnIndex = +req.params['iSortCol_' + i] || 0;
-                        sortColumn = req.params['mDataProp_' + sortColumnIndex];
+                        sortColumnIndex = +req.query['iSortCol_' + i] || 0;
+                        sortColumn = req.query['mDataProp_' + sortColumnIndex];
                         if (/^\w+$/.test(sortColumn) && sortColumn != 'function') {
-                            sortDirection = req.params['sSortDir_' + i];
+                            sortDirection = req.query['sSortDir_' + i];
                             order.push(sortColumn + (sortDirection == 'desc' ? ' DESC' : ''));
                         }
                     }
                     order.push('check_time DESC', 'id DESC'); // sort newest first if nothing else
-                    sql += ' ORDER BY ' + order.join(', ');
-                    sql += ' LIMIT ' + start + ',' + length;
+                    sql += ' ORDER BY ' + order.join(', ') +
+                        ' LIMIT ' + start + ',' + length;
                     db.query(sql, values, function (err, rows) {
                         if (err) {
                             throw err;
