@@ -3,6 +3,7 @@ module.exports = function (app) {
         moment = require('moment'),
         async = require('async'),
         passwordHash = require('password-hash'),
+        config = require('../public/config.json'),
         db = require('../db'),
         pkg = require('../package.json'),
         numberList = require('../number-list');
@@ -57,6 +58,9 @@ module.exports = function (app) {
                 explanation += 'General query: ' + q + '\n';
             }
             sql = 'SELECT registered, lastname, firstname, middle, suffix, status, res_house, res_frac, res_apt, res_street, ward, voter_id';
+            if (config.party) {
+                sql += ', party';
+            }
             if (match) {
                 sql += ', ' + match + ' AS score';
                 values.push(q);

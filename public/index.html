@@ -190,6 +190,7 @@
               <tr>
                 <th>Name</th>
                 <th>Address</th>
+                <th id="party-column-head">Party</th>
                 <th>Ward</th>
                 <th>Date</th>
                 <th>Status</th>
@@ -199,7 +200,7 @@
             </thead>
             <tfoot>
               <tr>
-                <td colspan="7">
+                <td colspan="8">
                   <button id="more-button" class="btn btn-mini">More</button>
                 </td>
               </tr>
@@ -290,6 +291,7 @@
       <tr>
         <td><%- name %></td>
         <td><%- address %></td>
+        <% if (showParty) { %><td><%- party %></td><% } else { %><td style="display: none;"></td><% } %>
         <td><%- ward %></td>
         <td><%- registered %></td>
         <td><%- status %></td>

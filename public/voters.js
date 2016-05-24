@@ -2,11 +2,12 @@
     var urlBase = '/',
         apiUrlBase = urlBase + 'api/',
         user = null,
-        findingCodes, extraFields;
+        findingCodes, extraFields, party;
 
     $.getJSON(urlBase + 'config.json', function (data) {
         findingCodes = data.findingCodes;
         extraFields = data.extraFields;
+        party = data.party;
         $(init);
     });
 
@@ -692,11 +693,14 @@ function init() {
             results = data.results,
             voterRowTemplate = getTemplate('voter-row');
         $('#result-div > *').hide();
+        $('#party-column-head').toggle(!!party);
         $('#voter-table').show();
         $.each(results, function (i, v) {
             var tr;
             v.name = makeName(v, true); // reversed
             v.address = makeAddress(v);
+            v.party = v.party ? v.party.substr(0, 3) : '';
+            v.showParty = !!party;
             tr = $(voterRowTemplate(v)).data('voterData', v);
             tbody.append(tr);
         });
