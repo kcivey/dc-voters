@@ -3,3 +3,5 @@
 .idea
 /dev/voters.sql
 /public/config.json
+*.csv
+*.xlsx
