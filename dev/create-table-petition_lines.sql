@@ -10,7 +10,7 @@ CREATE TABLE petition_lines (
   `address` VARCHAR(255) DEFAULT '' NOT NULL,
   `ward` VARCHAR(1) DEFAULT '' NOT NULL,
   `date_signed` DATE DEFAULT NULL,
-  `notes` TEXT DEFAULT '' NOT NULL,
+  `notes` TEXT,
   PRIMARY KEY (`id`),
   UNIQUE `page_line` (`page`, `line`),
   KEY (`checker`),
