@@ -90,5 +90,9 @@ CREATE TABLE IF NOT EXISTS voters (
   h011995s CHAR(1) DEFAULT '' NOT NULL,
   h111994g CHAR(1) DEFAULT '' NOT NULL,
   voter_id INT UNSIGNED NOT NULL AUTO_INCREMENT,
-  PRIMARY KEY (voter_id)
+  PRIMARY KEY (voter_id),
+  INDEX (lastname),
+  INDEX (firstname),
+  INDEX (res_house),
+  INDEX (res_street)
 );
