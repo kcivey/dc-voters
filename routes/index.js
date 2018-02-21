@@ -416,7 +416,7 @@ module.exports = function (app) {
             var sql = 'SELECT u.id, u.username, u.email, u.admin, COUNT(DISTINCT l.page) AS page_count,' +
                     'GROUP_CONCAT(DISTINCT l.page ORDER BY l.page) AS pages ' +
                     'FROM users u LEFT JOIN petition_lines l ON u.username = l.checker ' +
-                    'GROUP BY u.username ORDER BY u.username';
+                    'GROUP BY u.id ORDER BY u.username';
             db.query(sql, function (err, rows) {
                 if (err) {
                     throw err;
