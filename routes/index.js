@@ -282,9 +282,14 @@ module.exports = function (app) {
         },
 
         completedTsv: function (req, res) {
-            var sql = "SELECT l.*, c.name AS circulator_name " +
-                    "FROM petition_lines l LEFT JOIN pages p ON l.page = p.id LEFT JOIN circulators c ON p.circulator_id = c.id " +
-                    "WHERE finding <> '' ORDER BY page, line";
+            var sql = "SELECT l.*, c.name AS circulator_name";
+            if (config.party) {
+                sql += ", v.party";
+            }
+            sql += " FROM petition_lines l LEFT JOIN pages p ON l.page = p.id " +
+                "LEFT JOIN circulators c ON p.circulator_id = c.id " +
+                "LEFT JOIN voters v ON l.voter_id = v.voter_id " +
+                "WHERE finding <> '' ORDER BY page, line";
             sendTsv(req, res, sql, []);
         },
 
