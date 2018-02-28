@@ -22,8 +22,6 @@ passport.deserializeUser(verifyUser.deserialize);
 var app = express();
 
 app.set('port', process.env.PORT || 3000);
-app.set('views', __dirname + '/views');
-app.set('view engine', 'jade');
 app.use(morgan('combined'));
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(session({secret: config.get('secret'), store: sessionStore, resave: false, saveUninitialized: false}));
