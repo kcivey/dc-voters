@@ -453,6 +453,9 @@ module.exports = function (app) {
                 data = req.body,
                 values = [data],
                 sql;
+            if (!data.notes) {
+                data.notes = '';
+            }
             if (id) {
                 delete data.id;
                 sql = 'UPDATE ' + table + ' SET ? WHERE id = ?';
@@ -497,6 +500,9 @@ module.exports = function (app) {
             if (data.date_signed) {
                 data.date_signed = data.date_signed
                     .replace(/^(\d+)\/(\d+)\/(\d+)$/, '$3-$1-$2');
+            }
+            if (!data.notes) {
+                data.notes = '';
             }
             if (id) {
                 data.id = id;
