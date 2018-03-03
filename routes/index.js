@@ -18,8 +18,9 @@ module.exports = function (app) {
         }
         db.query(sql, values, function (err, rows, fields) {
             if (err) {
-                console.log(sql);
-                throw err;
+                console.error(err);
+                res.sendStatus(500);
+                return;
             }
             var fieldNames = _.pluck(fields, 'name'),
                 content = fieldNames.join('\t') + '\n';
@@ -108,7 +109,9 @@ module.exports = function (app) {
             console.log(values);
             db.query(sql, values, function (err, results) {
                 if (err) {
-                    throw err;
+                    console.error(err);
+                    res.sendStatus(500);
+                    return;
                 }
                 explanation = results.length +
                     (results.length < limit ? '' : ' or more') +
@@ -139,7 +142,9 @@ module.exports = function (app) {
             sql += ' LIMIT 1';
             db.query(sql, values, function (err, rows) {
                 if (err) {
-                    throw err;
+                    console.error(err);
+                    res.sendStatus(500);
+                    return;
                 }
                 if (rows.length) {
                     res.json(rows[0]);
@@ -164,7 +169,9 @@ module.exports = function (app) {
                 [lineData, id],
                 function (err, result) {
                     if (err) {
-                        throw err;
+                        console.error(err);
+                        res.sendStatus(500);
+                        return;
                     }
                     db.query(
                         'SELECT * FROM petition_lines WHERE id = ?',
@@ -249,7 +256,9 @@ module.exports = function (app) {
                 }],
                 function (err, results) {
                     if (err) {
-                        throw err;
+                        console.error(err);
+                        res.sendStatus(500);
+                        return;
                     }
                 }
             );
@@ -275,7 +284,9 @@ module.exports = function (app) {
             }
             db.query(sql, values, function (err, results) {
                 if (err) {
-                    throw err;
+                    console.error(err);
+                    res.sendStatus(500);
+                    return;
                 }
                 res.json({results: results});
             });
@@ -310,7 +321,9 @@ module.exports = function (app) {
                 i, sortColumnIndex, sortColumn, sortDirection;
             db.query(sql, function (err, rows) {
                 if (err) {
-                    throw err;
+                    console.error(err);
+                    res.sendStatus(500);
+                    return;
                 }
                 data.iTotalRecords = +rows[0].count;
                 if (checker) {
@@ -324,7 +337,9 @@ module.exports = function (app) {
                 sql += where;
                 db.query(sql, values, function (err, rows) {
                     if (err) {
-                        throw err;
+                        console.error(err);
+                        res.sendStatus(500);
+                        return;
                     }
                     data.iTotalDisplayRecords = +rows[0].count;
                     sql = 'SELECT * FROM ' + table + where;
@@ -353,7 +368,9 @@ module.exports = function (app) {
                         ' LIMIT ' + start + ',' + length;
                     db.query(sql, values, function (err, rows) {
                         if (err) {
-                            throw err;
+                            console.error(err);
+                            res.sendStatus(500);
+                            return;
                         }
                         data.aaData = rows;
                         res.json(data);
@@ -367,7 +384,9 @@ module.exports = function (app) {
                 sql = 'SELECT * FROM circulators WHERE id = ?';
             db.query(sql, [id], function (err, rows) {
                 if (err) {
-                    throw err;
+                    console.error(err);
+                    res.sendStatus(500);
+                    return;
                 }
                 if (rows.length) {
                     res.json(rows[0]);
@@ -384,7 +403,9 @@ module.exports = function (app) {
                     'GROUP BY c.id ORDER BY c.name';
             db.query(sql, function (err, rows) {
                 if (err) {
-                    throw err;
+                    console.error(err);
+                    res.sendStatus(500);
+                    return;
                 }
                 res.json(rows);
             });
@@ -395,7 +416,9 @@ module.exports = function (app) {
                 sql = 'SELECT * FROM pages WHERE id = ?';
             db.query(sql, [id], function (err, rows) {
                 if (err) {
-                    throw err;
+                    console.error(err);
+                    res.sendStatus(500);
+                    return;
                 }
                 if (rows.length) {
                     res.json(rows[0]);
@@ -411,7 +434,9 @@ module.exports = function (app) {
                     'FROM pages p LEFT JOIN circulators c ON p.circulator_id = c.id ORDER BY p.id';
             db.query(sql, function (err, rows) {
                 if (err) {
-                    throw err;
+                    console.error(err);
+                    res.sendStatus(500);
+                    return;
                 }
                 res.json(rows);
             });
@@ -424,7 +449,9 @@ module.exports = function (app) {
                     'GROUP BY u.id ORDER BY u.username';
             db.query(sql, function (err, rows) {
                 if (err) {
-                    throw err;
+                    console.error(err);
+                    res.sendStatus(500);
+                    return;
                 }
                 rows.forEach(function (row) {
                     row.pages = row.pages ? numberList.stringify(row.pages.split(',')) : '';
@@ -437,7 +464,9 @@ module.exports = function (app) {
             var sql = 'SELECT finding, COUNT(*) AS count FROM petition_lines GROUP BY finding';
             db.query(sql, function (err, rows) {
                 if (err) {
-                    throw err;
+                    console.error(err);
+                    res.sendStatus(500);
+                    return;
                 }
                 var totals = {};
                 rows.forEach(function (row) {
@@ -603,7 +632,9 @@ module.exports = function (app) {
                 [username, pages],
                 function (err, result) {
                     if (err) {
-                        throw err;
+                        console.error(err);
+                        res.sendStatus(500);
+                        return;
                     }
                     res.sendStatus(204);
                 }
