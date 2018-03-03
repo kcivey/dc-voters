@@ -33,7 +33,7 @@ app.use(bodyParser.urlencoded({extended: true}));
 var routes = require('./routes')(app);
 
 var env = process.env.NODE_ENV || 'development';
-if ('development' == env) {
+if ('development' === env) {
   app.use(errorHandler());
 }
 

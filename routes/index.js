@@ -26,10 +26,10 @@ module.exports = function (app) {
                 content = fieldNames.join('\t') + '\n';
             _.forEach(rows, function (row) {
                 content += _.map(fieldNames, function (name) {
-                    if (name == 'check_time' && row.check_time) {
+                    if (name === 'check_time' && row.check_time) {
                         return moment(row.check_time).format('YYYY-MM-DD HH:mm:ss');
                     }
-                    if (name == 'date_signed' && row.date_signed) {
+                    if (name === 'date_signed' && row.date_signed) {
                         return moment(row.date_signed).format('YYYY-MM-DD');
                     }
                     if (_.isString(row[name])) {
@@ -115,7 +115,7 @@ module.exports = function (app) {
                 }
                 explanation = results.length +
                     (results.length < limit ? '' : ' or more') +
-                    ' record' + (results.length == 1 ? '' : 's') +  '\n' +
+                    ' record' + (results.length === 1 ? '' : 's') +  '\n' +
                     explanation;
                 res.set('Cache-Control', 'max-age=600'); // cache for 10 min
                 res.json({
@@ -258,7 +258,6 @@ module.exports = function (app) {
                     if (err) {
                         console.error(err);
                         res.sendStatus(500);
-                        return;
                     }
                 }
             );
@@ -347,8 +346,8 @@ module.exports = function (app) {
                         search = '%' + search + '%';
                         sql += ' AND (';
                         ['voter_name', 'address'].forEach(function (column, i) {
-                            if (i != 0) {
-                                sql += ' OR '
+                            if (i > 0) {
+                                sql += ' OR ';
                             }
                             sql += column + ' LIKE ?';
                             values.push(search);
@@ -358,9 +357,9 @@ module.exports = function (app) {
                     for (i = 0; i < sortingCols; i++) {
                         sortColumnIndex = +req.query['iSortCol_' + i] || 0;
                         sortColumn = req.query['mDataProp_' + sortColumnIndex];
-                        if (/^\w+$/.test(sortColumn) && sortColumn != 'function') {
+                        if (/^\w+$/.test(sortColumn) && sortColumn !== 'function') {
                             sortDirection = req.query['sSortDir_' + i];
-                            order.push(sortColumn + (sortDirection == 'desc' ? ' DESC' : ''));
+                            order.push(sortColumn + (sortDirection === 'desc' ? ' DESC' : ''));
                         }
                     }
                     order.push('check_time DESC', 'id DESC'); // sort newest first if nothing else
@@ -638,7 +637,7 @@ module.exports = function (app) {
                     }
                     res.sendStatus(204);
                 }
-            )
+            );
         },
 
         logOut: function (req, res) {
