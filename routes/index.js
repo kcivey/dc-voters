@@ -523,8 +523,8 @@ module.exports = function (app) {
             var table = 'pages',
                 id = +req.params.id,
                 data = req.body,
-                values = [data],
-                sql;
+                values = [],
+                sql, ids;
             if (data.date_signed) {
                 data.date_signed = data.date_signed
                     .replace(/^(\d+)\/(\d+)\/(\d+)$/, '$3-$1-$2');
@@ -535,14 +535,25 @@ module.exports = function (app) {
             if (id) {
                 data.id = id;
                 sql = 'REPLACE INTO ' + table + ' SET ?';
+                values.push(data);
+                ids = [id];
             }
             else {
                 if (!data.id) {
                     res.sendStatus(400);
                     return;
                 }
-                id = data.id;
-                sql = 'INSERT INTO ' + table + ' SET ?';
+                ids = numberList.parse(data.id);
+                sql = 'INSERT INTO ' + table + ' (' + Object.keys(data).join(', ') + ') VALUES';
+                ids.forEach(function (id, i) {
+                    data.id = id;
+                    if (i > 0) {
+                        sql += ',';
+                    }
+                    sql += '(?)';
+                    values.push(Object.values(data));
+                });
+                id = ids[0];
             }
             db.query(sql, values, function (err, result) {
                 if (err) {
@@ -553,12 +564,17 @@ module.exports = function (app) {
                 var sql = 'INSERT IGNORE INTO petition_lines (page, line) VALUES ',
                     linesPerPage = 20,
                     line;
-                for (line = 1; line <= linesPerPage; line++) {
-                    if (line > 1) {
+                ids.forEach(function (id, i) {
+                    if (i > 0) {
                         sql += ',';
                     }
-                    sql += '(' + id + ',' + line + ')';
-                }
+                    for (line = 1; line <= linesPerPage; line++) {
+                        if (line > 1) {
+                            sql += ',';
+                        }
+                        sql += '(' + id + ',' + line + ')';
+                    }
+                });
                 db.query(sql, function (err, result) {
                     if (err) {
                         console.log(table + ' SQL error', err);
@@ -569,6 +585,11 @@ module.exports = function (app) {
                         'SELECT * FROM ' + table + ' WHERE id = ?',
                         [id],
                         function (err, rows) {
+                            if (err) {
+                                console.log(table + ' SQL error', err);
+                                res.sendStatus(500);
+                                return;
+                            }
                             res.json(rows[0]);
                         }
                     );
