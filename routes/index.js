@@ -67,7 +67,7 @@ module.exports = function (app) {
                 sql += ', ' + match + ' AS score';
                 values.push(q);
             }
-            sql += ' FROM voters WHERE 1';
+            sql += ' FROM voters v WHERE 1';
             if (name) {
                 if (m = /^([^,]*),\s*(.+)/.exec(name)) {
                     sql += ' AND v.firstname LIKE ?';
