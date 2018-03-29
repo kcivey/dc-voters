@@ -418,16 +418,22 @@ function init() {
     });
     $('#voter-table')
         .on('click', '.match', function () {
-            var voterData = $(this).closest('tr').data('voterData');
-            editLine({
-                voter_id: voterData.voter_id,
-                voter_name: makeName(voterData),
-                address: makeAddress(voterData),
-                ward: voterData.ward,
-                finding: voterData.duplicate_page ? 'D' : null,
-                notes: voterData.duplicate_page ? 'Duplicate of page ' + voterData.duplicate_page + ', line ' +
-                    voterData.duplicate_line : null
-            });
+            var voterData = $(this).closest('tr').data('voterData'),
+                formData = {
+                    voter_id: voterData.voter_id,
+                    voter_name: makeName(voterData),
+                    address: makeAddress(voterData),
+                    ward: voterData.ward
+                };
+            if (voterData.duplicate_page) {
+                formData.finding = 'D';
+                formData.notes = 'Duplicate of page ' + voterData.duplicate_page + ', line ' + voterData.duplicate_line;
+            }
+            else if (party && voterData.party !== party) {
+                formData.finding = 'WP';
+                formData.notes = voterData.party;
+            }
+            editLine(formData);
         })
         .on('click', '.not-found', function () {
             editLine({finding: 'NR'});
@@ -702,8 +708,8 @@ function init() {
             var tr;
             v.name = makeName(v, true); // reversed
             v.address = makeAddress(v);
-            v.party = v.party ? v.party.substr(0, 3) : '';
-            v.showParty = !!party;
+            v.partyDisplay = v.party ? v.party.substr(0, 3) : '';
+            v.wantedParty = party;
             tr = $(voterRowTemplate(v)).data('voterData', v);
             tbody.append(tr);
         });

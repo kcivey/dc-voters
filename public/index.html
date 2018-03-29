@@ -183,7 +183,7 @@
               <tr>
                 <td colspan="7">
                   <button type="button" class="btn btn-small pull-right not-found" style="margin-left: 6px;">Not Found</button>
-                  If you find a voter that matches the signer, click the "Match" button on that row.
+                  If you find a voter that matches the signer, click the button for that row.
                   If not, you can search again. If you can't find a match, click "Not Found".
                 </td>
               </tr>
@@ -194,7 +194,6 @@
                 <th>Ward</th>
                 <th>Date</th>
                 <th>Status</th>
-                <th>ID</th>
                 <th></th>
               </tr>
             </thead>
@@ -291,15 +290,16 @@
       <tr>
         <td><%- name %></td>
         <td><%- address %></td>
-        <% if (showParty) { %><td><%- party %></td><% } else { %><td style="display: none;"></td><% } %>
+        <% if (wantedParty) { %><td><%- partyDisplay %></td><% } else { %><td style="display: none;"></td><% } %>
         <td><%- ward %></td>
         <td><%- registered %></td>
         <td><%- status %></td>
-        <td><%- voter_id %></td>
         <td>
           <button class="btn btn-mini match" data-voter-id="<?- voter_id %>">
             <% if (duplicate_page) { %>
               Dup (<%- duplicate_page %>/<%- duplicate_line %>)
+            <% } else if (wantedParty && wantedParty !== party) { %>
+              Wrong Party
             <% } else { %>
               Match
             <% } %>
