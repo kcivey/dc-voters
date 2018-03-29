@@ -296,7 +296,15 @@
         <td><%- registered %></td>
         <td><%- status %></td>
         <td><%- voter_id %></td>
-        <td><button class="btn btn-mini match" data-voter-id="<?- voter_id %>">Match</button></td>
+        <td>
+          <button class="btn btn-mini match" data-voter-id="<?- voter_id %>">
+            <% if (duplicate_page) { %>
+              Dup (<%- duplicate_page %>/<%- duplicate_line %>)
+            <% } else { %>
+              Match
+            <% } %>
+          </button>
+        </td>
       </tr>
     </script>
     <script type="text/template" id="skipped-row-template">

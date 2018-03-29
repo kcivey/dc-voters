@@ -55,45 +55,48 @@ module.exports = function (app) {
                 explanation = '',
                 match, sql, m;
             if (q) {
-                match = 'MATCH (firstname, lastname, res_house, res_street) AGAINST (? IN BOOLEAN MODE)';
+                match = 'MATCH (v.firstname, v.lastname, v.res_house, v.res_street) AGAINST (? IN BOOLEAN MODE)';
                 explanation += 'General query: ' + q + '\n';
             }
-            sql = 'SELECT registered, lastname, firstname, middle, suffix, status, res_house, res_frac, res_apt, res_street, ward, voter_id';
+            sql = 'SELECT v.registered, v.lastname, v.firstname, v.middle, v.suffix, v.status, v.res_house, ' +
+                'v.res_frac, v.res_apt, v.res_street, v.ward, v.voter_id, ' +
+                'p.page as duplicate_page, p.line as duplicate_line';
             if (config.party) {
-                sql += ', party';
+                sql += ', v.party';
             }
             if (match) {
                 sql += ', ' + match + ' AS score';
                 values.push(q);
             }
-            sql += ' FROM voters WHERE 1';
+            sql += ' FROM voters v LEFT JOIN petition_lines p ON v.voter_id = p.voter_id ' +
+                "WHERE (p.finding = 'OK' OR p.finding IS NULL)";
             if (name) {
                 if (m = /^([^,]*),\s*(.+)/.exec(name)) {
-                    sql += ' AND firstname LIKE ?';
+                    sql += ' AND v.firstname LIKE ?';
                     values.push(m[2] + '%');
                     name = m[1];
                     explanation += 'First name: ' + m[2] + '*\n';
                 }
                 if (name) {
                     name = name.replace(/\s*,\s*$/, '');
-                    sql += ' AND lastname LIKE ?';
+                    sql += ' AND v.lastname LIKE ?';
                     values.push(name + '%');
                     explanation += 'Last name: ' + name + '*\n';
                 }
             }
             if (address) {
                 if (m = /^(\d+)\s+(.+)/.exec(address)) {
-                    sql += ' AND res_house = ?';
+                    sql += ' AND v.res_house = ?';
                     values.push(m[1]);
                     address = m[2];
                     explanation += 'House number: ' + m[1] + '\n';
                 }
-                sql += ' AND res_street LIKE ?';
+                sql += ' AND v.res_street LIKE ?';
                 values.push(address + '%');
                 explanation += 'Street name: ' + address + '*\n';
             }
             if (voterId) {
-                sql += ' AND voter_id = ?';
+                sql += ' AND v.voter_id = ?';
                 values.push(voterId);
                 explanation += 'Voter ID: ' + voterId + '\n';
             }
@@ -102,7 +105,7 @@ module.exports = function (app) {
                 values.push(q);
             }
             else {
-                sql += ' ORDER BY lastname, firstname, middle, suffix';
+                sql += ' ORDER BY v.lastname, v.firstname, v.middle, v.suffix';
             }
             sql += ' LIMIT ' + limit;
             console.log(sql);

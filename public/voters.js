@@ -423,7 +423,10 @@ function init() {
                 voter_id: voterData.voter_id,
                 voter_name: makeName(voterData),
                 address: makeAddress(voterData),
-                ward: voterData.ward
+                ward: voterData.ward,
+                finding: voterData.duplicate_page ? 'D' : null,
+                notes: voterData.duplicate_page ? 'Duplicate of page ' + voterData.duplicate_page + ', line ' +
+                    voterData.duplicate_line : null
             });
         })
         .on('click', '.not-found', function () {
