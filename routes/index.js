@@ -69,7 +69,7 @@ module.exports = function (app) {
                 values.push(q);
             }
             sql += ' FROM voters v LEFT JOIN petition_lines p ON v.voter_id = p.voter_id ' +
-                "WHERE (p.finding = 'OK' OR p.finding IS NULL)";
+                "WHERE (p.finding = 'OK' OR p.voter_id IS NULL)";
             if (name) {
                 if (m = /^([^,]*),\s*(.+)/.exec(name)) {
                     sql += ' AND v.firstname LIKE ?';
