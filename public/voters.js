@@ -425,11 +425,7 @@ function init() {
                     address: makeAddress(voterData),
                     ward: voterData.ward
                 };
-            if (voterData.duplicate_page) {
-                formData.finding = 'D';
-                formData.notes = 'Duplicate of page ' + voterData.duplicate_page + ', line ' + voterData.duplicate_line;
-            }
-            else if (party && voterData.party !== party) {
+            if (party && voterData.party !== party) {
                 formData.finding = 'WP';
                 formData.notes = voterData.party;
             }

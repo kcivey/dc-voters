@@ -59,8 +59,7 @@ module.exports = function (app) {
                 explanation += 'General query: ' + q + '\n';
             }
             sql = 'SELECT v.registered, v.lastname, v.firstname, v.middle, v.suffix, v.status, v.res_house, ' +
-                'v.res_frac, v.res_apt, v.res_street, v.ward, v.voter_id, ' +
-                'p.page as duplicate_page, p.line as duplicate_line';
+                'v.res_frac, v.res_apt, v.res_street, v.ward, v.voter_id';
             if (config.party) {
                 sql += ', v.party';
             }
@@ -68,8 +67,7 @@ module.exports = function (app) {
                 sql += ', ' + match + ' AS score';
                 values.push(q);
             }
-            sql += ' FROM voters v LEFT JOIN petition_lines p ON v.voter_id = p.voter_id ' +
-                "WHERE (p.finding = 'OK' OR p.voter_id IS NULL)";
+            sql += ' FROM voters WHERE 1';
             if (name) {
                 if (m = /^([^,]*),\s*(.+)/.exec(name)) {
                     sql += ' AND v.firstname LIKE ?';

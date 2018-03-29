@@ -296,9 +296,7 @@
         <td><%- status %></td>
         <td>
           <button class="btn btn-mini match" data-voter-id="<?- voter_id %>">
-            <% if (duplicate_page) { %>
-              Dup (<%- duplicate_page %>/<%- duplicate_line %>)
-            <% } else if (wantedParty && wantedParty !== party) { %>
+            <% if (wantedParty && wantedParty !== party) { %>
               Wrong Party
             <% } else { %>
               Match
