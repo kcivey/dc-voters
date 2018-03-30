@@ -430,8 +430,13 @@ module.exports = function (app) {
         },
 
         getPages: function (req, res) {
-            var sql = 'SELECT p.*, c.name AS circulator_name ' +
-                    'FROM pages p LEFT JOIN circulators c ON p.circulator_id = c.id ORDER BY p.id';
+            var sql = 'SELECT p.*, c.name AS circulator_name, ' +
+                    "SUM(IF(l.finding IN ('', 'S'), 0, 1)) AS processed_lines, " +
+                    'COUNT(l.id) AS total_lines, ' +
+                    'GROUP_CONCAT(DISTINCT l.checker ORDER BY l.checker) AS checker ' +
+                    'FROM pages p LEFT JOIN circulators c ON p.circulator_id = c.id ' +
+                    'INNER JOIN petition_lines l ON p.id = l.page ' +
+                    'GROUP BY p.id ORDER BY p.id';
             db.query(sql, function (err, rows) {
                 if (err) {
                     console.error(err);

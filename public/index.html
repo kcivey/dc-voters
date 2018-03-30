@@ -481,6 +481,8 @@
           <th>Date</th>
           <th>Notes</th>
           <th></th>
+          <th>Processed</th>
+          <th>Checker</th>
         </tr>
         </thead>
         <tbody>
@@ -488,9 +490,11 @@
         <tr>
           <td><%- p.id %></td>
           <td><%- p.circulator_name %></td>
-          <td><%- p.date_signed %></td>
-          <td><%- p.notes %></td>
+          <td><%- p.date_signed || '' %></td>
+          <td><%- p.notes || '' %></td>
           <td><button type="button" class="btn btn-mini page-edit-button" data-id="<%- p.id %>">Edit</button></td>
+          <td><%- p.processed_lines %></td>
+          <td><%- p.checker %></td>
         </tr>
         <% }); %>
         </tbody>
