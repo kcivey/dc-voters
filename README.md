@@ -14,3 +14,10 @@ from gnumeric package (can be installed on Ubuntu with `apt install gnumeric`).
 Remove extraneous backslashes that are somehow in BOE's file:
 
     perl -pi.bak -e's/\\//g' voters.csv
+
+Setting up database
+-------------------
+
+    mysql -uvoter -p dc_voters < create-tables.sql
+    ./create-lines-table.js
+    ./add-user.js admin 1234 --admin

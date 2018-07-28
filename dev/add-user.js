@@ -4,10 +4,13 @@ var db = require('../db'),
     passwordHash = require('password-hash'),
     _ = require('underscore'),
     async = require('async'),
+    argv = require('minimist')(process.argv.slice(2), {boolean: ['admin']}),
     table = 'users',
-    username = process.argv[2],
-    password = process.argv[3],
-    pageRange = process.argv[4],
+    username = argv._[0],
+    password = argv._[1],
+    admin = argv.admin,
+    pageRange = argv.pages,
+    email = argv.email || '',
     m, startPage, endPage, digits, todo;
 
 if (!username) {
@@ -37,8 +40,8 @@ if (pageRange && (m = pageRange.match(/^(\d+)-(\d+)$/))) {
 
 function insertUser(callback) {
     db.query(
-        'INSERT INTO ' + table + ' (username, password) VALUES (?, ?)',
-        [username, passwordHash.generate(password)],
+        'INSERT INTO ' + table + ' (username, password, admin, email) VALUES (?, ?, ?, ?)',
+        [username, passwordHash.generate(password), admin ? 1 : 0, email],
         function (err, result) {
             if (err) {
                 if (err.code == 'ER_DUP_ENTRY') {
