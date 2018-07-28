@@ -10,3 +10,7 @@ Get voter file from the DC Board of Elections in Excel format. To convert to CSV
 from gnumeric package (can be installed on Ubuntu with `apt install gnumeric`).
 
     ssconvert voters.xlsx voters.csv
+
+Remove extraneous backslashes that are somehow in BOE's file:
+
+    perl -pi.bak -e's/\\//g' voters.csv
