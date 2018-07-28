@@ -97,3 +97,10 @@ CREATE TABLE IF NOT EXISTS voters (
   INDEX (res_house),
   INDEX (res_street)
 );
+
+CREATE TABLE IF NOT EXISTS sessions (
+  session_id VARCHAR(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
+  expires INT(11) UNSIGNED NOT NULL,
+  data TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_bin,
+  PRIMARY KEY (session_id)
+);
