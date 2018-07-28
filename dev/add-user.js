@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 var db = require('../db'),
     passwordHash = require('password-hash'),
     _ = require('underscore'),

@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 var db = require('../db'),
     _ = require('underscore'),
     request = require('request'),

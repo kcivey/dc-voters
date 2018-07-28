@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 var stringifier = require('csv-stringify')({header: true}),
     argv = require('minimist')(process.argv.slice(2)),
     db = require('../db'),
