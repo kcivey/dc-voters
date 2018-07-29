@@ -765,7 +765,7 @@ function init() {
             }
         });
     }).on('click', '.user-create-row', function () {
-        var passwordField = $('[name=password]', this),
+        var passwordField = $('[name=x_password]', this),
             digits = _.range(10);
         if (!passwordField.val()) {
             passwordField.val(
