@@ -31,6 +31,10 @@ if (argv.party) {
 if (argv['with-apt']) {
     sql += " AND res_apt <> ''";
 }
+if (argv.anc) {
+    sql += ' AND ' + (/^[1-8][A-H]$/i.test(argv.anc) ? 'anc' : 'smd') + ' = ?';
+    values.push(argv.anc.toUpperCase());
+}
 
 sql += ' ORDER BY lastname, firstname, middle';
 
