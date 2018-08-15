@@ -8,11 +8,13 @@
     "MD": "missing date",
     "MS": "missing signature",
     "WP": "wrong party",
+    "WW": "wrong ward",
     "D": "duplicate",
     "B": "blank",
     "S": "skip for now and deal with it later"
   },
   "extraFields": {
   },
-  "party": ""
+  "party": "",
+  "ward": ""
 }

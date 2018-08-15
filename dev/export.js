@@ -35,6 +35,10 @@ if (argv.anc) {
     sql += ' AND ' + (/^[1-8][A-H]$/i.test(argv.anc) ? 'anc' : 'smd') + ' = ?';
     values.push(argv.anc.toUpperCase());
 }
+if (argv.ward) {
+    sql += ' AND ward = ?';
+    values.push(argv.ward);
+}
 
 sql += ' ORDER BY lastname, firstname, middle';
 

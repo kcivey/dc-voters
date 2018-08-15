@@ -2,12 +2,13 @@
     var urlBase = '/',
         apiUrlBase = urlBase + 'api/',
         user = null,
-        findingCodes, extraFields, party;
+        findingCodes, extraFields, party, ward;
 
     $.getJSON(urlBase + 'config.json', function (data) {
         findingCodes = data.findingCodes;
         extraFields = data.extraFields;
         party = data.party;
+        ward = data.ward;
         $(init);
     });
 
@@ -429,6 +430,10 @@ function init() {
                 formData.finding = 'WP';
                 formData.notes = voterData.party;
             }
+            else if (ward && voterData.ward !== ward) {
+                formData.finding = 'WW';
+                formData.notes = 'Ward ' + voterData.ward;
+            }
             editLine(formData);
         })
         .on('click', '.not-found', function () {
@@ -706,6 +711,7 @@ function init() {
             v.address = makeAddress(v);
             v.partyDisplay = v.party ? v.party.substr(0, 3) : '';
             v.wantedParty = party;
+            v.wantedWard = ward;
             tr = $(voterRowTemplate(v)).data('voterData', v);
             tbody.append(tr);
         });

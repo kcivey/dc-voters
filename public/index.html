@@ -298,6 +298,8 @@
           <button class="btn btn-mini match" data-voter-id="<?- voter_id %>">
             <% if (wantedParty && wantedParty !== party) { %>
               Wrong Party
+            <% } else if (wantedWard && wantedWard !== ward) { %>
+              Wrong Ward
             <% } else { %>
               Match
             <% } %>
