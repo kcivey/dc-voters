@@ -7,7 +7,8 @@ Getting voter file
 ------------------
 
 Get voter file from the DC Board of Elections in Excel format. To convert to CSV, use ssconvert utility
-from gnumeric package (can be installed on Ubuntu with `apt install gnumeric`).
+from gnumeric package (can be installed on Ubuntu with `apt install gnumeric`). This takes a lot of
+memory; I had to close some other programs when running with 8 GB.
 
     ssconvert voters.xlsx voters.csv
 
