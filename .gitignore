@@ -5,3 +5,10 @@
 /public/config.json
 *.csv
 *.xlsx
+*.pdf
+*.tsv
+*.mdb
+*.bak
+*.old
+*~
+*.zip
