@@ -576,7 +576,7 @@ function init() {
                     sTitle: 'Check Time',
                     bSearchable: false,
                     fnCreatedCell: function (nTd, sData) {
-                        $(nTd).wrapInner('<time datetime="' + sData + '"></time>')
+                        $(nTd).wrapInner('<time datetime="' + sData + 'Z"></time>')
                             .find('time').timeago();
                     }
                 },

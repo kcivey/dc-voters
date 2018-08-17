@@ -4,7 +4,8 @@
     "database": "dc_voters",
     "user": "USER",
     "password": "PASSWORD",
-    "dateStrings": true
+    "dateStrings": true,
+    "timezone": "Z"
   },
   "secret": "SECRET"
 }
