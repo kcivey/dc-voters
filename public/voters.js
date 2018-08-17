@@ -2,13 +2,14 @@
     var urlBase = '/',
         apiUrlBase = urlBase + 'api/',
         user = null,
-        findingCodes, extraFields, party, ward;
+        findingCodes, extraFields, party, ward, imageWidth;
 
     $.getJSON(urlBase + 'config.json', function (data) {
         findingCodes = data.findingCodes;
         extraFields = data.extraFields;
         party = data.party;
         ward = data.ward;
+        imageWidth = data.imageWidth;
         $(init);
     });
 
@@ -322,6 +323,7 @@ function init() {
         if (rec.finding) {
             $('#check-form').hide();
             $('#search-form').show();
+            showImageRow(rec.page, rec.line);
             editLine(rec);
         }
         else {
@@ -335,6 +337,7 @@ function init() {
             ).show();
             $('#result-div .alert').insertAfter($('#check-form'));
             $('#search-form, #result-div > *').hide();
+            hideImageRow();
         }
     }
 
@@ -442,9 +445,11 @@ function init() {
 
     $('#check-form')
         .on('click', '#check-button', function () {
+            var rec = status.lineRecord || {};
             $('#check-form, #check-results, #line-form').hide();
             $('#check-form').next('.alert').remove(); // remove leftover alert if there
             $('#search-form').show();
+            showImageRow(rec.page, rec.line);
             $('#reset-button').click(); // clear search form
             $('#name').focus();
         })
@@ -516,6 +521,7 @@ function init() {
             return;
         }
         $('#top-row').hide();
+        hideImageRow();
         $('#bottom-row').show().html(lineTableTemplate({}));
         url = apiUrlBase + 'dt-line';
         if (!status.user.admin) {
@@ -738,6 +744,7 @@ function init() {
                     values = {};
                 values[name] = data;
                 $('#top-row').hide();
+                hideImageRow();
                 $('#bottom-row').html(template(values)).show()
                     .on('click', '.back-button', backToChecking);
             }
@@ -829,6 +836,7 @@ function init() {
                     totals['Valid percentage'] = (100 * rawTotals['OK'] / nonBlank).toFixed(1) + '%';
                 }
                 $('#top-row').hide();
+                hideImageRow();
                 $('#bottom-row').html(totalTableTemplate({totals: totals})).show()
                     .on('click', '.back-button', backToChecking);
             }
@@ -848,6 +856,47 @@ function init() {
         $('.modal-title', $modal).text(title);
         $('.modal-body', $modal).html(body);
         $modal.modal();
+    }
+
+    function hideImageRow() {
+        showImageRow(null);
+    }
+
+    function showImageRow(page, line) {
+        var $imageRow = $('#image-row'),
+            $imageDiv = $('#image-div'),
+            imageUrl = '/page-images/',
+            divWidth, ratio, top;
+        if (!page || !imageWidth) {
+            $imageRow.slideUp();
+            return;
+        }
+        page = page.toString();
+        if (page.length < 4) {
+            page = '0000'.substr(0, 4 - page.length) + page;
+        }
+        imageUrl += page + (+line <= 10 ? 'a' : 'b') + '.jpeg';
+        $imageRow.slideDown();
+        divWidth = $imageDiv.innerWidth();
+        ratio = divWidth / imageWidth;
+        if (line <= 10) {
+            top = -(828 + 103 * line) * ratio;
+        }
+        else {
+            top = -(51 + 103 * (line - 10)) * ratio;
+        }
+        $imageDiv.css({height: (113 * ratio) + 'px'})
+            .html(
+                $('<a/>').attr({href: imageUrl, target: '_blank'})
+                    .html(
+                        $('<img/>').attr('src', imageUrl).css({
+                            position: 'absolute',
+                            width: divWidth + 'px',
+                            height: (divWidth * 11 / 8.5) + 'px',
+                            top: top + 'px'
+                        }).draggable({axis: 'y'})
+                    )
+            );
     }
 
     function stringToList(s) {

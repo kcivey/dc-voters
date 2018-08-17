@@ -9,6 +9,7 @@
     <link href="/css/bootstrap.min.css" rel="stylesheet"/>
     <link href="/css/bootstrap-responsive.min.css" rel="stylesheet"/>
     <link href="https://ajax.aspnetcdn.com/ajax/jquery.dataTables/1.9.3/css/jquery.dataTables.css" rel="stylesheet"/>
+    <link href="https://code.jquery.com/ui/1.12.1/themes/smoothness/jquery-ui.css" rel="stylesheet"/>
     <style>
       body {
         padding-top: 60px; /* to make the container go all the way to the bottom of the topbar */
@@ -56,6 +57,12 @@
       td.number {
         text-align: right;
         width: 30px;
+      }
+      #image-div {
+        overflow: hidden;
+        border:1px solid #ccc;
+        height: 100px;
+        position: relative;
       }
     </style>
 
@@ -147,6 +154,10 @@
     </div>
 
     <div id="main-container" class="container-fluid" style="display: none">
+      <div id="image-row" class="row-fluid" style="display: none">
+        <div id="image-div" class="span12">
+        </div>
+      </div>
       <div id="top-row" class="row-fluid">
         <div class="span5">
           <div class="well">
@@ -254,6 +265,9 @@
     <script src="/js/backbone.min.js"></script>
     <script src="/js/Backbone.ModelBinder.min.js"></script>
     <script src="/js/jquery.timeago.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"
+            integrity="sha256-VazP97ZCwtekAsvgPBSUwPFKdrwD3unUfSGVYrahUqU="
+            crossorigin="anonymous"></script>
     <script src="voters.js"></script>
     <script type="text/template" id="check-form-template">
       <% if (line) { %>
