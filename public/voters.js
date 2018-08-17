@@ -2,14 +2,14 @@
     var urlBase = '/',
         apiUrlBase = urlBase + 'api/',
         user = null,
-        findingCodes, extraFields, party, ward, imageWidth;
+        findingCodes, extraFields, party, ward, imageDpi;
 
     $.getJSON(urlBase + 'config.json', function (data) {
         findingCodes = data.findingCodes;
         extraFields = data.extraFields;
         party = data.party;
         ward = data.ward;
-        imageWidth = data.imageWidth;
+        imageDpi = data.imageDpi;
         $(init);
     });
 
@@ -867,7 +867,7 @@ function init() {
             $imageDiv = $('#image-div'),
             imageUrl = '/page-images/',
             divWidth, ratio, top;
-        if (!page || !imageWidth) {
+        if (!page || !imageDpi) {
             $imageRow.slideUp();
             return;
         }
@@ -878,14 +878,9 @@ function init() {
         imageUrl += page + (+line <= 10 ? 'a' : 'b') + '.jpeg';
         $imageRow.slideDown();
         divWidth = $imageDiv.innerWidth();
-        ratio = divWidth / imageWidth;
-        if (line <= 10) {
-            top = -(828 + 103 * line) * ratio;
-        }
-        else {
-            top = -(51 + 103 * (line - 10)) * ratio;
-        }
-        $imageDiv.css({height: (113 * ratio) + 'px'})
+        ratio = divWidth / (8.5 * imageDpi);
+        top = -((line <= 10 ? 902 : -956) + 104 * line) * ratio;
+        $imageDiv.css({height: (120 * ratio) + 'px'})
             .html(
                 $('<a/>').attr({href: imageUrl, target: '_blank'})
                     .html(
