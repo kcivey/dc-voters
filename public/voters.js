@@ -896,7 +896,7 @@ function init() {
                             top: top + 'px'
                         }).draggable({axis: 'y'})
                     )
-            );
+            ).resizable({handles: 's'})
     }
 
     function stringToList(s) {
