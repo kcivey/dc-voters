@@ -335,6 +335,11 @@
       <div class="control-group">
         <label class="control-label" for="finding">Finding</label>
         <div class="controls" id="finding">
+          <input type="hidden" name="id"/>
+          <input type="hidden" name="page"/>
+          <input type="hidden" name="line"/>
+          <input type="hidden" name="checker"/>
+          <button type="button" class="btn btn-primary btn-large pull-right save" style="margin: 6px">Save</button>
           <% _.each(findingCodes, function (label, value) { %>
             <label class="radio">
               <input type="radio" name="finding" value="<%- value %>"/> <%= label %> [<%- value %>]
@@ -342,7 +347,7 @@
           <% }); %>
         </div>
       </div>
-      <div class="control-group">
+      <div class="control-group" style="display: none">
         <label class="control-label" for="voter_id">Voter ID</label>
         <div class="controls">
           <input type="text" name="voter_id" id="voter_id" class="input-small" readonly/>
@@ -360,14 +365,12 @@
           <input type="text" name="address" id="line-address" class="input-block-level"/>
         </div>
       </div>
-      <!--
-      <div class="control-group">
+      <div class="control-group" style="display: none">
         <label class="control-label" for="ward">Ward</label>
         <div class="controls">
           <input type="text" name="ward" id="ward" class="input-mini"/>
         </div>
       </div>
-      -->
       <div class="control-group">
         <label class="control-label" for="date_signed">Date signed</label>
         <div class="controls">
@@ -391,13 +394,6 @@
         <div class="controls">
           <textarea name="notes" id="notes" class="input-block-level"></textarea>
         </div>
-      </div>
-      <div class="control-group">
-        <input type="hidden" name="id"/>
-        <input type="hidden" name="page"/>
-        <input type="hidden" name="line"/>
-        <input type="hidden" name="checker"/>
-        <button type="button" class="btn btn-primary btn save">Save</button>
       </div>
     </script>
     <script type="text/template" id="page-form-template">
@@ -430,9 +426,6 @@
           <div class="controls">
             <textarea name="notes" id="page-notes" class="input-block-level"></textarea>
           </div>
-        </div>
-        <div class="control-group">
-          <button type="button" class="btn btn-primary btn save">Save</button>
         </div>
       </form>
     </script>
