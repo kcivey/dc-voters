@@ -21,17 +21,27 @@
         }
 
         td {
-            height: 0.35in;
+            height: 0.33in;
         }
 
         td:first-child {
             text-align: right;
+        }
+        caption {
+            padding-top: 6pt;
+            text-align: left;
+            font-size: large;
+            font-weight: bold;
         }
     </style>
 </head>
 <body>
     <% _.each(data, function (rows, page) { %>
         <table>
+            <caption>
+                <%- challengeHeader %>,
+                Page <%- page %>
+            </caption>
             <thead>
                 <tr>
                     <th style="width: 10%">
@@ -41,7 +51,7 @@
                         Name and Address of the Signer
                     </th>
                     <th style="width: 50%">
-                        List Board regulation(s) or provide an explanation of the petition defect
+                        Explanation of Defect
                     </th>
                 </tr>
             </thead>
@@ -52,15 +62,24 @@
                             <%= i + 1 %>
                         </td>
                         <td>
-                            <%- r.name %>
-                            <br/>
-                            <%- r.address %>
+                            <%= r.signer %>
                         </td>
                         <td>
-                            <%- r.explanation %>
+                            <%= r.explanation %>
                         </td>
                     </tr>
                 <% }) %>
+                <tr>
+                    <td>
+                        Circulator
+                    </td>
+                    <td>
+
+                    </td>
+                    <td>
+
+                    </td>
+                </tr>
             </tbody>
         </table>
     <% }) %>

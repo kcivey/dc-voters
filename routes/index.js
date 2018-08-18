@@ -676,12 +676,7 @@ module.exports = function (app) {
 
         challenge: function (req, res) {
             var sql = 'SELECT l.* FROM petition_lines l',
-                values = [],
-                emptyRow = {
-                    name: '',
-                    address: '',
-                    explanation: ''
-                };
+                values = [];
             if (req.query.p) {
                 sql += ' WHERE page in (?)';
                 values.push(numberList.parse(req.query.p));
@@ -695,18 +690,33 @@ module.exports = function (app) {
                 }
                 var data = {};
                 _.forEach(rows, function (row) {
+                    var signer = '',
+                        explanation = '';
                     if (!data[row.page]) {
                         data[row.page] = [];
                     }
-                    data[row.page][row.line - 1] = row.finding === 'OK' || row.finding === '' ?
-                        emptyRow :
-                        {
-                            name: row.name,
-                            address: row.address,
-                            explanation: row.finding + '; ' + row.notes
-                        };
+                    if (['', 'S', 'OK'].indexOf(row.finding) == -1) {
+                        signer = row.voter_name || '';
+                        if (row.address) {
+                            if (signer) {
+                                signer += '<br>';
+                            }
+                            signer += row.address;
+                        }
+                        explanation = config.findingCodes[row.finding] || row.finding;
+                        if (row.notes) {
+                            explanation += '; ' + row.notes;
+                        }
+                    }
+                    data[row.page][row.line - 1] = {
+                        signer: signer,
+                        explanation: explanation
+                    };
                 });
-                res.send(challengeTemplate({data: data}));
+                res.send(challengeTemplate({
+                    challengeHeader: config.challengeHeader,
+                    data: data
+                }));
             });
         }
     };

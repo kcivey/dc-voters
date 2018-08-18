@@ -18,5 +18,6 @@
   },
   "party": "",
   "ward": "",
-  "imageDpi": 0
+  "imageDpi": 0,
+  "challengeHeader": ""
 }
