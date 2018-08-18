@@ -1,12 +1,14 @@
 module.exports = function (app) {
-    var _ = require('underscore'),
+    var fs = require('fs'),
+        _ = require('underscore'),
         moment = require('moment'),
         async = require('async'),
         passwordHash = require('password-hash'),
         config = require('../public/config.json'),
         db = require('../db'),
         pkg = require('../package.json'),
-        numberList = require('../number-list');
+        numberList = require('../number-list'),
+        challengeTemplate = _.template(fs.readFileSync(__dirname + '/challenge.html', {encoding: 'utf8'}).replace(/^\s+/gm, ''));
 
     function sendTsv(req, res, sql, values) {
         var filename, m;
@@ -670,6 +672,42 @@ module.exports = function (app) {
         logOut: function (req, res) {
             req.logOut();
             res.redirect('/');
+        },
+
+        challenge: function (req, res) {
+            var sql = 'SELECT l.* FROM petition_lines l',
+                values = [],
+                emptyRow = {
+                    name: '',
+                    address: '',
+                    explanation: ''
+                };
+            if (req.query.p) {
+                sql += ' WHERE page in (?)';
+                values.push(numberList.parse(req.query.p));
+            }
+            sql += ' ORDER BY page, line';
+            db.query(sql, values, function (err, rows) {
+                if (err) {
+                    console.error(err);
+                    res.sendStatus(500);
+                    return;
+                }
+                var data = {};
+                _.forEach(rows, function (row) {
+                    if (!data[row.page]) {
+                        data[row.page] = [];
+                    }
+                    data[row.page][row.line - 1] = row.finding === 'OK' || row.finding === '' ?
+                        emptyRow :
+                        {
+                            name: row.name,
+                            address: row.address,
+                            explanation: row.finding + '; ' + row.notes
+                        };
+                });
+                res.send(challengeTemplate({data: data}));
+            });
         }
     };
 };

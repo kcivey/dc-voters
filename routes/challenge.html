@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8"/>
+    <title>Petition Challenge</title>
+    <style>
+        table {
+            border-collapse: collapse;
+            border: none;
+            table-layout: fixed;
+            width: 100%;
+            page-break-inside: avoid;
+        }
+
+        th, td {
+            border: 1px solid black;
+        }
+
+        th, td {
+            padding: 5pt;
+        }
+
+        td {
+            height: 0.35in;
+        }
+
+        td:first-child {
+            text-align: right;
+        }
+    </style>
+</head>
+<body>
+    <% _.each(data, function (rows, page) { %>
+        <table>
+            <thead>
+                <tr>
+                    <th style="width: 10%">
+                        Line #
+                    </th>
+                    <th style="width: 40%">
+                        Name and Address of the Signer
+                    </th>
+                    <th style="width: 50%">
+                        List Board regulation(s) or provide an explanation of the petition defect
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                <% _.each(rows, function (r, i) { %>
+                    <tr>
+                        <td>
+                            <%= i + 1 %>
+                        </td>
+                        <td>
+                            <%- r.name %>
+                            <br/>
+                            <%- r.address %>
+                        </td>
+                        <td>
+                            <%- r.explanation %>
+                        </td>
+                    </tr>
+                <% }) %>
+            </tbody>
+        </table>
+    <% }) %>
+</body>
+</html>

@@ -41,6 +41,7 @@ if ('development' === env) {
 
 app.post(urlBase + 'login', passport.authenticate('local', {successRedirect: urlBase, failureRedirect: urlBase}));
 app.get(urlBase + 'logout', routes.logOut);
+app.get(urlBase + 'challenge.html', isAuthenticated, routes.challenge);
 app.all(apiUrlBase + '*', isAuthenticated);
 app.get(apiUrlBase + 'search', routes.search);
 app.get(apiUrlBase + 'line/:page/:line', routes.lineRead);
