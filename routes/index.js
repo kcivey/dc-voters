@@ -704,6 +704,10 @@ module.exports = function (app) {
                             signer += row.address;
                         }
                         explanation = config.findingCodes[row.finding] || row.finding;
+                        if (row.finding === 'B') {
+                            signer = '(blank)';
+                            explanation = '';
+                        }
                         if (row.notes) {
                             explanation += '; ' + row.notes;
                         }
