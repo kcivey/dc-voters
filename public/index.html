@@ -479,6 +479,9 @@
             <th>ID</th>
             <th>Name</th>
             <th>Page Count</th>
+            <th>Processed Lines</th>
+            <th>Valid Lines</th>
+            <th>% Valid</th>
             <th>Status</th>
             <th>Notes</th>
             <th></th>
@@ -490,6 +493,9 @@
               <td><%- c.id %></td>
               <td><%- c.name %></td>
               <td><%- c.page_count %></td>
+              <td><%- c.processed_lines %></td>
+              <td><%- c.valid_lines %></td>
+              <td><%- c.processed_lines ? Math.round(100 * c.valid_lines / c.processed_lines, 1) : '' %></td>
               <td><%- c.status %></td>
               <td><%- c.notes %></td>
               <td><button type="button" class="btn btn-mini circulator-edit-button" data-id="<%- c.id %>">Edit</button></td>
