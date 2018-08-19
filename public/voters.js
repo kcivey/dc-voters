@@ -2,10 +2,11 @@
     var urlBase = '/',
         apiUrlBase = urlBase + 'api/',
         user = null,
-        findingCodes, extraFields, party, ward, imageDpi;
+        findingCodes, circulatorStatuses, extraFields, party, ward, imageDpi;
 
     $.getJSON(urlBase + 'config.json', function (data) {
         findingCodes = data.findingCodes;
+        circulatorStatuses = data.circulatorStatuses;
         extraFields = data.extraFields;
         party = data.party;
         ward = data.ward;
@@ -115,7 +116,7 @@ function init() {
             'click .save': 'save'
         },
         render: function () {
-            this.$el.html(this.template());
+            this.$el.html(this.template({circulatorStatuses: circulatorStatuses}));
             this.modelBinder.bind(this.model, this.el);
             return this;
         },

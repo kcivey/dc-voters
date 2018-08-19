@@ -14,6 +14,10 @@
     "B": "blank (or scratched out)",
     "S": "skip for now and deal with it later"
   },
+  "circulatorStatuses": {
+    "CU": "Circulator unqualified (not DC resident and did not fill out paperwork)",
+    "CF": "Circulator shows pattern of fraud"
+  },
   "extraFields": {
   },
   "party": "",

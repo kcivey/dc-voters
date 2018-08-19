@@ -442,8 +442,10 @@
           <label class="control-label" for="circulator-status">Status</label>
           <div class="controls">
             <select name="status" id="circulator-status">
-              <option value=""></option>
-              <option value="CU">Unqualified (not DC resident and did not fill out paperwork)</option>
+              <option value="">OK</option>
+              <% _.each(circulatorStatuses, function (status, code) { %>
+                <option value="<%- code %>"><%- status %> [<%- code %>]</option>
+              <% }); %>
             </select>
           </div>
         </div>
