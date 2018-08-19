@@ -728,10 +728,11 @@ module.exports = function (app) {
                             }
                             signer += row.address;
                         }
-                        explanation = config.findingCodes[row.finding] || row.finding;
                         if (row.finding === 'B') {
                             signer = '(blank)';
-                            explanation = '';
+                        }
+                        else if (row.finding !== 'D') { // "Duplicate" is already in the notes
+                            explanation = config.findingCodes[row.finding] || row.finding;
                         }
                         if (row.notes) {
                             explanation += '; ' + row.notes;
