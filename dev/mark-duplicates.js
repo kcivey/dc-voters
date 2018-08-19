@@ -14,7 +14,7 @@ db.query(sql, function (err, rows) {
     if (err) {
         throw err;
     }
-    rows.forEach(function (i, row) {
+    rows.forEach(function (row) {
         var notes = row.duplicate_notes || '',
             finding = row.duplicate_finding,
             sql = 'UPDATE petition_lines SET finding = ?, notes = ? WHERE page = ? AND line = ?',
