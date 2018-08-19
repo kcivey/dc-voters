@@ -468,7 +468,11 @@ module.exports = function (app) {
         },
 
         getTotals: function (req, res) {
-            var sql = 'SELECT finding, COUNT(*) AS count FROM petition_lines GROUP BY finding';
+            var sql = "SELECT (CASE WHEN c.status = '' THEN l.finding ELSE c.status END) AS combinedFinding, " +
+                'COUNT(*) AS count FROM petition_lines l ' +
+                'LEFT JOIN pages p ON l.page = p.id ' +
+                'LEFT JOIN circulators c ON p.circulator_id = c.id ' +
+                'GROUP BY combinedFinding';
             db.query(sql, function (err, rows) {
                 if (err) {
                     console.error(err);
@@ -477,7 +481,7 @@ module.exports = function (app) {
                 }
                 var totals = {};
                 rows.forEach(function (row) {
-                    totals[row.finding] = +row.count;
+                    totals[row.combinedFinding] = +row.count;
                 });
                 res.json(totals);
             });

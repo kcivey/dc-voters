@@ -822,6 +822,11 @@ function init() {
                 var totals = {'Unprocessed': rawTotals[''] || 0},
                     processedLines = 0,
                     nonBlank;
+                _.each(circulatorStatuses, function (label, code) {
+                    var count = rawTotals[code] || 0;
+                    label += ' [' + code + ']';
+                    totals[label] = count;
+                });
                 _.each(findingCodes, function (label, code) {
                     var count = rawTotals[code] || 0;
                     label += ' [' + code + ']';
