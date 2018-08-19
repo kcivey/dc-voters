@@ -679,25 +679,43 @@ module.exports = function (app) {
         },
 
         challenge: function (req, res) {
-            var sql = 'SELECT l.* FROM petition_lines l',
+            var sql = 'SELECT l.*, c.status as circulator_status, c.name as circulator_name, c.notes AS circulator_notes ' +
+                    'FROM petition_lines l LEFT JOIN pages p ON l.page = p.id ' +
+                    'LEFT JOIN circulators c ON p.circulator_id = c.id',
                 values = [];
             if (req.query.p) {
-                sql += ' WHERE page in (?)';
+                sql += ' WHERE l.page in (?)';
                 values.push(numberList.parse(req.query.p));
             }
-            sql += ' ORDER BY page, line';
+            sql += ' ORDER BY l.page, l.line';
             db.query(sql, values, function (err, rows) {
                 if (err) {
                     console.error(err);
                     res.sendStatus(500);
                     return;
                 }
-                var data = {};
+                var circulators = {},
+                    data = {};
                 _.forEach(rows, function (row) {
                     var signer = '',
-                        explanation = '';
+                        explanation = '',
+                        circulatorExplanation = '';
                     if (!data[row.page]) {
                         data[row.page] = [];
+                    }
+                    if (!circulators[row.page]) {
+                        if (row.circulator_status) {
+                            circulatorExplanation = config.circulatorStatuses[row.circulator_status] || row.circulator_status;
+                        }
+                        if (row.circulator_notes) {
+                            if (circulatorExplanation) {
+                                circulatorExplanation += '; ';
+                            }
+                        }
+                        circulators[row.page] = {
+                            name: row.circulator_name,
+                            explanation: circulatorExplanation
+                        };
                     }
                     if (['', 'S', 'OK'].indexOf(row.finding) == -1) {
                         signer = row.voter_name || '';
@@ -723,6 +741,7 @@ module.exports = function (app) {
                 });
                 res.send(challengeTemplate({
                     challengeHeader: config.challengeHeader,
+                    circulators: circulators,
                     data: data
                 }));
             });
