@@ -439,6 +439,15 @@
           </div>
         </div>
         <div class="control-group">
+          <label class="control-label" for="circulator-status">Status</label>
+          <div class="controls">
+            <select name="status" id="circulator-status">
+              <option value=""></option>
+              <option value="CU">Unqualified (not DC resident and did not fill out paperwork)</option>
+            </select>
+          </div>
+        </div>
+        <div class="control-group">
           <label class="control-label" for="circulator-notes">Notes</label>
           <div class="controls">
             <textarea name="notes" id="circulator-notes" class="input-block-level"></textarea>
@@ -468,6 +477,7 @@
             <th>ID</th>
             <th>Name</th>
             <th>Page Count</th>
+            <th>Status</th>
             <th>Notes</th>
             <th></th>
           </tr>
@@ -478,6 +488,7 @@
               <td><%- c.id %></td>
               <td><%- c.name %></td>
               <td><%- c.page_count %></td>
+              <td><%- c.status %></td>
               <td><%- c.notes %></td>
               <td><button type="button" class="btn btn-mini circulator-edit-button" data-id="<%- c.id %>">Edit</button></td>
             </tr>

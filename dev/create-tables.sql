@@ -10,6 +10,7 @@ CREATE TABLE IF NOT EXISTS pages (
 CREATE TABLE IF NOT EXISTS circulators (
   `id` SMALLINT UNSIGNED NOT NULL AUTO_INCREMENT,
   `name` VARCHAR(255) NOT NULL,
+  `status` varchar(10) NOT NULL DEFAULT '',
   `notes` TEXT,
   PRIMARY KEY (`id`)
 );
