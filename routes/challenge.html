@@ -43,7 +43,8 @@
         <table>
             <caption>
                 <%- challengeHeader %>,
-                Page <%- page %>
+                Page <%- page <= 299 ? page : page - 299 %>
+                of <%- page <= 299 ? 299 : 37 %><!-- kluge for a particular challenge -->
             </caption>
             <thead>
                 <tr>
