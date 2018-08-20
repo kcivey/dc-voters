@@ -707,7 +707,7 @@ module.exports = function (app) {
                         "MS": "1607.1(i) signature not made by person purported",
                         "WP": "1607.1(n) wrong party",
                         "WW": "1607.1(m) wrong ward",
-                        "D": "1607.1(d)",
+                        "D": "1607.1(c)",
                         "CU": "1607.1(g) circulator not qualified",
                         "CA": "1607.1(h) circulator affidavit defective"
                     },
@@ -757,7 +757,7 @@ module.exports = function (app) {
                             explanation += regulations[row.finding] || row.finding;
                         }
                         if (row.notes && (m = row.notes.match(/(Duplicate of page \d+, line \d+)/))) {
-                            explanation += '; ' + (/1607\.1\(d\)/.test(explanation) ? '' : '1607.1(d) ') +
+                            explanation += '; ' + (/1607\.1\(c\)/.test(explanation) ? '' : '1607.1(c) ') +
                                 m[1].replace('Duplicate', 'duplicate')
                                     .replace(
                                         /(duplicate of page )(\d+)/g,
