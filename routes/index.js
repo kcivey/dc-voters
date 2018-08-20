@@ -757,7 +757,7 @@ module.exports = function (app) {
                             explanation += regulations[row.finding] || row.finding;
                         }
                         if (row.notes && (m = row.notes.match(/(Duplicate of page \d+, line \d+)/))) {
-                            explanation += '; ' + (/1607\.1\(d\)/.test(explanation) ? '1607.1(d) ' : '') +
+                            explanation += '; ' + (/1607\.1\(d\)/.test(explanation) ? '' : '1607.1(d) ') +
                                 m[1].replace('Duplicate', 'duplicate')
                                     .replace(
                                         /(duplicate of page )(\d+)/g,
