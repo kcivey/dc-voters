@@ -15,7 +15,7 @@
     "S": "skip for now and deal with it later"
   },
   "circulatorStatuses": {
-    "CU": "Circulator unqualified (not DC resident and did not fill out paperwork)",
+    "CU": "Circulator unqualified at time of collection (not DC resident and had not filled out paperwork)",
     "CF": "Circulator shows pattern of fraud"
   },
   "extraFields": {
