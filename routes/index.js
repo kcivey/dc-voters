@@ -698,18 +698,18 @@ module.exports = function (app) {
                     return;
                 }
                 var regulations = {
-                        "A": "1607.1(b)",
-                        "NM": "1607.1(b)",
-                        "NR": "1607.1(b)",
-                        "I": "1607.1(f)",
-                        "MA": "1607.1(e)",
-                        "MD": "1607.1(d)",
-                        "MS": "1607.1(i)",
-                        "WP": "1607.1(n)",
-                        "WW": "1607.1(m)",
+                        "A": "1607.1(b) not registered at address",
+                        "NM": "1607.1(b) not registered at address",
+                        "NR": "1607.1(b) not registered at address",
+                        "I": "1607.1(f) illegible",
+                        "MA": "1607.1(e) no address",
+                        "MD": "1607.1(d) no date",
+                        "MS": "1607.1(i) signature not made by person purported",
+                        "WP": "1607.1(n) wrong party",
+                        "WW": "1607.1(m) wrong ward",
                         "D": "1607.1(d)",
-                        "CU": "1607.1(g)",
-                        "CA": "1607.1(h)"
+                        "CU": "1607.1(g) circulator not qualified",
+                        "CA": "1607.1(h) circulator affidavit defective"
                     },
                     circulators = {},
                     data = {};
