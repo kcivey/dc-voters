@@ -401,7 +401,7 @@ module.exports = function (app) {
 
         getCirculators: function (req, res) {
             var sql = 'SELECT c.*, COUNT(DISTINCT p.id) AS page_count, ' +
-                    "SUM(CASE WHEN l.finding IN ('', 'S', 'B') THEN 0 ELSE 1 END) AS processed_lines, " +
+                    "SUM(CASE WHEN l.finding NOT IN ('', 'S', 'B') THEN 1 ELSE 0 END) AS processed_lines, " +
                     "SUM(CASE WHEN l.finding = 'OK' THEN 1 ELSE 0 END) AS valid_lines " +
                     'FROM circulators c LEFT JOIN pages p ON p.circulator_id = c.id ' +
                     'LEFT JOIN petition_lines l ON p.id = l.page ' +
