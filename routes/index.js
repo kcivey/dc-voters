@@ -697,7 +697,21 @@ module.exports = function (app) {
                     res.sendStatus(500);
                     return;
                 }
-                var circulators = {},
+                var regulations = {
+                        "A": "1607.1(b)",
+                        "NM": "1607.1(b)",
+                        "NR": "1607.1(b)",
+                        "I": "1607.1(f)",
+                        "MA": "1607.1(e)",
+                        "MD": "1607.1(d)",
+                        "MS": "1607.1(i)",
+                        "WP": "1607.1(n)",
+                        "WW": "1607.1(m)",
+                        "D": "1607.1(d)",
+                        "CU": "1607.1(g)",
+                        "CA": "1607.1(h)"
+                    },
+                    circulators = {},
                     data = {};
                 _.forEach(rows, function (row) {
                     var signer = '',
@@ -731,8 +745,9 @@ module.exports = function (app) {
                         if (row.finding === 'B') {
                             signer = '(blank)';
                         }
-                        else if (row.finding !== 'D') { // "Duplicate" is already in the notes
-                            explanation = config.findingCodes[row.finding] || row.finding;
+                        else { // if (row.finding !== 'D') { // "Duplicate" is already in the notes
+                            //explanation = config.findingCodes[row.finding] || row.finding;
+                            explanation = regulations[row.finding] || row.finding;
                         }
                         if (row.notes) {
                             explanation += '; ' + row.notes;
