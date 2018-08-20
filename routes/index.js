@@ -716,7 +716,8 @@ module.exports = function (app) {
                 _.forEach(rows, function (row) {
                     var signer = '',
                         explanation = '',
-                        circulatorExplanation = '';
+                        circulatorExplanation = '',
+                        m;
                     if (!data[row.page]) {
                         data[row.page] = [];
                     }
@@ -755,8 +756,15 @@ module.exports = function (app) {
                             //explanation = config.findingCodes[row.finding] || row.finding;
                             explanation += regulations[row.finding] || row.finding;
                         }
-                        if (row.notes) {
-                            explanation += '; ' + row.notes;
+                        if (row.notes && (m = row.notes.match(/(Duplicate of page \d+, line \d+)/))) {
+                            explanation += '; ' + (/1607\.1\(d\)/.test(explanation) ? '1607.1(d) ' : '') +
+                                m[1].replace('Duplicate', 'duplicate')
+                                    .replace(
+                                        /(Duplicate of page )(3\d\d)/g,
+                                        function (match, p1, p2) {
+                                            return p1 + (p2 - 299) + ' of 37';
+                                        }
+                                    );
                         }
                     }
                     data[row.page][row.line - 1] = {
