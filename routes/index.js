@@ -734,6 +734,9 @@ module.exports = function (app) {
                             explanation: circulatorExplanation
                         };
                     }
+                    if (row.circulator_status === 'CU') {
+                        explanation = regulations.CU;
+                    }
                     if (['', 'S', 'OK'].indexOf(row.finding) == -1) {
                         signer = row.voter_name || '';
                         if (row.address) {
@@ -746,8 +749,11 @@ module.exports = function (app) {
                             signer = '(blank)';
                         }
                         else { // if (row.finding !== 'D') { // "Duplicate" is already in the notes
+                            if (explanation) {
+                                explanation += '; ';
+                            }
                             //explanation = config.findingCodes[row.finding] || row.finding;
-                            explanation = regulations[row.finding] || row.finding;
+                            explanation += regulations[row.finding] || row.finding;
                         }
                         if (row.notes) {
                             explanation += '; ' + row.notes;
