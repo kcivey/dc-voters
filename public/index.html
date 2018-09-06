@@ -479,6 +479,7 @@
             <th>ID</th>
             <th>Name</th>
             <th>Page Count</th>
+            <th>Pages</th>
             <th>Processed Lines</th>
             <th>Valid Lines</th>
             <th>% Valid</th>
@@ -493,6 +494,7 @@
               <td><%- c.id %></td>
               <td><%- c.name %></td>
               <td><%- c.page_count %></td>
+              <td><%- c.pages %></td>
               <td><%- c.processed_lines %></td>
               <td><%- c.valid_lines %></td>
               <td><%- c.processed_lines ? Math.round(100 * c.valid_lines / c.processed_lines, 1) : '' %></td>

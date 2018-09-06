@@ -401,18 +401,29 @@ module.exports = function (app) {
 
         getCirculators: function (req, res) {
             var sql = 'SELECT c.*, COUNT(DISTINCT p.id) AS page_count, ' +
+                    'GROUP_CONCAT(DISTINCT p.id ORDER BY p.id) AS pages, ' +
                     "SUM(CASE WHEN l.finding NOT IN ('', 'S', 'B') THEN 1 ELSE 0 END) AS processed_lines, " +
                     "SUM(CASE WHEN l.finding = 'OK' THEN 1 ELSE 0 END) AS valid_lines " +
                     'FROM circulators c LEFT JOIN pages p ON p.circulator_id = c.id ' +
                     'LEFT JOIN petition_lines l ON p.id = l.page ' +
                     'GROUP BY c.id ORDER BY c.name';
-            db.query(sql, function (err, rows) {
+            db.query('SET group_concat_max_len = 8192', function (err) {
                 if (err) {
                     console.error(err);
                     res.sendStatus(500);
                     return;
                 }
-                res.json(rows);
+                db.query(sql, function (err, rows) {
+                    if (err) {
+                        console.error(err);
+                        res.sendStatus(500);
+                        return;
+                    }
+                    rows.forEach(function (row) {
+                        row.pages = row.pages ? numberList.stringify(row.pages.split(',')) : '';
+                    });
+                    res.json(rows);
+                });
             });
         },
 
