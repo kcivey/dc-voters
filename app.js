@@ -14,8 +14,7 @@ var express = require('express'),
     path = require('path'),
     config = require('./config'),
     verifyUser = require('./verify-user'),
-    urlBase = '/',
-    apiUrlBase = urlBase + 'api/';
+    apiUrlBase = '/api/';
 
 passport.use('local', new LocalStrategy(verifyUser.auth));
 passport.serializeUser(verifyUser.serialize);
@@ -39,9 +38,9 @@ if ('development' === env) {
   app.use(errorHandler());
 }
 
-app.post(urlBase + 'login', passport.authenticate('local', {successRedirect: urlBase, failureRedirect: urlBase}));
-app.get(urlBase + 'logout', routes.logOut);
-app.get(urlBase + 'challenge.html', isAuthenticated, routes.challenge);
+app.post('/login', passport.authenticate('local', {successRedirect: '/', failureRedirect: '/'}));
+app.get('/logout', routes.logOut);
+app.get('/challenge.html', isAuthenticated, routes.challenge);
 app.all(apiUrlBase + '*', isAuthenticated);
 app.get(apiUrlBase + 'search', routes.search);
 app.get(apiUrlBase + 'line/:page/:line', routes.lineRead);
