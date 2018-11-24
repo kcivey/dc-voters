@@ -1,10 +1,9 @@
 (function ($) {
-    var urlBase = '/',
-        apiUrlBase = urlBase + 'api/',
+    var apiUrlBase = '/api/',
         user = null,
         findingCodes, circulatorStatuses, extraFields, party, ward, imageDpi;
 
-    $.getJSON(urlBase + 'config.json', function (data) {
+    $.getJSON('/config.json', function (data) {
         findingCodes = data.findingCodes;
         circulatorStatuses = data.circulatorStatuses;
         extraFields = data.extraFields;
@@ -415,7 +414,7 @@ function init() {
         e.preventDefault();
         if (username && password) {
             $.ajax({
-                url: urlBase + 'login',
+                url: '/login',
                 data: {username: username, password: password},
                 type: 'post'
             }).then(start);
@@ -504,10 +503,10 @@ function init() {
         evt.preventDefault();
         user = null;
         $.ajax({
-            url: urlBase + 'logout',
+            url: '/logout',
             cache: false
         }).then(function () {
-            location.href = urlBase;
+            location.href = '/';
         });
     });
 
