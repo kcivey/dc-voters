@@ -1,9 +1,12 @@
 CREATE TABLE IF NOT EXISTS pages (
   `id` SMALLINT UNSIGNED NOT NULL,
+  `project_id` SMALLINT UNSIGNED NOT NULL,
+  `number` SMALLINT UNSIGNED NOT NULL,
   `circulator_id` SMALLINT UNSIGNED NOT NULL,
   `date_signed` DATE DEFAULT NULL,
   `notes` TEXT,
   PRIMARY KEY (`id`),
+  UNIQUE KEY (`project_id`, `number`),
   KEY (`circulator_id`)
 );
 
@@ -23,6 +26,20 @@ CREATE TABLE IF NOT EXISTS users (
   `admin` TINYINT(1) NOT NULL DEFAULT 0,
   PRIMARY KEY (`id`),
   UNIQUE KEY (`username`)
+);
+
+CREATE TABLE IF NOT EXISTS projects (
+  `id` MEDIUMINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `code` VARCHAR(16),
+  `name` VARCHAR(64),
+  PRIMARY KEY (`id`),
+  UNIQUE KEY (`code`)
+);
+
+CREATE TABLE IF NOT EXISTS project_users (
+  `project_id` SMALLINT UNSIGNED NOT NULL,
+  `user_id` MEDIUMINT UNSIGNED NOT NULL,
+  PRIMARY KEY (`project_id`, `user_id`)
 );
 
 CREATE TABLE IF NOT EXISTS voters (

@@ -1,5 +1,6 @@
 CREATE TABLE petition_lines (
   `id` MEDIUMINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `project_id` SMALLINT UNSIGNED NOT NULL,
   `page` SMALLINT UNSIGNED NOT NULL,
   `line` TINYINT UNSIGNED NOT NULL,
   `checker` VARCHAR(10) DEFAULT '' NOT NULL,
@@ -12,7 +13,7 @@ CREATE TABLE petition_lines (
   `date_signed` DATE DEFAULT NULL,
   `notes` TEXT,
   PRIMARY KEY (`id`),
-  UNIQUE `page_line` (`page`, `line`),
+  UNIQUE `page_line` (`project_id`, `page`, `line`),
   KEY (`checker`),
   KEY (`check_time`),
   KEY (`voter_id`),

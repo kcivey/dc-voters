@@ -38,6 +38,33 @@ if ('development' === env) {
   app.use(errorHandler());
 }
 
+app.use(function setProject(req, res, next) {
+    var m = req.url.match(/^(?:\/api)?\/([\w-]+)\//),
+        projectCode = m && m[1];
+    if (!m || projectCode === 'api') {
+        return next();
+    }
+    db.query(
+        'SELECT * FROM projects WHERE code = ?',
+        [projectCode],
+        function (err, rows) {
+            console.log('db result', err, rows);
+            if (err) {
+                res.sendStatus(500);
+            }
+            else if (rows.length) {
+                console.log('setting project', rows[0]);
+                req.project = rows[0];
+                req.url = req.url.replace('/' + rows[0].code, '');
+                next();
+            }
+            else {
+                res.sendStatus(404);
+            }
+        }
+    );
+});
+
 app.post('/login', passport.authenticate('local', {successRedirect: '/', failureRedirect: '/'}));
 app.get('/logout', routes.logOut);
 app.get('/challenge.html', isAuthenticated, routes.challenge);
@@ -70,7 +97,8 @@ app.listen(app.get('port'), function(){
 });
 
 function isAuthenticated(req, res, next) {
-  if (req.isAuthenticated())
-    return next();
+  if (req.isAuthenticated()) {
+      return next();
+  }
   res.sendStatus(401);
 }

@@ -195,6 +195,7 @@ module.exports = function (app) {
         status: function (req, res) {
             var responseData = {
                     user: req.user || {},
+                    project: req.project || (req.user ? req.user.projects[0] : null),
                     complete: 0,
                     incomplete: 0,
                     overall: {

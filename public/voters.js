@@ -1,7 +1,5 @@
 (function ($) {
-    var apiUrlBase = '/api/',
-        user = null,
-        findingCodes, circulatorStatuses, extraFields, party, ward, imageDpi;
+    var findingCodes, circulatorStatuses, extraFields, party, ward, imageDpi;
 
     $.getJSON('/config.json', function (data) {
         findingCodes = data.findingCodes;
@@ -31,7 +29,7 @@ function init() {
                 }
             };
         },
-        urlRoot: apiUrlBase + 'line',
+        urlRoot: function () { return apiUrl('line'); },
         setSaved: function () {
             this.saved = true;
         },
@@ -101,7 +99,7 @@ function init() {
     });
 
     var Circulator = Backbone.Model.extend({
-        urlRoot: apiUrlBase + 'circulators'
+        urlRoot: function () { return apiUrl('circulators'); }
     });
 
     var CirculatorView = Backbone.View.extend({
@@ -166,7 +164,7 @@ function init() {
     });
 
     var Page = Backbone.Model.extend({
-        urlRoot: apiUrlBase + 'pages'
+        urlRoot: function () { return apiUrl('pages'); }
     });
 
     var PageView = CirculatorView.extend({
@@ -178,7 +176,7 @@ function init() {
         },
         checkDateSigned: checkDateSigned,
         render: function () {
-            $.getJSON(apiUrlBase + 'circulators').then(function (circulators) {
+            $.getJSON(apiUrl('circulators')).then(function (circulators) {
                 this.$el.html(this.template({circulators: circulators}));
                 this.modelBinder.bind(this.model, this.el);
             }.bind(this));
@@ -246,7 +244,7 @@ function init() {
 
     function getStatus(callback) {
         $.ajax({
-            url: apiUrlBase + 'status',
+            url: apiUrl('status'),
             dataType: 'json',
             cache: false,
             success: function (data) {
@@ -273,6 +271,11 @@ function init() {
                 }
             }
         });
+    }
+
+    function apiUrl(path) {
+        var project = status.project;
+        return '/api/' + (project ? project.code + '/' : '') + path;
     }
 
     function start() {
@@ -377,7 +380,7 @@ function init() {
         var id = $(this).data('id');
         if (id) {
             $.ajax({
-                url: apiUrlBase + 'circulators' + '/' + id,
+                url: apiUrl('circulators' + '/' + id),
                 dataType: 'json'
             }).then(showForm);
         }
@@ -395,7 +398,7 @@ function init() {
         var id = $(this).data('id');
         if (id) {
             $.ajax({
-                url: apiUrlBase + 'pages' + '/' + id,
+                url: apiUrl('pages' + '/' + id),
                 dataType: 'json'
             }).then(showForm);
         }
@@ -456,7 +459,7 @@ function init() {
         .on('click', '#blank-button, #rest-blank-button', function () {
             var rest = this.id.match(/^rest/),
                 rec = status.lineRecord,
-                url = apiUrlBase + 'mark-blank/' + rec.page + '/' + rec.line;
+                url = apiUrl('mark-blank/' + rec.page + '/' + rec.line);
             if (rest) {
                 url += '-' + 20;
             }
@@ -474,7 +477,7 @@ function init() {
                 page = +$('[name=page]', form).val(),
                 line = +$('[name=line]', form).val();
             $.ajax({
-                url: apiUrlBase + 'line/' + page + '/' + line,
+                url: apiUrl('line/' + page + '/' + line),
                 cache: false,
                 dataType: 'json',
                 success: function (lineRecord) {
@@ -523,7 +526,7 @@ function init() {
         $('#top-row').hide();
         hideImageRow();
         $('#bottom-row').show().html(lineTableTemplate({}));
-        url = apiUrlBase + 'dt-line';
+        url = apiUrl('dt-line');
         if (!status.user.admin) {
             url += '/' + status.user.username;
         }
@@ -692,7 +695,7 @@ function init() {
             searchData.limit = 50;
         }
         $.ajax({
-            url: apiUrlBase + 'search',
+            url: apiUrl('search'),
             data: searchData,
             dataType: 'json',
             success: handleResults,
@@ -737,7 +740,7 @@ function init() {
             name = $(this).data('name');
         }
         $.ajax({
-            url: apiUrlBase + name,
+            url: apiUrl(name),
             dataType: 'json',
             success: function (data) {
                 var template = getTemplate(name.replace(/s$/, '') + '-table'),
@@ -755,7 +758,7 @@ function init() {
     $('#bottom-row').on('click', '.save-user', function () {
         var $tr = $(this).closest('tr'),
             id = $tr.data('id'),
-            url = apiUrlBase + 'users',
+            url = apiUrl('users'),
             method = 'POST',
             userData = {
                 // Fields for "username" and "password" renamed to avoid autofill confusion with login
@@ -794,7 +797,7 @@ function init() {
             pages = stringToList(pageString);
         if (pages.length) {
             $.ajax({
-                url: apiUrlBase + 'users/' + username + '/pages',
+                url: apiUrl('users/' + username + '/pages'),
                 data: JSON.stringify(pages),
                 dataType: 'json',
                 contentType: 'application/json',
@@ -815,7 +818,7 @@ function init() {
     function showTotals() {
         var totalTableTemplate = getTemplate('total-table');
         $.ajax({
-            url: apiUrlBase + 'totals',
+            url: apiUrl('totals'),
             dataType: 'json',
             success: function (rawTotals) {
                 var totals = {'Unprocessed': rawTotals[''] || 0},

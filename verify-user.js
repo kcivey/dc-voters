@@ -2,42 +2,57 @@ var passwordHash = require('password-hash'),
     db = require('./db');
 
 module.exports = {
-    auth: function (username, password, callback) {
-        db.query(
-            'SELECT * FROM users WHERE username = ?',
-            [username],
-            function (err, rows) {
-                console.log('db result', err, rows[0]);
-                if (err) {
-                    callback(err);
-                }
-                else if (rows.length && passwordHash.verify(password, rows[0].password)) {
-                    callback(null, rows[0]);
-                }
-                else {
-                    callback(null, '');
-                }
-            }
-        );
+    auth: function (username, password, done) {
+        if (!password) {
+            return done(null, null);
+        }
+        getUser({username: username, password: password}, done);
     },
     serialize: function (user, done) {
         done(null, user.id);
     },
     deserialize: function (id, done) {
-        db.query(
-            'SELECT * FROM users WHERE id = ?',
-            [id],
-            function (err, rows) {
-                if (err) {
-                    done(err);
-                }
-                else if (rows.length) {
-                    done(null, rows[0]);
-                }
-                else {
-                    done(null, null);
-                }
-            }
-        );
+        getUser({id: id}, done);
     }
 };
+
+function getUser(criteria, done) {
+    var password = criteria.password;
+    delete criteria.password;
+    db.query(
+        'SELECT * FROM users WHERE ?',
+        [criteria],
+        function (err, rows) {
+            var user;
+            console.log('db result', err, rows);
+            if (err) {
+                return done(err);
+            }
+            user = rows[0] || null;
+            if (!user || (password && !passwordHash.verify(password, user.password))) {
+                return done(null, null);
+            }
+            getProjects(user, function (err, projects) {
+                if (err) {
+                    return done(err);
+                }
+                user.projects = projects;
+                done(null, user);
+            });
+        }
+    );
+}
+
+function getProjects(user, done) {
+    db.query(
+        'SELECT p.* FROM projects p INNER JOIN project_users pu ON p.id = pu.project_id WHERE pu.user_id = ?',
+        [user.id],
+        function (err, rows) {
+            console.log('db result', err, rows);
+            if (err) {
+                return done(err);
+            }
+            done(null, rows);
+        }
+    );
+}
