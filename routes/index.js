@@ -132,14 +132,14 @@ module.exports = function (app) {
             var id = +req.params.id,
                 page = +req.params.page,
                 line = +req.params.line,
-                sql = 'SELECT * FROM petition_lines WHERE ',
-                values = [];
+                sql = 'SELECT * FROM petition_lines WHERE project_id = ? AND ',
+                values = [req.project.id];
             if (id) {
-                sql += "id = ?";
+                sql += 'id = ?';
                 values.push(id);
             }
             else {
-                sql += "page = ? AND line = ?";
+                sql += 'page = ? AND line = ?';
                 values.push(page, line);
             }
             sql += ' LIMIT 1';
@@ -205,11 +205,16 @@ module.exports = function (app) {
                     version: pkg.version
                 },
                 currentPage, currentLine;
+            if (!req.project) {
+                res.json(responseData);
+                return;
+            }
             async.series([
                 function getCurrentLine(callback) {
-                    var sql = "SELECT page, line FROM petition_lines WHERE checker = ? AND finding NOT IN ('', 'V')" +
-                        " ORDER BY page DESC, line DESC LIMIT 1";
-                    db.query(sql, [req.user.username], function (err, rows) {
+                    var sql = 'SELECT page, line FROM petition_lines ' +
+                        "WHERE project_id = ? AND checker = ? AND finding NOT IN ('', 'V') " +
+                        'ORDER BY page DESC, line DESC LIMIT 1';
+                    db.query(sql, [req.project.id, req.user.username], function (err, rows) {
                         if (err) {
                             return callback(err);
                         }
@@ -221,9 +226,9 @@ module.exports = function (app) {
                     });
                 },
                 function getNextLine(callback) {
-                    var sql = "SELECT * FROM petition_lines WHERE checker = ? AND finding = ''" +
-                        " ORDER BY page, line LIMIT 1";
-                    db.query(sql, [req.user.username], function (err, rows) {
+                    var sql = "SELECT * FROM petition_lines WHERE project_id = ? AND checker = ? AND finding = '' " +
+                        'ORDER BY page, line LIMIT 1';
+                    db.query(sql, [req.project.id, req.user.username], function (err, rows) {
                         if (err) {
                             return callback(err);
                         }
@@ -233,8 +238,8 @@ module.exports = function (app) {
                 },
                 function getUserProgress(callback) {
                     var sql = "SELECT IF(finding IN ('', 'S'), 'incomplete', 'complete') AS state, COUNT(*) AS `count` " +
-                        'FROM petition_lines WHERE checker = ? GROUP BY state';
-                    db.query(sql, [req.user.username], function (err, rows) {
+                        'FROM petition_lines WHERE project_id = ? AND checker = ? GROUP BY state';
+                    db.query(sql, [req.project.id, req.user.username], function (err, rows) {
                         if (err) {
                             return callback(err);
                         }
@@ -246,8 +251,8 @@ module.exports = function (app) {
                 },
                 function getOverallProgress(callback) {
                     var sql = "SELECT IF(finding IN ('', 'S'), 'incomplete', 'complete') AS state, COUNT(*) AS `count` " +
-                        'FROM petition_lines GROUP BY state';
-                    db.query(sql, function (err, rows) {
+                        'FROM petition_lines WHERE project_id = ? GROUP BY state';
+                    db.query(sql, [req.project.id], function (err, rows) {
                         if (err) {
                             return callback(err);
                         }
@@ -270,9 +275,10 @@ module.exports = function (app) {
         markBlank: function (req, res) {
             var page = +req.params.page,
                 line = req.params.line,
-                sql = "UPDATE petition_lines SET ? WHERE checker = ? AND page = ? AND line ",
+                sql = "UPDATE petition_lines SET ? WHERE project_id = ? AND checker = ? AND page = ? AND line ",
                 values = [
                     {finding: 'B', checker: req.user.username, check_time: new Date()},
+                    req.project.id,
                     req.user.username,
                     page
                 ],
@@ -300,11 +306,11 @@ module.exports = function (app) {
             if (config.party) {
                 sql += ", v.party";
             }
-            sql += " FROM petition_lines l LEFT JOIN pages p ON l.page = p.id " +
+            sql += " FROM petition_lines l LEFT JOIN pages p ON l.project_id = p.project_id AND l.page = p.number " +
                 "LEFT JOIN circulators c ON p.circulator_id = c.id " +
                 "LEFT JOIN voters v ON l.voter_id = v.voter_id " +
-                "WHERE finding <> '' ORDER BY page, line";
-            sendTsv(req, res, sql, []);
+                "WHERE l.project_id = ? AND l.finding <> '' ORDER BY page, line";
+            sendTsv(req, res, sql, [req.project.id]);
         },
 
         dtLine: function (req, res) {
@@ -401,12 +407,14 @@ module.exports = function (app) {
         },
 
         getCirculators: function (req, res) {
-            var sql = 'SELECT c.*, COUNT(DISTINCT p.id) AS page_count, ' +
-                    'GROUP_CONCAT(DISTINCT p.id ORDER BY p.id) AS pages, ' +
+            /* @todo Handle connection of circulators to projects */
+            var sql = 'SELECT c.*, COUNT(DISTINCT p.number) AS page_count, ' +
+                    'GROUP_CONCAT(DISTINCT p.number ORDER BY p.number) AS pages, ' +
                     "SUM(CASE WHEN l.finding NOT IN ('', 'S', 'B') THEN 1 ELSE 0 END) AS processed_lines, " +
                     "SUM(CASE WHEN l.finding = 'OK' THEN 1 ELSE 0 END) AS valid_lines " +
                     'FROM circulators c LEFT JOIN pages p ON p.circulator_id = c.id ' +
-                    'LEFT JOIN petition_lines l ON p.id = l.page ' +
+                    'LEFT JOIN petition_lines l ON l.project_id = p.project_id AND l.page = p.number ' +
+                    'WHERE (p.project_id = ? OR p.project_id IS NULL) ' +
                     'GROUP BY c.id ORDER BY c.name';
             db.query('SET group_concat_max_len = 8192', function (err) {
                 if (err) {
@@ -414,7 +422,7 @@ module.exports = function (app) {
                     res.sendStatus(500);
                     return;
                 }
-                db.query(sql, function (err, rows) {
+                db.query(sql, [req.project.id], function (err, rows) {
                     if (err) {
                         console.error(err);
                         res.sendStatus(500);
@@ -429,9 +437,9 @@ module.exports = function (app) {
         },
 
         getPage: function (req, res) {
-            var id = +req.params.id,
-                sql = 'SELECT * FROM pages WHERE id = ?';
-            db.query(sql, [id], function (err, rows) {
+            var number = +req.params.number,
+                sql = 'SELECT * FROM pages WHERE project_id = ? AND id = ?';
+            db.query(sql, [req.project.id, number], function (err, rows) {
                 if (err) {
                     console.error(err);
                     res.sendStatus(500);
@@ -452,9 +460,10 @@ module.exports = function (app) {
                     'COUNT(l.id) AS total_lines, ' +
                     'GROUP_CONCAT(DISTINCT l.checker ORDER BY l.checker) AS checker ' +
                     'FROM pages p LEFT JOIN circulators c ON p.circulator_id = c.id ' +
-                    'INNER JOIN petition_lines l ON p.id = l.page ' +
-                    'GROUP BY p.id ORDER BY p.id';
-            db.query(sql, function (err, rows) {
+                    'INNER JOIN petition_lines l ON p.project_id = l.project_id AND p.number = l.page ' +
+                    'WHERE p.project_id = ? ' +
+                    'GROUP BY p.number ORDER BY p.number';
+            db.query(sql, [req.project.id], function (err, rows) {
                 if (err) {
                     console.error(err);
                     res.sendStatus(500);
@@ -468,8 +477,10 @@ module.exports = function (app) {
             var sql = 'SELECT u.id, u.username, u.email, u.admin, COUNT(DISTINCT l.page) AS page_count,' +
                     'GROUP_CONCAT(DISTINCT l.page ORDER BY l.page) AS pages ' +
                     'FROM users u LEFT JOIN petition_lines l ON u.username = l.checker ' +
+                    'INNER JOIN project_users pu ON u.id = pu.user_id ' +
+                    'WHERE (l.project_id = ? OR l.project_id IS NULL) AND pu.project_id = ? ' +
                     'GROUP BY u.id ORDER BY u.username';
-            db.query(sql, function (err, rows) {
+            db.query(sql, [req.project.id, req.project.id], function (err, rows) {
                 if (err) {
                     console.error(err);
                     res.sendStatus(500);
@@ -485,10 +496,11 @@ module.exports = function (app) {
         getTotals: function (req, res) {
             var sql = "SELECT (CASE WHEN c.status = '' THEN l.finding ELSE c.status END) AS combinedFinding, " +
                 'COUNT(*) AS count FROM petition_lines l ' +
-                'LEFT JOIN pages p ON l.page = p.id ' +
+                'LEFT JOIN pages p ON l.project_id = p.project_id AND l.page = p.number ' +
                 'LEFT JOIN circulators c ON p.circulator_id = c.id ' +
+                'WHERE l.project_id = ? ' +
                 'GROUP BY combinedFinding';
-            db.query(sql, function (err, rows) {
+            db.query(sql, [req.project.id], function (err, rows) {
                 if (err) {
                     console.error(err);
                     res.sendStatus(500);
@@ -547,11 +559,14 @@ module.exports = function (app) {
         },
 
         createOrUpdatePage: function (req, res) {
+            /* @todo Fix to handle projects */
             var table = 'pages',
-                id = +req.params.id,
+                projectId = req.project.id,
+                number = +req.params.number,
                 data = req.body,
                 values = [],
-                sql, ids;
+                sql, numbers;
+            data.project_id = projectId;
             if (data.date_signed) {
                 data.date_signed = data.date_signed
                     .replace(/^(\d+)\/(\d+)\/(\d+)$/, '$3-$1-$2');
@@ -559,28 +574,28 @@ module.exports = function (app) {
             if (!data.notes) {
                 data.notes = '';
             }
-            if (id) {
-                data.id = id;
+            if (number) {
+                data.number = number;
                 sql = 'REPLACE INTO ' + table + ' SET ?';
                 values.push(data);
-                ids = [id];
+                numbers = [number];
             }
             else {
-                if (!data.id) {
+                if (!data.number) {
                     res.sendStatus(400);
                     return;
                 }
-                ids = numberList.parse(data.id);
+                numbers = numberList.parse(data.number);
                 sql = 'INSERT INTO ' + table + ' (' + Object.keys(data).join(', ') + ') VALUES';
-                ids.forEach(function (id, i) {
-                    data.id = id;
+                numbers.forEach(function (number, i) {
+                    data.number = number;
                     if (i > 0) {
                         sql += ',';
                     }
                     sql += '(?)';
                     values.push(Object.values(data));
                 });
-                id = ids[0];
+                number = numbers[0];
             }
             db.query(sql, values, function (err, result) {
                 if (err) {
@@ -588,10 +603,10 @@ module.exports = function (app) {
                     res.sendStatus(500);
                     return;
                 }
-                var sql = 'INSERT IGNORE INTO petition_lines (page, line) VALUES ',
+                var sql = 'INSERT IGNORE INTO petition_lines (project_id, page, line) VALUES ',
                     linesPerPage = 20,
                     line;
-                ids.forEach(function (id, i) {
+                numbers.forEach(function (number, i) {
                     if (i > 0) {
                         sql += ',';
                     }
@@ -599,7 +614,7 @@ module.exports = function (app) {
                         if (line > 1) {
                             sql += ',';
                         }
-                        sql += '(' + id + ',' + line + ')';
+                        sql += '(' + projectId + ',' + number + ',' + line + ')';
                     }
                 });
                 db.query(sql, function (err, result) {
@@ -609,8 +624,8 @@ module.exports = function (app) {
                         return;
                     }
                     db.query(
-                        'SELECT * FROM ' + table + ' WHERE id = ?',
-                        [id],
+                        'SELECT * FROM ' + table + ' WHERE project_id = ? AND number = ?',
+                        [projectId, number],
                         function (err, rows) {
                             if (err) {
                                 console.log(table + ' SQL error', err);
@@ -675,8 +690,8 @@ module.exports = function (app) {
                 return;
             }
             db.query(
-                'UPDATE petition_lines SET checker = ? WHERE page IN (?)',
-                [username, pages],
+                'UPDATE petition_lines SET checker = ? WHERE project_id = ? AND page IN (?)',
+                [username, req.project.id, pages],
                 function (err, result) {
                     if (err) {
                         console.error(err);
@@ -695,11 +710,12 @@ module.exports = function (app) {
 
         challenge: function (req, res) {
             var sql = 'SELECT l.*, c.status as circulator_status, c.name as circulator_name, c.notes AS circulator_notes ' +
-                    'FROM petition_lines l LEFT JOIN pages p ON l.page = p.id ' +
-                    'LEFT JOIN circulators c ON p.circulator_id = c.id',
-                values = [];
+                    'FROM petition_lines l LEFT JOIN pages p ON l.project_id = p.project_id AND l.page = p.number ' +
+                    'LEFT JOIN circulators c ON p.circulator_id = c.id ' +
+                    'WHERE l.project_id = ?',
+                values = [req.project.id];
             if (req.query.p) {
-                sql += ' WHERE l.page in (?)';
+                sql += ' AND l.page in (?)';
                 values.push(numberList.parse(req.query.p));
             }
             sql += ' ORDER BY l.page, l.line';
