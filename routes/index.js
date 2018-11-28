@@ -193,9 +193,10 @@ module.exports = function (app) {
         },
 
         status: function (req, res) {
-            var responseData = {
+            var project = req.project || (req.user ? req.user.projects[0] : null),
+                responseData = {
                     user: req.user || {},
-                    project: req.project || (req.user ? req.user.projects[0] : null),
+                    project: project,
                     complete: 0,
                     incomplete: 0,
                     overall: {
@@ -205,7 +206,7 @@ module.exports = function (app) {
                     version: pkg.version
                 },
                 currentPage, currentLine;
-            if (!req.project) {
+            if (!project) {
                 res.json(responseData);
                 return;
             }
@@ -214,7 +215,7 @@ module.exports = function (app) {
                     var sql = 'SELECT page, line FROM petition_lines ' +
                         "WHERE project_id = ? AND checker = ? AND finding NOT IN ('', 'V') " +
                         'ORDER BY page DESC, line DESC LIMIT 1';
-                    db.query(sql, [req.project.id, req.user.username], function (err, rows) {
+                    db.query(sql, [project.id, req.user.username], function (err, rows) {
                         if (err) {
                             return callback(err);
                         }
@@ -228,7 +229,7 @@ module.exports = function (app) {
                 function getNextLine(callback) {
                     var sql = "SELECT * FROM petition_lines WHERE project_id = ? AND checker = ? AND finding = '' " +
                         'ORDER BY page, line LIMIT 1';
-                    db.query(sql, [req.project.id, req.user.username], function (err, rows) {
+                    db.query(sql, [project.id, req.user.username], function (err, rows) {
                         if (err) {
                             return callback(err);
                         }
@@ -239,7 +240,7 @@ module.exports = function (app) {
                 function getUserProgress(callback) {
                     var sql = "SELECT IF(finding IN ('', 'S'), 'incomplete', 'complete') AS state, COUNT(*) AS `count` " +
                         'FROM petition_lines WHERE project_id = ? AND checker = ? GROUP BY state';
-                    db.query(sql, [req.project.id, req.user.username], function (err, rows) {
+                    db.query(sql, [project.id, req.user.username], function (err, rows) {
                         if (err) {
                             return callback(err);
                         }
@@ -252,7 +253,7 @@ module.exports = function (app) {
                 function getOverallProgress(callback) {
                     var sql = "SELECT IF(finding IN ('', 'S'), 'incomplete', 'complete') AS state, COUNT(*) AS `count` " +
                         'FROM petition_lines WHERE project_id = ? GROUP BY state';
-                    db.query(sql, [req.project.id], function (err, rows) {
+                    db.query(sql, [project.id], function (err, rows) {
                         if (err) {
                             return callback(err);
                         }
