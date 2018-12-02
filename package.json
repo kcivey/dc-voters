@@ -9,7 +9,7 @@
     "async": "^2.6.1",
     "body-parser": "^1.18.3",
     "compression": "^1.7.3",
-    "csv": "^3.1.0",
+    "csv-stringify": "^5.0.0",
     "errorhandler": "^1.5.0",
     "express": "^4.16.4",
     "express-mysql-session": "^2.0.1",
