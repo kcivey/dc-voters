@@ -263,8 +263,9 @@ function init() {
         $.ajax({
             url: apiUrl('status'),
             dataType: 'json',
-            cache: false,
-            success: function (data) {
+            cache: false
+        }).then(
+            function (data) {
                 // If we're still on the same page, keep the date signed
                 if (status.lineRecord && data.lineRecord && status.lineRecord.page == data.lineRecord.page) {
                     data.defaultDateSigned = status.defaultDateSigned;
@@ -282,7 +283,7 @@ function init() {
                 $('.version').text('v' + status.version);
                 callback(null, status); // null for no error
             },
-            error: function (jqXhr, textStatus, errorThrown) {
+            function (jqXhr, textStatus, errorThrown) {
                 if (errorThrown == 'Unauthorized') {
                     callback(null, {});
                 }
@@ -290,7 +291,7 @@ function init() {
                     callback('Unexpected problem: ' + textStatus + ' (' + errorThrown + ')');
                 }
             }
-        });
+        );
     }
 
     function apiUrl(path) {
@@ -559,12 +560,13 @@ function init() {
             $.ajax({
                 url: apiUrl('line/' + page + '/' + line),
                 cache: false,
-                dataType: 'json',
-                success: function (lineRecord) {
+                dataType: 'json'
+            }).then(
+                function (lineRecord) {
                     status.lineRecord = lineRecord;
                     setStatus(status);
                 },
-                error: function (jqXhr, textStatus, errorThrown) {
+                function (jqXhr, textStatus, errorThrown) {
                     var message = textStatus + ' (' + errorThrown + ')',
                         alert = $(alertTemplate({successful: false, text: message})),
                         timeoutHandle = setTimeout(function () {
@@ -579,7 +581,7 @@ function init() {
                             clearTimeout(timeoutHandle);
                         });
                 }
-            });
+            );
         });
 
     $('#log-out').on('click', function (evt) {
@@ -777,13 +779,15 @@ function init() {
         $.ajax({
             url: apiUrl('search'),
             data: searchData,
-            dataType: 'json',
-            success: handleResults,
-            complete: function () {
+            dataType: 'json'
+        })
+        .then(handleResults)
+        .always(
+            function () {
                 clearTimeout(timeoutHandle);
                 resetButton();
             }
-        });
+        );
     }
 
     function handleResults(data) {
@@ -821,8 +825,9 @@ function init() {
         }
         $.ajax({
             url: apiUrl(name),
-            dataType: 'json',
-            success: function (data) {
+            dataType: 'json'
+        }).then(
+            function (data) {
                 var template = getTemplate(name.replace(/s$/, '') + '-table'),
                     values = {useCirculatorStatus: !!Object.keys(circulatorStatuses).length};
                 values[name] = data;
@@ -831,7 +836,7 @@ function init() {
                 $('#bottom-row').html(template(values)).show()
                     .on('click', '.back-button', backToChecking);
             }
-        });
+        );
         return false;
     }
 
@@ -855,11 +860,12 @@ function init() {
             url: url,
             dataType: 'json',
             data: userData,
-            type: method,
-            success: function (data) {
+            type: method
+        }).then(
+            function (data) {
                 showTable('users');
             }
-        });
+        );
     }).on('click', '.assign-send-button', function () {
         var modal = $('#assign-pages-modal'),
             username = $('.username', modal).text(),
@@ -871,12 +877,13 @@ function init() {
                 data: JSON.stringify(pages),
                 dataType: 'json',
                 contentType: 'application/json',
-                type: 'POST',
-                success: function () {
+                type: 'POST'
+            }).then(
+                function () {
                     $('#assign-pages-modal').modal('hide');
                     showTable('users');
                 }
-            });
+            );
         }
     }).on('click', '.assign-modal-button', function () {
         var username = $(this).closest('tr').find('td:first').text();
@@ -889,8 +896,9 @@ function init() {
         var totalTableTemplate = getTemplate('total-table');
         $.ajax({
             url: apiUrl('totals'),
-            dataType: 'json',
-            success: function (rawTotals) {
+            dataType: 'json'
+        }).then(
+            function (rawTotals) {
                 var totals = {'Unprocessed': rawTotals[''] || 0},
                     processedLines = 0,
                     nonBlank;
@@ -918,7 +926,7 @@ function init() {
                 $('#bottom-row').html(totalTableTemplate({totals: totals})).show()
                     .on('click', '.back-button', backToChecking);
             }
-        });
+        );
         return false;
     }
 
