@@ -27,7 +27,7 @@ passwordless.addDelivery(
                 text: 'Log into your account with this link:\n' + urlBase +
                     '/login?token=' + tokenToSend + '&uid=' + encodeURIComponent(uidToSend),
                 from: config.get('senderEmail'),
-                to: 'keith@dcdl.org', // @@@@
+                to: recipient,
                 subject: 'Login link for ' + host
             },
             function (err, message) {
