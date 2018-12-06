@@ -279,6 +279,7 @@ function init() {
                 status = data;
                 $('.brand').text(status.project.name);
                 $('title').text(status.project.name);
+                $('.version').text('v' + status.version);
                 callback(null, status); // null for no error
             },
             error: function (jqXhr, textStatus, errorThrown) {
