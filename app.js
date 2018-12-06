@@ -125,6 +125,7 @@ app.post(
     ),
     routes.sendToken
 );
+app.get('/login', function (req, res) { res.redirect('/'); });
 app.get('/logout', passwordless.logout(), function (req, res) { res.redirect('/'); });
 app.get('/challenge.html', passwordless.restricted(), routes.challenge);
 app.use(apiUrlBase, passwordless.restricted());
