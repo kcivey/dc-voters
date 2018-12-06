@@ -688,10 +688,22 @@ module.exports = function (app) {
                     return;
                 }
                 db.query(
-                    'SELECT * FROM users WHERE id = ?',
-                    [id],
+                    'INSERT IGNORE INTO project_users SET ?',
+                    [{project_id: req.project.id, user_id: id}],
                     function (err, rows) {
-                        res.json(rows[0]);
+                        if (err) {
+                            console.log('user SQL error', err);
+                            res.sendStatus(500);
+                            return;
+                        }
+                        db.query(
+                            'SELECT * FROM users WHERE id = ?',
+                            [id],
+                            function (err, rows) {
+                                res.json(rows[0]);
+                            }
+                        );
+
                     }
                 );
             });
