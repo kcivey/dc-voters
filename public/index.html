@@ -647,10 +647,12 @@
             <td>Ward breakdown</td>
             <td>
               <table>
-                <% _.each(wardBreakdown, function (count, ward) { %>
+                <% _.each(wardBreakdown, function (info, ward) { %>
                   <tr>
                     <td>Ward <%- ward %></td>
-                    <td class="text-right"><%- count.toLocaleString() %></td>
+                    <td class="text-right">
+                      <%- info.signers.toLocaleString() %> / <%- info.registered.toLocaleString() %>
+                      (<%- (info.signers / info.registered).toFixed(2) %>%)</td>
                   </tr>
                 <% }); %>
               </table>

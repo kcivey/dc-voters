@@ -522,29 +522,43 @@ module.exports = function (app) {
                     res.sendStatus(500);
                     return;
                 }
-                var totals = {};
+                var totals = {},
+                    wardBreakdown = {};
                 rows.forEach(function (row) {
                     totals[row.combinedFinding] = +row.count;
                 });
                 db.query(
-                    "SELECT ward, COUNT(*) AS count FROM petition_lines WHERE finding = 'OK' AND project_id = ? " +
-                        'GROUP BY ward',
-                    [req.project.id],
+                    // WHERE is because of bad data in BOE database (2 records with no ward)
+                    'SELECT ward, COUNT(*) as registered FROM voters WHERE ward > 0 GROUP BY ward',
                     function (err, rows) {
-                        var wardBreakdown = {},
-                            i;
                         if (err) {
                             console.error(err);
                             res.sendStatus(500);
                             return;
                         }
-                        for (i = 1; i <= 8; i++) {
-                            wardBreakdown[i] = 0;
-                        }
                         rows.forEach(function (row) {
-                            wardBreakdown[row.ward] = row.count;
+                            wardBreakdown[row.ward] = {
+                                signers: 0,
+                                registered: row.registered
+                            }
                         });
-                        res.json({totals: totals, wardBreakdown: wardBreakdown});
+                        db.query(
+                            'SELECT ward, COUNT(*) AS count FROM petition_lines ' +
+                            "WHERE finding = 'OK' AND project_id = ? " +
+                            'GROUP BY ward',
+                            [req.project.id],
+                            function (err, rows) {
+                                if (err) {
+                                    console.error(err);
+                                    res.sendStatus(500);
+                                    return;
+                                }
+                                rows.forEach(function (row) {
+                                    wardBreakdown[row.ward].signers = row.count;
+                                });
+                                res.json({totals: totals, wardBreakdown: wardBreakdown});
+                            }
+                        );
                     }
                 );
             });
