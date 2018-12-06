@@ -91,7 +91,6 @@ app.use(function setProject(req, res, next) {
                 res.sendStatus(500);
             }
             else if (rows.length) {
-                console.log('setting project', rows[0]);
                 req.project = rows[0];
                 req.url = req.url.replace('/' + rows[0].code, '');
                 next();
