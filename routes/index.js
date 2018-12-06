@@ -526,7 +526,27 @@ module.exports = function (app) {
                 rows.forEach(function (row) {
                     totals[row.combinedFinding] = +row.count;
                 });
-                res.json(totals);
+                db.query(
+                    "SELECT ward, COUNT(*) AS count FROM petition_lines WHERE finding = 'OK' AND project_id = ? " +
+                        'GROUP BY ward',
+                    [req.project.id],
+                    function (err, rows) {
+                        var wardBreakdown = {},
+                            i;
+                        if (err) {
+                            console.error(err);
+                            res.sendStatus(500);
+                            return;
+                        }
+                        for (i = 1; i <= 8; i++) {
+                            wardBreakdown[i] = 0;
+                        }
+                        rows.forEach(function (row) {
+                            wardBreakdown[row.ward] = row.count;
+                        });
+                        res.json({totals: totals, wardBreakdown: wardBreakdown});
+                    }
+                );
             });
         },
 

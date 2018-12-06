@@ -643,6 +643,19 @@
               <td class="right"><%- total %></td>
             </tr>
           <% }); %>
+          <tr>
+            <td>Ward breakdown</td>
+            <td>
+              <table>
+                <% _.each(wardBreakdown, function (count, ward) { %>
+                  <tr>
+                    <td>Ward <%- ward %></td>
+                    <td><%- count %></td>
+                  </tr>
+                <% }); %>
+              </table>
+            </td>
+          </tr>
         </tbody>
       </table>
     </script>

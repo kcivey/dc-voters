@@ -898,8 +898,9 @@ function init() {
             url: apiUrl('totals'),
             dataType: 'json'
         }).then(
-            function (rawTotals) {
-                var totals = {'Unprocessed': rawTotals[''] || 0},
+            function (data) {
+                var rawTotals = data.totals,
+                    totals = {'Unprocessed': rawTotals[''] || 0},
                     processedLines = 0,
                     nonBlank;
                 _.each(circulatorStatuses, function (label, code) {
@@ -923,7 +924,7 @@ function init() {
                 }
                 $('#top-row').hide();
                 hideImageRow();
-                $('#bottom-row').html(totalTableTemplate({totals: totals})).show()
+                $('#bottom-row').html(totalTableTemplate({totals: totals, wardBreakdown: data.wardBreakdown})).show()
                     .on('click', '.back-button', backToChecking);
             }
         );
