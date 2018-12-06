@@ -112,7 +112,7 @@ app.post(
                     if (err) {
                         callback(err);
                     }
-                    else if (user) {
+                    else if (user && !user.blocked) {
                         console.log('sending token for user', user);
                         callback(null, user.id);
                     }

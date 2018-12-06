@@ -345,6 +345,12 @@
           </div>
         </div>
         <div class="control-group">
+          <label class="control-label" for="user-admin">Blocked?</label>
+          <div class="controls">
+            <input type="checkbox" name="blocked" id="user-blocked" value="1"/>
+          </div>
+        </div>
+        <div class="control-group">
           <label class="control-label" for="user-notes">Notes</label>
           <div class="controls">
             <textarea name="notes" id="user-notes" class="input-block-level"></textarea>
@@ -573,6 +579,7 @@
               <th>Name</th>
               <th>Email</th>
               <th>Admin</th>
+              <th>Blocked</th>
               <th>Page Count</th>
               <th>Pages</th>
               <th></th>
@@ -585,6 +592,7 @@
                 <td><%- user.name %></td>
                 <td><%- user.email %></td>
                 <td><input type="checkbox"<% if (user.admin) { %> checked<% } %> disabled/></td>
+                <td><input type="checkbox"<% if (user.blocked) { %> checked<% } %> disabled/></td>
                 <td><%- user.page_count %></td>
                 <td><%- user.pages %></td>
                 <td><button type="button" class="btn btn-mini user-edit-button" data-id="<%- user.id %>">Edit</button></td>

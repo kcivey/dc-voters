@@ -24,6 +24,7 @@ CREATE TABLE IF NOT EXISTS users (
   `email` VARCHAR(255),
   `username` VARCHAR(10),
   `admin` TINYINT(1) NOT NULL DEFAULT 0,
+  `blocked` TINYINT(1) NOT NULL DEFAULT 0,
   `notes` TEXT,
   PRIMARY KEY (`id`),
   UNIQUE KEY (`email`),
