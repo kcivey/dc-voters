@@ -277,6 +277,8 @@ function init() {
                     window.location.reload();
                 }
                 status = data;
+                $('.brand').text(status.project.name);
+                $('title').text(status.project.name);
                 callback(null, status); // null for no error
             },
             error: function (jqXhr, textStatus, errorThrown) {
