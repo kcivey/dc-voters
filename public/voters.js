@@ -824,7 +824,7 @@ function init() {
             dataType: 'json',
             success: function (data) {
                 var template = getTemplate(name.replace(/s$/, '') + '-table'),
-                    values = {};
+                    values = {useCirculatorStatus: !!Object.keys(circulatorStatuses).length};
                 values[name] = data;
                 $('#top-row').hide();
                 hideImageRow();

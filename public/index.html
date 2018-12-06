@@ -472,17 +472,19 @@
             <input type="text" name="name" id="circulator-name"/>
           </div>
         </div>
-        <div class="control-group">
-          <label class="control-label" for="circulator-status">Status</label>
-          <div class="controls">
-            <select name="status" id="circulator-status">
-              <option value="">OK</option>
-              <% _.each(circulatorStatuses, function (status, code) { %>
-                <option value="<%- code %>"><%- status %> [<%- code %>]</option>
-              <% }); %>
-            </select>
+        <% if (Object.keys(circulatorStatuses).length) { %>
+          <div class="control-group">
+            <label class="control-label" for="circulator-status">Status</label>
+            <div class="controls">
+              <select name="status" id="circulator-status">
+                <option value="">OK</option>
+                <% _.each(circulatorStatuses, function (status, code) { %>
+                  <option value="<%- code %>"><%- status %> [<%- code %>]</option>
+                <% }); %>
+              </select>
+            </div>
           </div>
-        </div>
+        <% } %>
         <div class="control-group">
           <label class="control-label" for="circulator-notes">Notes</label>
           <div class="controls">
@@ -517,7 +519,9 @@
             <th>Processed Lines</th>
             <th>Valid Lines</th>
             <th>% Valid</th>
-            <th>Status</th>
+            <% if (useCirculatorStatus) { %>
+              <th>Status</th>
+            <% } %>
             <th>Notes</th>
             <th></th>
           </tr>
@@ -532,7 +536,9 @@
               <td><%- c.processed_lines %></td>
               <td><%- c.valid_lines %></td>
               <td><%- c.processed_lines ? Math.round(100 * c.valid_lines / c.processed_lines, 1) : '' %></td>
-              <td><%- c.status %></td>
+              <% if (useCirculatorStatus) { %>
+                <td><%- c.status %></td>
+              <% } %>
               <td><%- c.notes %></td>
               <td><button type="button" class="btn btn-mini circulator-edit-button" data-id="<%- c.id %>">Edit</button></td>
             </tr>
