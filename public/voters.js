@@ -453,8 +453,27 @@ function init() {
             $.ajax({
                 url: '/send-token',
                 data: {user: email},
+                dataType: 'json',
                 type: 'post'
-            }).then(start);
+            }).then(
+                function (data, textStatus, jqXhr) {
+                    showAlert(true, 'Check your email for a login link.');
+                    start();
+                },
+                function (jqXhr, textStatus, errorThrown) {
+                    showAlert(false, 'Problem sending link. Is this email address registered?');
+                }
+            );
+        }
+
+        function showAlert(successful, text) {
+            var form = $('#send-token-form'),
+                alert = $(alertTemplate({successful: successful, text: text || ''}));
+            // remove any earlier alerts
+            while (form.next().hasClass('alert')) {
+                form.next().remove();
+            }
+            alert.insertAfter(form);
         }
     });
     $('#voter-table')
