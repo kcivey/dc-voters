@@ -184,6 +184,23 @@ function init() {
         }
     });
 
+    var User = Backbone.Model.extend({
+        urlRoot: function () { return apiUrl('users'); }
+    });
+
+    var UserView = CirculatorView.extend({
+        template: getTemplate('user-form'),
+        tableName: 'users',
+        events: {
+            'click .save': 'save'
+        },
+        render: function () {
+            this.$el.html(this.template());
+            this.modelBinder.bind(this.model, this.el);
+            return this;
+        }
+    });
+
     function checkDateSigned() {
         // This is a mess. Need proper date functions.
         var input = this.$('[name=date_signed]'),
@@ -373,6 +390,24 @@ function init() {
         }
         $('#result-div > *').hide();
         lineForm.show();
+    }
+
+    $('#main-container').on('click', '.user-edit-button', editUser);
+    function editUser() {
+        var id = $(this).data('id');
+        if (id) {
+            $.ajax({
+                url: apiUrl('users' + '/' + id),
+                dataType: 'json'
+            }).then(showForm);
+        }
+        else {
+            showForm();
+        }
+        function showForm(data) {
+            var view = new UserView({model: new User(data)});
+            openModal('User', view.$el);
+        }
     }
 
     $('#main-container').on('click', '.circulator-edit-button', editCirculator);
@@ -779,16 +814,6 @@ function init() {
                 showTable('users');
             }
         });
-    }).on('click', '.user-create-row', function () {
-        var passwordField = $('[name=x_password]', this),
-            digits = _.range(10);
-        if (!passwordField.val()) {
-            passwordField.val(
-                _.range(4).map(function () {
-                    return digits[Math.floor(Math.random() * 10)].toString();
-                }).join('')
-            );
-        }
     }).on('click', '.assign-send-button', function () {
         var modal = $('#assign-pages-modal'),
             username = $('.username', modal).text(),

@@ -147,6 +147,7 @@ app.get(apiUrlBase + 'pages/:number', routes.getPage);
 app.put(apiUrlBase + 'pages/:number', routes.createOrUpdatePage);
 app.get(apiUrlBase + 'users', routes.getUsers);
 app.post(apiUrlBase + 'users', routes.createOrUpdateUser);
+app.get(apiUrlBase + 'users/:id', routes.getUser);
 app.put(apiUrlBase + 'users/:id', routes.createOrUpdateUser);
 app.post(apiUrlBase + 'users/:username/pages', routes.assignPages);
 app.get(apiUrlBase + 'totals', routes.getTotals);

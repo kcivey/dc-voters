@@ -318,6 +318,44 @@
         <td><%- signed_by %></td>
       </tr>
     </script>
+    <script type="text/template" id="user-form-template">
+      <form action="/" id="user-form" class="form-horizontal">
+        <div class="control-group">
+          <label class="control-label" for="user-name">Name</label>
+          <div class="controls">
+            <input type="text" name="name" id="user-name"/>
+          </div>
+        </div>
+        <div class="control-group">
+          <label class="control-label" for="user-email">Email</label>
+          <div class="controls">
+            <input type="text" name="email" id="user-email"/>
+          </div>
+        </div>
+        <div class="control-group">
+          <label class="control-label" for="user-username">Username</label>
+          <div class="controls">
+            <input type="text" name="username" id="user-username"/>
+          </div>
+        </div>
+        <div class="control-group">
+          <label class="control-label" for="user-admin">Admin?</label>
+          <div class="controls">
+            <input type="checkbox" name="admin" id="user-admin" value="1"/>
+          </div>
+        </div>
+        <div class="control-group">
+          <label class="control-label" for="user-notes">Notes</label>
+          <div class="controls">
+            <textarea name="notes" id="user-notes" class="input-block-level"></textarea>
+          </div>
+        </div>
+        <div class="control-group">
+          <input type="hidden" name="id"/>
+          <button type="button" class="btn btn-primary btn save">Save</button>
+        </div>
+      </form>
+    </script>
     <script type="text/template" id="line-form-template">
       <div class="control-group">
         <label class="control-label" for="finding">Finding</label>
@@ -527,11 +565,12 @@
     </script>
     <script type="text/template" id="user-table-template">
         <button type="button" class="btn back-button">Back to Checking</button>
+        <button type="button" class="btn btn-primary circulator-edit-button">New User</button>
         <table id="user-table" class="table table-condensed table-striped" style="width: auto;">
           <thead>
             <tr>
               <th>Username</th>
-              <th>Password</th>
+              <th>Name</th>
               <th>Email</th>
               <th>Admin</th>
               <th>Page Count</th>
@@ -540,23 +579,15 @@
             </tr>
           </thead>
           <tbody>
-            <tr class="user-create-row">
-              <td><input type="text" name="x_username" class="input-block-level" data-lpignore="true"/></td>
-              <td><input type="text" name="x_password" class="input-block-level" data-lpignore="true"/></td>
-              <td><input type="text" name="email" class="input-block-level"/></td>
-              <td><input type="checkbox" name="admin"/></td>
-              <td></td>
-              <td></td>
-              <td><button type="button" class="btn btn-primary btn-mini save-user">Save</button></td>
-            </tr>
             <% _.each(users, function (user) { %>
               <tr data-id="<%- user.id %>">
                 <td><%- user.username %></td>
-                <td></td>
+                <td><%- user.name %></td>
                 <td><%- user.email %></td>
                 <td><input type="checkbox"<% if (user.admin) { %> checked<% } %> disabled/></td>
                 <td><%- user.page_count %></td>
                 <td><%- user.pages %></td>
+                <td><button type="button" class="btn btn-mini user-edit-button" data-id="<%- user.id %>">Edit</button></td>
                 <td>
                   <button type="button" class="btn btn-mini assign-modal-button" data-toggle="modal" data-target="#assign-pages-modal" data-backdrop="false">
                     Assign Pages

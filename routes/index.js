@@ -473,8 +473,26 @@ module.exports = function (app) {
             });
         },
 
+        getUser: function (req, res) {
+            var id = +req.params.id,
+                sql = 'SELECT * FROM users WHERE id = ?';
+            db.query(sql, [id], function (err, rows) {
+                if (err) {
+                    console.error(err);
+                    res.sendStatus(500);
+                    return;
+                }
+                if (rows.length) {
+                    res.json(rows[0]);
+                }
+                else {
+                    res.sendStatus(404);
+                }
+            });
+        },
+
         getUsers: function (req, res) {
-            var sql = 'SELECT u.id, u.username, u.email, u.admin, COUNT(DISTINCT l.page) AS page_count,' +
+            var sql = 'SELECT u.*, COUNT(DISTINCT l.page) AS page_count,' +
                     'GROUP_CONCAT(DISTINCT l.page ORDER BY l.page) AS pages ' +
                     'FROM users u LEFT JOIN petition_lines l ON u.username = l.checker ' +
                     'INNER JOIN project_users pu ON u.id = pu.user_id ' +

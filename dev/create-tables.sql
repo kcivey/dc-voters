@@ -20,11 +20,13 @@ CREATE TABLE IF NOT EXISTS circulators (
 
 CREATE TABLE IF NOT EXISTS users (
   `id` MEDIUMINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  'name' VARCHAR(255) NOT NULL,
+  `email` VARCHAR(255),
   `username` VARCHAR(10),
-  `password` VARCHAR(64),
-  `email` VARCHAR(256),
   `admin` TINYINT(1) NOT NULL DEFAULT 0,
+  `notes` TEXT,
   PRIMARY KEY (`id`),
+  UNIQUE KEY (`email`),
   UNIQUE KEY (`username`)
 );
 
