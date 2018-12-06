@@ -3,7 +3,6 @@ module.exports = function (app) {
         _ = require('underscore'),
         moment = require('moment'),
         async = require('async'),
-        passwordHash = require('password-hash'),
         config = require('../public/config.json'),
         db = require('../db'),
         pkg = require('../package.json'),
@@ -651,14 +650,11 @@ module.exports = function (app) {
                 values.push(id);
             }
             else {
-                if (!userData.username || !userData.password) {
+                if (!userData.username || !userData.email) {
                     res.sendStatus(400);
                     return;
                 }
                 sql = 'INSERT INTO users SET ?';
-            }
-            if (userData.password) {
-                userData.password = passwordHash.generate(userData.password);
             }
             db.query(sql, values, function (err, result) {
                 if (err) {
@@ -704,9 +700,8 @@ module.exports = function (app) {
             );
         },
 
-        logOut: function (req, res) {
-            req.logOut();
-            res.redirect('/');
+        sendToken: function (req, res) {
+            res.json({sent: true});
         },
 
         challenge: function (req, res) {

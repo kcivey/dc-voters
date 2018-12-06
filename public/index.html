@@ -70,22 +70,16 @@
     </style>
   </head>
   <body>
-    <form action="/login" method="post" id="login-form" class="form-horizontal">
+    <form action="/send-token" method="post" id="send-token-form" class="form-horizontal">
       <div class="control-group">
-        <label class="control-label" for="login-username">Username</label>
+        <label class="control-label" for="send-token-email">Email</label>
         <div class="controls">
-          <input type="text" name="username" id="login-username"/>
-        </div>
-      </div>
-      <div class="control-group">
-        <label class="control-label" for="login-password">Password</label>
-        <div class="controls">
-          <input type="password" name="password" id="login-password"/>
+          <input type="text" name="mail" id="send-token-email"/>
         </div>
       </div>
       <div class="control-group">
         <div class="controls">
-          <button id="login-button" type="submit" class="btn btn-primary">Log In</button>
+          <button id="send-token-button" type="submit" class="btn btn-primary">Send Link</button>
         </div>
       </div>
     </form>

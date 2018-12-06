@@ -15,5 +15,7 @@
     "ssl": false,
     "tls": false
   },
-  "secret": "SECRET"
+  "secret": "SECRET",
+  "senderEmail": "webmaster@example.com",
+  "urlBase": "http://localhost:3000"
 }

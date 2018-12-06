@@ -5,20 +5,40 @@ var express = require('express'),
     compression = require('compression'),
     morgan = require('morgan'),
     errorHandler = require('errorhandler'),
-    passport = require('passport'),
-    LocalStrategy = require('passport-local').Strategy,
+    passwordless = require('passwordless'),
+    PasswordlessMysqlStore = require('passwordless-mysql'),
     session = require('express-session'),
-    MySQLStore = require('express-mysql-session')(session),
+    SessionMySqlStore = require('express-mysql-session')(session),
     db = require('./db'),
-    sessionStore = new MySQLStore({}, db),
+    sessionStore = new SessionMySqlStore({}, db),
     path = require('path'),
+    URL = require('url').URL,
     config = require('./config'),
-    verifyUser = require('./verify-user'),
+    sendEmail = require('./send-email'),
     apiUrlBase = '/api/';
 
-passport.use('local', new LocalStrategy(verifyUser.auth));
-passport.serializeUser(verifyUser.serialize);
-passport.deserializeUser(verifyUser.deserialize);
+passwordless.init(new PasswordlessMysqlStore(db.connectionString));
+passwordless.addDelivery(
+    function (tokenToSend, uidToSend, recipient, callback) {
+        var urlBase = config.get('urlBase'),
+            host = (new URL(urlBase)).host;
+        sendEmail(
+            {
+                text: 'Log into your account with this link:\n' + urlBase +
+                    '/login?token=' + tokenToSend + '&uid=' + encodeURIComponent(uidToSend),
+                from: config.get('senderEmail'),
+                to: 'keith@dcdl.org', // @@@@
+                subject: 'Login link for ' + host
+            },
+            function (err, message) {
+                if (err) {
+                    console.log(err);
+                }
+                callback(err);
+            }
+        );
+    }
+);
 
 var app = express();
 
@@ -26,8 +46,26 @@ app.set('port', process.env.PORT || 3000);
 app.use(morgan('combined'));
 app.use(express.static(path.join(__dirname, 'public'), {maxAge: '15m'}));
 app.use(session({secret: config.get('secret'), store: sessionStore, resave: false, saveUninitialized: false}));
-app.use(passport.initialize());
-app.use(passport.session());
+app.use(passwordless.sessionSupport());
+app.use(passwordless.acceptToken({successRedirect: '/'}));
+app.use(function (req, res, next) {
+    if (req.user) {
+        db.getUser({id: req.user},
+            function (err, user) {
+                if (err) {
+                    res.sendStatus(500);
+                }
+                else {
+                    req.user = user;
+                    next();
+                }
+            }
+        );
+    }
+    else {
+        next();
+    }
+});
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
 
@@ -65,10 +103,31 @@ app.use(function setProject(req, res, next) {
     );
 });
 
-app.post('/login', passport.authenticate('local', {successRedirect: '/', failureRedirect: '/'}));
-app.get('/logout', routes.logOut);
-app.get('/challenge.html', isAuthenticated, routes.challenge);
-app.all(apiUrlBase + '*', isAuthenticated);
+app.post(
+    '/send-token',
+    passwordless.requestToken(
+        function (email, delivery, callback, req) {
+            db.getUser({email: email},
+                function (err, user) {
+                    if (err) {
+                        callback(err);
+                    }
+                    else if (user) {
+                        console.log('sending token for user', user);
+                        callback(null, user.id);
+                    }
+                    else {
+                        callback(null, null);
+                    }
+                }
+            );
+        }
+    ),
+    routes.sendToken
+);
+app.get('/logout', passwordless.logout(), function (req, res) { res.redirect('/'); });
+app.get('/challenge.html', passwordless.restricted(), routes.challenge);
+app.use(apiUrlBase, passwordless.restricted());
 app.get(apiUrlBase + 'search', routes.search);
 app.get(apiUrlBase + 'line/:page/:line', routes.lineRead);
 app.get(apiUrlBase + 'line/:id', routes.lineRead);
@@ -95,10 +154,3 @@ app.get(apiUrlBase + 'totals', routes.getTotals);
 app.listen(app.get('port'), function(){
   console.log("Express server listening on port " + app.get('port'));
 });
-
-function isAuthenticated(req, res, next) {
-  if (req.isAuthenticated()) {
-      return next();
-  }
-  res.sendStatus(401);
-}

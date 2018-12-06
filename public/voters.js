@@ -285,11 +285,11 @@ function init() {
             }
             if (!status.user) {
                 $('#top-nav,#main-container').hide();
-                $('#login-form').show();
+                $('#send-token-form').show();
             }
             else {
                 $('#top-nav,#main-container').show();
-                $('#login-form').hide();
+                $('#send-token-form').hide();
                 if (!status.user.admin) {
                     $('.admin-only').remove();
                 }
@@ -411,14 +411,13 @@ function init() {
         }
     }
 
-    $('#login-form').on('submit', function (e) {
-        var username = $('#login-username').val(),
-            password = $('#login-password').val();
+    $('#send-token-form').on('submit', function (e) {
+        var email = $('#send-token-email').val();
         e.preventDefault();
-        if (username && password) {
+        if (email) {
             $.ajax({
-                url: '/login',
-                data: {username: username, password: password},
+                url: '/send-token',
+                data: {user: email},
                 type: 'post'
             }).then(start);
         }
