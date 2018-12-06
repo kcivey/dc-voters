@@ -436,7 +436,7 @@ module.exports = function (app) {
 
         getPage: function (req, res) {
             var number = +req.params.number,
-                sql = 'SELECT * FROM pages WHERE project_id = ? AND id = ?';
+                sql = 'SELECT * FROM pages WHERE project_id = ? AND number = ?';
             db.query(sql, [req.project.id, number], function (err, rows) {
                 if (err) {
                     console.error(err);

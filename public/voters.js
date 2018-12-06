@@ -164,6 +164,7 @@ function init() {
     });
 
     var Page = Backbone.Model.extend({
+        idAttribute: 'number',
         urlRoot: function () { return apiUrl('pages'); }
     });
 
