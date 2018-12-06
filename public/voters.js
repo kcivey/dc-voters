@@ -413,6 +413,30 @@ function init() {
         }
     }
 
+    $('#main-container').on('click', '.send-token-button', sendToken);
+    function sendToken() {
+        var button = $(this),
+            email = button.data('email');
+        $.ajax({
+            url: '/send-token',
+            data: {user: email},
+            dataType: 'json',
+            type: 'post'
+        }).then(
+            function (data, textStatus, jqXhr) {
+                button.text('Sent').addClass('btn-success');
+                setTimeout(restoreButton, 500);
+            },
+            function (jqXhr, textStatus, errorThrown) {
+                button.text('Error').addClass('btn-danger');
+                setTimeout(restoreButton, 500);
+            }
+        );
+        function restoreButton() {
+            button.text('Send Link').removeClass('btn-success btn-danger');
+        }
+    }
+
     $('#main-container').on('click', '.circulator-edit-button', editCirculator);
     function editCirculator() {
         var id = $(this).data('id');
