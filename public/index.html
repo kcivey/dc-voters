@@ -650,7 +650,7 @@
                 <% _.each(wardBreakdown, function (count, ward) { %>
                   <tr>
                     <td>Ward <%- ward %></td>
-                    <td><%- count %></td>
+                    <td class="text-right"><%- count.toLocaleString() %></td>
                   </tr>
                 <% }); %>
               </table>
