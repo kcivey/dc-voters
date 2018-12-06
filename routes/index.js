@@ -107,8 +107,6 @@ module.exports = function (app) {
                 sql += ' ORDER BY v.lastname, v.firstname, v.middle, v.suffix';
             }
             sql += ' LIMIT ' + limit;
-            console.log(sql);
-            console.log(values);
             db.query(sql, values, function (err, results) {
                 if (err) {
                     console.error(err);
