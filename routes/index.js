@@ -554,7 +554,9 @@ module.exports = function (app) {
                                     return;
                                 }
                                 rows.forEach(function (row) {
-                                    wardBreakdown[row.ward].signers = row.count;
+                                    if (wardBreakdown[row.ward]) {
+                                        wardBreakdown[row.ward].signers = row.count;
+                                    }
                                 });
                                 res.json({totals: totals, wardBreakdown: wardBreakdown});
                             }
