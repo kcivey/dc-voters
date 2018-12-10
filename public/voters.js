@@ -300,6 +300,11 @@ function init() {
         return '/api/' + (project ? project.code + '/' : '') + path;
     }
 
+    function addProjectCode(url) {
+        var project = status.project;
+        return project ? url.replace(/^(\/(:api\/)?)/, function (match, p1) { return p1 + project.code + '/'; }) : url;
+    }
+
     function start() {
         getStatus(function (err, status) {
             if (err) {
@@ -396,6 +401,11 @@ function init() {
         $('#result-div > *').hide();
         lineForm.show();
     }
+
+    $('#top-nav').on('click', '.project-link', function (evt) {
+        evt.preventDefault();
+        window.open(addProjectCode($(this).attr('href')));
+    });
 
     $('#main-container').on('click', '.user-edit-button', editUser);
     function editUser() {
