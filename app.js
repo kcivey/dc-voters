@@ -88,7 +88,6 @@ app.use(function setProject(req, res, next) {
         'SELECT * FROM projects WHERE code = ?',
         [projectCode],
         function (err, rows) {
-            console.log('db result', err, rows);
             if (err) {
                 res.sendStatus(500);
             }
