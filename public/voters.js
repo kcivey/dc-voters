@@ -485,9 +485,9 @@ function init() {
         }
     }
 
-    $('#send-token-form').on('submit', function (e) {
+    $('#send-token-form').on('submit', function (evt) {
         var email = $('#send-token-email').val();
-        e.preventDefault();
+        evt.preventDefault();
         if (email) {
             $.ajax({
                 url: '/send-token',
