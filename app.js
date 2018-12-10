@@ -25,7 +25,9 @@ passwordless.addDelivery(
         sendEmail(
             {
                 text: 'Log into your account with this link:\n' + urlBase +
-                    '/login?token=' + tokenToSend + '&uid=' + encodeURIComponent(uidToSend),
+                    '/login?token=' + tokenToSend + '&uid=' + encodeURIComponent(uidToSend) + '\n\n' +
+                    'This link can be used only once and will expire, but you can be sent a fresh link if ' +
+                    'you submit your email address in the form you get at the site.',
                 from: config.get('senderEmail'),
                 to: recipient,
                 subject: 'Login link for ' + host
