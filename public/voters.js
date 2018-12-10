@@ -840,7 +840,10 @@ function init() {
         }).then(
             function (data) {
                 var template = getTemplate(name.replace(/s$/, '') + '-table'),
-                    values = {useCirculatorStatus: !!Object.keys(circulatorStatuses).length};
+                    values = {
+                        useCirculatorStatus: !!Object.keys(circulatorStatuses).length,
+                        project: status.project
+                    };
                 values[name] = data;
                 $('#top-row').hide();
                 hideImageRow();

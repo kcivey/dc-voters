@@ -533,7 +533,15 @@
               <td><%- c.id %></td>
               <td><%- c.name %></td>
               <td><%- c.page_count %></td>
-              <td><%- c.pages %></td>
+              <td>
+                <% if (c.pages) { %>
+                  <a href="/<%= project.code %>/challenge.html?p=<%= encodeURIComponent(c.pages) %>" target="_blank">
+                    <%- c.pages %>
+                  </a>
+                <% } else { %>
+                  <%- c.pages %>
+                <% } %>
+              </td>
               <td><%- c.processed_lines %></td>
               <td><%- c.valid_lines %></td>
               <td><%- c.processed_lines ? Math.round(100 * c.valid_lines / c.processed_lines, 1) : '' %></td>
