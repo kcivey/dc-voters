@@ -301,6 +301,10 @@ module.exports = function (app) {
 
         completedTsv: function (req, res) {
             var sql = "SELECT l.*, c.name AS circulator_name";
+            if (!req.project) {
+                res.sendStatus(404);
+                return;
+            }
             if (config.party) {
                 sql += ", v.party";
             }
@@ -769,6 +773,10 @@ module.exports = function (app) {
         },
 
         challenge: function (req, res) {
+            if (!req.project) {
+                res.sendStatus(404);
+                return;
+            }
             var sql = 'SELECT l.*, c.status as circulator_status, c.name as circulator_name, c.notes AS circulator_notes ' +
                     'FROM petition_lines l LEFT JOIN pages p ON l.project_id = p.project_id AND l.page = p.number ' +
                     'LEFT JOIN circulators c ON p.circulator_id = c.id ' +
