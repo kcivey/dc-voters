@@ -732,7 +732,7 @@ function init() {
         });
         $('#line-table').on('click', '.edit-button', function () {
             var row = $(this).closest('tr'),
-                lineData = dataTable.row(row[0]).data();
+                lineData = dataTable.api().row(row[0]).data();
             status.lineRecord = lineData;
             $('#top-row').show();
             $('#bottom-row').hide().empty();
