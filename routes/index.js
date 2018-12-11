@@ -315,10 +315,11 @@ module.exports = function (app) {
             sendTsv(req, res, sql, [req.project.id]);
         },
 
+        // Return line data in DataTables format
         dtLine: function (req, res) {
             var start = +req.query.iDisplayStart || 0,
                 length = +req.query.iDisplayLength || 100,
-                data = {sEcho: +req.query.sEcho || 1},
+                output = {draw: +req.query.draw || 1},
                 search = req.query.sSearch,
                 sortingCols = +req.query.iSortingCols || 0,
                 checker = req.query.checker || req.params.checker,
@@ -336,7 +337,7 @@ module.exports = function (app) {
                     res.sendStatus(500);
                     return;
                 }
-                data.iTotalRecords = +rows[0].count;
+                output.recordsTotal = +rows[0].count;
                 if (checker) {
                     where += ' AND checker = ?';
                     values.push(checker);
@@ -352,7 +353,7 @@ module.exports = function (app) {
                         res.sendStatus(500);
                         return;
                     }
-                    data.iTotalDisplayRecords = +rows[0].count;
+                    output.recordsFiltered = +rows[0].count;
                     sql = 'SELECT * FROM ' + table + where;
                     if (search) {
                         search = '%' + search + '%';
@@ -383,8 +384,8 @@ module.exports = function (app) {
                             res.sendStatus(500);
                             return;
                         }
-                        data.aaData = rows;
-                        res.json(data);
+                        output.data = rows;
+                        res.json(output);
                     });
                 });
             });

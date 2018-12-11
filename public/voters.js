@@ -627,112 +627,112 @@ function init() {
             url += '?filterColumn=finding&filterValue=' + value;
         }
         dataTable = $('#line-table').dataTable({
-            sAjaxSource: url,
-            bProcessing: true,
-            bServerSide: true,
-            bDestroy: true,
-            iDisplayLength: 25,
-            sDom: '<"row-fluid"<"span6 dt-top-left"><"span6"f>r>t<"row-fluid"<"span6"i><"span6">p>',
-            bSortClasses: false,
-            aaSorting: [], // no sorting by default
-            bDeferRender: true,
-            fnInitComplete: function () {
+            ajax: url,
+            processing: true,
+            serverSide: true,
+            destroy: true,
+            pageLength: 25,
+            dom: '<"row-fluid"<"span6 dt-top-left"><"span6"f>r>t<"row-fluid"<"span6"i><"span6">p>',
+            orderClasses: false,
+            order: [], // no sorting by default
+            deferRender: true,
+            initComplete: function () {
                 var button = $('<button type="button"/>')
-                    .text('Back to Checking')
-                    .addClass('btn')
-                    .click(function () {
-                        $('#go-back').click(); // kluge
-                    });
+                        .text('Back to Checking')
+                        .addClass('btn')
+                        .click(function () {
+                            $('#go-back').click(); // kluge
+                        });
                 $('.dt-top-left').html(button);
             },
-            aoColumns: [
+            columns: [
                 {
-                    mDataProp: 'page',
-                    sTitle: 'Page',
-                    sClass: 'right',
-                    sWidth: 40,
-                    aDataSort: [0, 1],
-                    bSearchable: false
+                    data: 'page',
+                    title: 'Page',
+                    className: 'right',
+                    width: 40,
+                    orderData: [0, 1],
+                    searchable: false
                 },
                 {
-                    mDataProp: 'line',
-                    sTitle: 'Line',
-                    sClass: 'right',
-                    sWidth: 40,
-                    aDataSort: [0, 1],
-                    bSearchable: false
+                    data: 'line',
+                    title: 'Line',
+                    className: 'right',
+                    width: 40,
+                    orderData: [0, 1],
+                    searchable: false
                 },
                 {
-                    mDataProp: 'checker',
-                    sTitle: 'Checker',
-                    bSearchable: false
+                    data: 'checker',
+                    title: 'Checker',
+                    searchable: false
                 },
                 {
-                    mDataProp: 'check_time',
-                    sTitle: 'Check Time',
-                    bSearchable: false,
-                    fnCreatedCell: function (nTd, sData) {
-                        $(nTd).wrapInner('<time datetime="' + sData + 'Z"></time>')
+                    data: 'check_time',
+                    title: 'Check Time',
+                    searchable: false,
+                    createdCell: function (cell, cellData) {
+                        $(cell).wrapInner('<time datetime="' + cellData + 'Z"></time>')
                             .find('time').timeago();
                     }
                 },
                 {
-                    mDataProp: 'voter_id',
-                    sTitle: 'Voter ID',
-                    sWidth: 50,
-                    bSearchable: false
+                    data: 'voter_id',
+                    title: 'Voter ID',
+                    width: 50,
+                    searchable: false
                 },
                 {
-                    mDataProp: 'finding',
-                    sTitle: 'Finding',
-                    sWidth: 40,
-                    bSearchable: false
+                    data: 'finding',
+                    title: 'Finding',
+                    width: 40,
+                    searchable: false
                 },
                 {
-                    mDataProp: 'voter_name',
-                    sTitle: 'Name',
-                    bSearchable: true
+                    data: 'voter_name',
+                    title: 'Name',
+                    searchable: true
                 },
                 {
-                    mDataProp: 'address',
-                    sTitle: 'Address',
-                    bSearchable: true
+                    data: 'address',
+                    title: 'Address',
+                    searchable: true
                 },
                 {
-                    mDataProp: 'ward',
-                    sTitle: 'Ward',
-                    sWidth: 40,
-                    bSearchable: true
+                    data: 'ward',
+                    title: 'Ward',
+                    width: 40,
+                    searchable: true
                 },
                 {
-                    mDataProp: function (oData) {
-                        return oData.date_signed ?
-                            oData.date_signed.replace(/^(\d{4})-(\d\d)-(\d\d).*/, '$2/$3') : '';
+                    data: function (row) {
+                        return row.date_signed ?
+                            row.date_signed.replace(/^(\d{4})-(\d\d)-(\d\d).*/, '$2/$3') : '';
                     },
-                    sTitle: 'Date',
-                    sWidth: 50,
-                    bSearchable: true
+                    title: 'Date',
+                    width: 50,
+                    searchable: true
                 },
                 {
-                    mDataProp: 'notes',
-                    sTitle: 'Notes',
-                    bSearchable: true,
-                    bSortable: false
+                    data: 'notes',
+                    title: 'Notes',
+                    searchable: true,
+                    orderable: false
                 },
                 {
-                    mDataProp: function () {
+                    data: function () {
                         return '<button type="button" class="btn btn-mini edit-button">Edit</button>';
                     },
-                    sTitle: '',
-                    sWidth: 30,
-                    bSearchable: false,
-                    bSortable: false
+                    title: '',
+                    width: 30,
+                    searchable: false,
+                    orderable: false
                 }
             ]
         });
         $('#line-table').on('click', '.edit-button', function () {
             var row = $(this).closest('tr'),
-                lineData = dataTable.fnGetData(row[0]);
+                lineData = dataTable.row(row[0]).data();
             status.lineRecord = lineData;
             $('#top-row').show();
             $('#bottom-row').hide().empty();
