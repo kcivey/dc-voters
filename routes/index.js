@@ -536,6 +536,7 @@ module.exports = function (app) {
                     // WHERE is because of bad data in BOE database (2 records with no ward)
                     'SELECT ward, COUNT(*) as registered FROM voters WHERE ward > 0 GROUP BY ward',
                     function (err, rows) {
+                        var totalRegistered = 0;
                         if (err) {
                             console.error(err);
                             res.sendStatus(500);
@@ -545,8 +546,13 @@ module.exports = function (app) {
                             wardBreakdown[row.ward] = {
                                 signers: 0,
                                 registered: row.registered
-                            }
+                            };
+                            totalRegistered += row.registered;
                         });
+                        wardBreakdown.TOTAL = {
+                            signers: 0,
+                            registered: totalRegistered
+                        };
                         db.query(
                             'SELECT ward, COUNT(*) AS count FROM petition_lines ' +
                             "WHERE finding = 'OK' AND project_id = ? " +
@@ -561,6 +567,7 @@ module.exports = function (app) {
                                 rows.forEach(function (row) {
                                     if (wardBreakdown[row.ward]) {
                                         wardBreakdown[row.ward].signers = row.count;
+                                        wardBreakdown.TOTAL.signers += row.count;
                                     }
                                 });
                                 res.json({totals: totals, wardBreakdown: wardBreakdown});
