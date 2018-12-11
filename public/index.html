@@ -649,7 +649,7 @@
           <% _.each(totals, function (total, label) { %>
             <tr>
               <td><%- label %></td>
-              <td class="right"><%- total %></td>
+              <td class="right"><%- typeof total === 'number' ? total.toLocaleString() : total %></td>
             </tr>
           <% }); %>
           <tr>
