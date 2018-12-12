@@ -142,6 +142,7 @@ app.get(apiUrlBase + 'circulators', routes.getCirculators);
 app.post(apiUrlBase + 'circulators', routes.createOrUpdateCirculator);
 app.get(apiUrlBase + 'circulators/:id', routes.getCirculator);
 app.put(apiUrlBase + 'circulators/:id', routes.createOrUpdateCirculator);
+app.delete(apiUrlBase + 'circulators/:id', routes.deleteCirculator);
 app.get(apiUrlBase + 'pages', routes.getPages);
 app.post(apiUrlBase + 'pages', routes.createOrUpdatePage);
 app.get(apiUrlBase + 'pages/:number', routes.getPage);

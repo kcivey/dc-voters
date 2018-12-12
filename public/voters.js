@@ -467,6 +467,19 @@ function init() {
         }
     }
 
+    $('#main-container').on('click', '.circulator-delete-button', function () {
+        var id = $(this).data('id');
+        if (id) {
+            $.ajax({
+                url: apiUrl('circulators' + '/' + id),
+                dataType: 'json',
+                type: 'DELETE'
+            }).then(function () {
+                showTable('circulators');
+            });
+        }
+    });
+
     $('#main-container').on('click', '.page-edit-button', editPage);
     function editPage() {
         var id = $(this).data('id');

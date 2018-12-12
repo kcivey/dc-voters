@@ -622,6 +622,33 @@ module.exports = function (app) {
             });
         },
 
+        deleteCirculator: function (req, res) {
+            var table = 'circulators',
+                id = +req.params.id,
+                sql;
+            db.query(
+                'SELECT COUNT(*) FROM pages WHERE circulator_id = ?',
+                [id],
+                function (err, result) {
+                    if (err) {
+                        console.log(table + ' SQL error', err);
+                        res.sendStatus(500);
+                        return;
+                    }
+                    if (result[0] === 0) {
+                        res.sendStatus(409); // can't delete circulator if they have pages
+                        return;
+                    }
+                    db.query(
+                        'DELETE FROM ' + table + ' WHERE id = ?',
+                        [id],
+                        function (err, rows) {
+                            res.sendStatus(204);
+                        }
+                    );
+            });
+        },
+
         createOrUpdatePage: function (req, res) {
             /* @todo Fix to handle projects */
             var table = 'pages',

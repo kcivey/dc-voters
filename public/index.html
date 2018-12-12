@@ -549,7 +549,12 @@
                 <td><%- c.status %></td>
               <% } %>
               <td><%- c.notes %></td>
-              <td><button type="button" class="btn btn-mini circulator-edit-button" data-id="<%- c.id %>">Edit</button></td>
+              <td>
+                <button type="button" class="btn btn-mini circulator-edit-button" data-id="<%- c.id %>">Edit</button>
+                <% if (!c.page_count) { %>
+                  <button type="button" class="btn btn-mini circulator-delete-button btn-danger" data-id="<%- c.id %>">Delete</button>
+                <% } %>
+              </td>
             </tr>
           <% }); %>
         </tbody>
