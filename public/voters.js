@@ -488,10 +488,10 @@ function init() {
 
     $('#main-container').on('click', '.page-edit-button', editPage);
     function editPage() {
-        var id = $(this).data('id');
-        if (id) {
+        var number = $(this).data('number');
+        if (number) {
             $.ajax({
-                url: apiUrl('pages' + '/' + id),
+                url: apiUrl('pages' + '/' + number),
                 dataType: 'json'
             }).then(showForm);
         }

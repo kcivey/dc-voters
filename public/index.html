@@ -433,7 +433,7 @@
         <div class="control-group">
           <label class="control-label" for="page-number">Page Number</label>
           <div class="controls">
-            <input type="text" name="number" id="page-number"/>
+            <input type="text" name="number" id="page-number" readonly="readonly"/>
           </div>
         </div>
         <div class="control-group">
@@ -460,7 +460,6 @@
           </div>
         </div>
         <div class="control-group">
-          <input type="hidden" name="id"/>
           <button type="button" class="btn btn-primary btn save">Save</button>
         </div>
       </form>
@@ -585,7 +584,7 @@
           <td><%- p.circulator_name %></td>
           <td><%- p.date_signed || '' %></td>
           <td><%- p.notes || '' %></td>
-          <td><button type="button" class="btn btn-mini page-edit-button" data-id="<%- p.id %>">Edit</button></td>
+          <td><button type="button" class="btn btn-mini page-edit-button" data-number="<%- p.number %>">Edit</button></td>
           <td><%- p.processed_lines %></td>
           <td><%- p.checker %></td>
         </tr>
