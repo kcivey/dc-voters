@@ -128,6 +128,7 @@ function init() {
         save: function () {
             var error = this.check(),
                 that = this, // save to use in inner functions
+                isNew = !that.model.get('id'),
                 jqXhr;
             if (!error && (jqXhr = this.model.save())) {
                 jqXhr
@@ -141,10 +142,10 @@ function init() {
                             clearTimeout(timeoutHandle);
                             alert.closest('.modal').modal('hide');
                         });
-                        if (that.tableName == 'pages') {
+                        if (that.tableName == 'pages' && isNew) {
                             // default to same values on next page
-                            status.defaultPage = _.pick(data, 'id', 'circulator_id', 'date_signed');
-                            status.defaultPage.id++;
+                            status.defaultPage = _.pick(data, 'number', 'circulator_id', 'date_signed');
+                            status.defaultPage.number++;
                         }
                         showTable(that.tableName);
                     })
@@ -179,7 +180,7 @@ function init() {
         render: function () {
             $.getJSON(apiUrl('circulators')).then(function (circulators) {
                 this.$el.html(this.template({circulators: circulators}));
-                if (this.model.get('number')) {
+                if (this.model.get('id')) {
                     this.$('[name=number]').prop('readonly', true); // to prevent changing page number
                 }
                 this.modelBinder.bind(this.model, this.el);

@@ -661,11 +661,11 @@ module.exports = function (app) {
         },
 
         createOrUpdatePage: function (req, res) {
-            /* @todo Fix to handle projects */
             var table = 'pages',
                 projectId = req.project.id,
                 number = +req.params.number,
                 data = req.body,
+                id = data.id,
                 values = [],
                 sql, numbers;
             data.project_id = projectId;
@@ -676,10 +676,12 @@ module.exports = function (app) {
             if (!data.notes) {
                 data.notes = '';
             }
-            if (number) {
-                data.number = number;
-                sql = 'REPLACE INTO ' + table + ' SET ?';
-                values.push(data);
+            if (id) {
+                delete data.id;
+                delete data.number;
+                delete data.project_id;
+                sql = 'UPDATE ' + table + ' SET ? WHERE id = ? AND project_id = ? AND number = ?';
+                values.push(data, id, projectId, number);
                 numbers = [number];
             }
             else {
