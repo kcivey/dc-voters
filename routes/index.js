@@ -519,9 +519,15 @@ module.exports = function (app) {
                 'COUNT(*) AS count FROM petition_lines l ' +
                 'LEFT JOIN pages p ON l.project_id = p.project_id AND l.page = p.number ' +
                 'LEFT JOIN circulators c ON p.circulator_id = c.id ' +
-                'WHERE l.project_id = ? ' +
-                'GROUP BY combinedFinding';
-            db.query(sql, [req.project.id], function (err, rows) {
+                'WHERE l.project_id = ? ',
+                values = [req.project.id],
+                circulatorId = +req.query.circulator;
+            if (circulatorId) {
+                sql += 'AND p.circulator_id = ? ';
+                values.push(circulatorId);
+            }
+            sql += 'GROUP BY combinedFinding';
+            db.query(sql, values, function (err, rows) {
                 if (err) {
                     console.error(err);
                     res.sendStatus(500);
@@ -553,26 +559,31 @@ module.exports = function (app) {
                             signers: 0,
                             registered: totalRegistered
                         };
-                        db.query(
-                            'SELECT ward, COUNT(*) AS count FROM petition_lines ' +
-                            "WHERE finding = 'OK' AND project_id = ? " +
-                            'GROUP BY ward',
-                            [req.project.id],
-                            function (err, rows) {
-                                if (err) {
-                                    console.error(err);
-                                    res.sendStatus(500);
-                                    return;
-                                }
-                                rows.forEach(function (row) {
-                                    if (wardBreakdown[row.ward]) {
-                                        wardBreakdown[row.ward].signers = row.count;
-                                        wardBreakdown.TOTAL.signers += row.count;
-                                    }
-                                });
-                                res.json({totals: totals, wardBreakdown: wardBreakdown});
+                        sql = 'SELECT l.ward, COUNT(*) AS count FROM petition_lines l ';
+                        if (circulatorId) {
+                            sql += 'INNER JOIN pages p ON l.project_id = p.project_id AND l.page = p.number ';
+                        }
+                        sql += "WHERE l.finding = 'OK' AND l.project_id = ? ";
+                        values = [req.project.id];
+                        if (circulatorId) {
+                            sql += 'AND p.circulator_id = ? ';
+                            values.push(circulatorId);
+                        }
+                        sql += 'GROUP BY l.ward';
+                        db.query(sql, values, function (err, rows) {
+                            if (err) {
+                                console.error(err);
+                                res.sendStatus(500);
+                                return;
                             }
-                        );
+                            rows.forEach(function (row) {
+                                if (wardBreakdown[row.ward]) {
+                                    wardBreakdown[row.ward].signers = row.count;
+                                    wardBreakdown.TOTAL.signers += row.count;
+                                }
+                            });
+                            res.json({totals: totals, wardBreakdown: wardBreakdown});
+                        });
                     }
                 );
             });

@@ -480,6 +480,12 @@ function init() {
         }
     });
 
+    $('#main-container').on('click', '.circulator-totals-button', function () {
+        var id = $(this).data('id'),
+            name = $(this).data('name');
+        showTotals(id, name);
+    });
+
     $('#main-container').on('click', '.page-edit-button', editPage);
     function editPage() {
         var id = $(this).data('id');
@@ -919,12 +925,16 @@ function init() {
 
     $('#totals-link').on('click', showTotals);
 
-    function showTotals() {
-        var totalTableTemplate = getTemplate('total-table');
-        $.ajax({
-            url: apiUrl('totals'),
-            dataType: 'json'
-        }).then(
+    function showTotals(circulatorId, circulatorName) {
+        var totalTableTemplate = getTemplate('total-table'),
+            ajaxParams = {
+                url: apiUrl('totals'),
+                dataType: 'json'
+            };
+        if (circulatorId) {
+            ajaxParams.data = {circulator: circulatorId};
+        }
+        $.ajax(ajaxParams).then(
             function (data) {
                 var rawTotals = data.totals,
                     totals = {'Unprocessed': rawTotals[''] || 0},
@@ -951,7 +961,13 @@ function init() {
                 }
                 $('#top-row').hide();
                 hideImageRow();
-                $('#bottom-row').html(totalTableTemplate({totals: totals, wardBreakdown: data.wardBreakdown})).show()
+                $('#bottom-row')
+                    .html(totalTableTemplate({
+                        totals: totals,
+                        wardBreakdown: data.wardBreakdown,
+                        circulatorName: circulatorName
+                    }))
+                    .show()
                     .on('click', '.back-button', backToChecking);
             }
         );

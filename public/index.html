@@ -552,7 +552,9 @@
               <td><%- c.notes %></td>
               <td>
                 <button type="button" class="btn btn-mini circulator-edit-button" data-id="<%- c.id %>">Edit</button>
-                <% if (!c.page_count) { %>
+                <% if (c.page_count) { %>
+                  <button type="button" class="btn btn-mini circulator-totals-button btn-primary" data-id="<%- c.id %>" data-name="<%- c.name %>">Totals</button>
+                <% } else { %>
                   <button type="button" class="btn btn-mini circulator-delete-button btn-danger" data-id="<%- c.id %>">Delete</button>
                 <% } %>
               </td>
@@ -651,6 +653,7 @@
     <script type="text/template" id="total-table-template">
       <button type="button" class="btn back-button">Back to Checking</button>
       <table id="total-table" class="table table-striped" style="width: auto;">
+        <caption>Totals<% if (circulatorName) { %> for <%- circulatorName %><% } %></caption>
         <tbody>
           <% _.each(totals, function (total, label) { %>
             <tr>
