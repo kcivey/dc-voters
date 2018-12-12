@@ -39,6 +39,7 @@ CREATE TABLE IF NOT EXISTS circulators (
   `name` VARCHAR(255) NOT NULL,
   `status` varchar(10) NOT NULL DEFAULT '',
   `notes` TEXT,
+  UNIQUE KEY (`name`),
   PRIMARY KEY (`id`)
 );
 
