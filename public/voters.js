@@ -179,6 +179,9 @@ function init() {
         render: function () {
             $.getJSON(apiUrl('circulators')).then(function (circulators) {
                 this.$el.html(this.template({circulators: circulators}));
+                if (this.model.get('number')) {
+                    this.$('[name=number]').prop('readonly', true); // to prevent changing page number
+                }
                 this.modelBinder.bind(this.model, this.el);
             }.bind(this));
             return this;
