@@ -19,7 +19,9 @@ CREATE TABLE petition_lines (
   KEY (`voter_id`),
   KEY (`date_signed`),
   KEY (`finding`),
-  KEY (`ward`)
+  KEY (`ward`),
+  FOREIGN KEY (`project_id`) REFERENCES `projects` (`id`),
+  FOREIGN KEY (`project_id`, `page`) REFERENCES pages (`project_id`, `number`)
 );
 
 CREATE TABLE IF NOT EXISTS pages (
@@ -31,7 +33,9 @@ CREATE TABLE IF NOT EXISTS pages (
   `notes` TEXT,
   PRIMARY KEY (`id`),
   UNIQUE KEY (`project_id`, `number`),
-  KEY (`circulator_id`)
+  KEY (`circulator_id`),
+  FOREIGN KEY (`project_id`) REFERENCES `projects` (`id`),
+  FOREIGN KEY (`circulator_id`) REFERENCES `circulators` (`id`)
 );
 
 CREATE TABLE IF NOT EXISTS circulators (
@@ -57,7 +61,7 @@ CREATE TABLE IF NOT EXISTS users (
 );
 
 CREATE TABLE IF NOT EXISTS projects (
-  `id` MEDIUMINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `id` SMALLINT UNSIGNED NOT NULL AUTO_INCREMENT,
   `code` VARCHAR(16),
   `name` VARCHAR(64),
   PRIMARY KEY (`id`),
@@ -67,7 +71,9 @@ CREATE TABLE IF NOT EXISTS projects (
 CREATE TABLE IF NOT EXISTS project_users (
   `project_id` SMALLINT UNSIGNED NOT NULL,
   `user_id` MEDIUMINT UNSIGNED NOT NULL,
-  PRIMARY KEY (`project_id`, `user_id`)
+  PRIMARY KEY (`project_id`, `user_id`),
+  FOREIGN KEY (`project_id`) REFERENCES `projects` (`id`),
+  FOREIGN KEY (`user_id`) REFERENCES `users` (`id`)
 );
 
 CREATE TABLE IF NOT EXISTS voters (
