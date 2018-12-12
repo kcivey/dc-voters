@@ -535,7 +535,8 @@
               <td><%- c.page_count %></td>
               <td>
                 <% if (c.pages) { %>
-                  <a href="/<%= project.code %>/challenge.html?p=<%= encodeURIComponent(c.pages) %>" target="_blank">
+                  <a href="/<%= project.code %>/challenge.html?p=<%= encodeURIComponent(c.pages) %>" target="_blank"
+                    title="Get list of petition defects">
                     <%- c.pages %>
                   </a>
                 <% } else { %>
