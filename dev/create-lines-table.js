@@ -1,5 +1,7 @@
 #!/usr/bin/env node
 
+console.error('No longer used'); process.exit();
+
 var fs = require('fs'),
     path = require('path'),
     _ = require('underscore'),
