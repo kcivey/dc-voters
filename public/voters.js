@@ -877,33 +877,7 @@ function init() {
         return false;
     }
 
-    $('#bottom-row').on('click', '.save-user', function () {
-        var $tr = $(this).closest('tr'),
-            id = $tr.data('id'),
-            url = apiUrl('users'),
-            method = 'POST',
-            userData = {
-                // Fields for "username" and "password" renamed to avoid autofill confusion with login
-                username: $('[name=x_username]', $tr).val(),
-                password: $('[name=x_password]', $tr).val(),
-                email: $('[name=email]', $tr).val(),
-                admin: $('[name=admin]', $tr).prop('checked') ? 1 : 0
-            };
-        if (id) {
-            url += '/' + id;
-            method = 'PUT';
-        }
-        $.ajax({
-            url: url,
-            dataType: 'json',
-            data: userData,
-            type: method
-        }).then(
-            function (data) {
-                showTable('users');
-            }
-        );
-    }).on('click', '.assign-send-button', function () {
+    $('#bottom-row').on('click', '.assign-send-button', function () {
         var modal = $('#assign-pages-modal'),
             username = $('.username', modal).text(),
             pageString = $('[name=pages]', modal).val(),
