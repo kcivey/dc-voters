@@ -923,7 +923,7 @@ function init() {
         $('#assign-pages-modal .username').text(username);
     });
 
-    $('#totals-link').on('click', showTotals);
+    $('#totals-link').on('click', function () { showTotals(); });
 
     function showTotals(circulatorId, circulatorName) {
         var totalTableTemplate = getTemplate('total-table'),
