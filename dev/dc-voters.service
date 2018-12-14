@@ -1,0 +1,14 @@
+# Systemd service
+
+[Unit]
+Description=Website for petition verification
+
+[Service]
+Environment=NODE_ENV=production
+Environment=PORT=3000
+WorkingDirectory=/var/www/dc-voters
+ExecStart=/var/www/dc-voters/app.js
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
