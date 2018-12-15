@@ -16,7 +16,7 @@
     "express-mysql-session": "^2.0.1",
     "express-session": "^1.15.6",
     "minimist": "^1.2.0",
-    "moment": "^2.22.2",
+    "moment": "^2.23.0",
     "morgan": "^1.9.1",
     "mysql": "^2.16.0",
     "nconf": "^0.10.0",
