@@ -657,14 +657,13 @@ function init() {
             serverSide: true,
             destroy: true,
             pageLength: 25,
-            dom: '<"row-fluid"<"span6 dt-top-left"><"span6"f>r>t<"row-fluid"<"span6"i><"span6">p>',
             orderClasses: false,
             order: [], // no sorting by default
             deferRender: true,
-            initComplete: function () {
+            initComplete: function () { // @todo Fix this for Bootstrap 4
                 var button = $('<button type="button"/>')
                         .text('Back to Checking')
-                        .addClass('btn')
+                        .addClass('btn btn-link')
                         .click(function () {
                             $('#go-back').click(); // kluge
                         });
@@ -677,7 +676,8 @@ function init() {
                     className: 'text-right',
                     width: 40,
                     orderData: [0, 1],
-                    searchable: false
+                    searchable: false,
+                    orderable: false
                 },
                 {
                     data: 'line',
@@ -685,50 +685,51 @@ function init() {
                     className: 'text-right',
                     width: 40,
                     orderData: [0, 1],
-                    searchable: false
+                    searchable: false,
+                    orderable: false
                 },
                 {
                     data: 'checker',
                     title: 'Checker',
-                    searchable: false
+                    searchable: false,
+                    orderable: false
                 },
                 {
                     data: 'check_time',
                     title: 'Check Time',
                     searchable: false,
+                    orderable: false,
                     createdCell: function (cell, cellData) {
                         $(cell).wrapInner('<time datetime="' + cellData + 'Z"></time>')
                             .find('time').timeago();
                     }
                 },
                 {
-                    data: 'voter_id',
-                    title: 'Voter ID',
-                    width: 50,
-                    searchable: false
-                },
-                {
                     data: 'finding',
                     title: 'Finding',
                     width: 40,
-                    searchable: false
+                    searchable: false,
+                    orderable: false
                 },
                 {
                     data: 'voter_name',
                     title: 'Name',
-                    searchable: true
+                    searchable: true,
+                    orderable: false
                 },
                 {
                     data: 'address',
                     title: 'Address',
-                    searchable: true
+                    searchable: true,
+                    orderable: false
                 },
                 {
                     data: 'ward',
                     className: 'text-right',
                     title: 'Ward',
                     width: 40,
-                    searchable: true
+                    searchable: true,
+                    orderable: false
                 },
                 {
                     data: function (row) {
@@ -737,7 +738,8 @@ function init() {
                     },
                     title: 'Date',
                     width: 50,
-                    searchable: true
+                    searchable: true,
+                    orderable: false
                 },
                 {
                     data: 'notes',

@@ -317,8 +317,8 @@ module.exports = function (app) {
 
         // Return line data in DataTables format
         dtLine: function (req, res) {
-            var start = +req.query.iDisplayStart || 0,
-                length = +req.query.iDisplayLength || 100,
+            var start = +req.query.start || 0,
+                length = +req.query.length || 100,
                 output = {draw: +req.query.draw || 1},
                 search = req.query.sSearch,
                 sortingCols = +req.query.iSortingCols || 0,
