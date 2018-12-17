@@ -181,7 +181,9 @@ function init() {
             $.getJSON(apiUrl('circulators')).then(function (circulators) {
                 this.$el.html(this.template({circulators: circulators}));
                 if (this.model.get('id')) {
-                    this.$('[name=number]').prop('readonly', true); // to prevent changing page number
+                    this.$('[name=number]').prop('readonly', true) // to prevent changing page number
+                        .removeClass('form-control')
+                        .addClass('form-control-plaintext');
                 }
                 this.modelBinder.bind(this.model, this.el);
             }.bind(this));
@@ -283,7 +285,7 @@ function init() {
                     window.location.reload();
                 }
                 status = data;
-                $('.brand').text(status.project.name);
+                $('.navbar-brand').text(status.project.name);
                 $('title').text(status.project.name);
                 $('.version').text('v' + status.version);
                 callback(null, status); // null for no error
@@ -672,7 +674,7 @@ function init() {
                 {
                     data: 'page',
                     title: 'Page',
-                    className: 'right',
+                    className: 'text-right',
                     width: 40,
                     orderData: [0, 1],
                     searchable: false
@@ -680,7 +682,7 @@ function init() {
                 {
                     data: 'line',
                     title: 'Line',
-                    className: 'right',
+                    className: 'text-right',
                     width: 40,
                     orderData: [0, 1],
                     searchable: false
@@ -723,6 +725,7 @@ function init() {
                 },
                 {
                     data: 'ward',
+                    className: 'text-right',
                     title: 'Ward',
                     width: 40,
                     searchable: true
@@ -744,7 +747,7 @@ function init() {
                 },
                 {
                     data: function () {
-                        return '<button type="button" class="btn btn-mini edit-button">Edit</button>';
+                        return '<button type="button" class="btn btn-secondary btn-sm edit-button">Edit</button>';
                     },
                     title: '',
                     width: 30,
