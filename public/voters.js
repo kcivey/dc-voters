@@ -708,6 +708,7 @@ function init() {
                     data: 'finding',
                     title: 'Finding',
                     width: 40,
+                    className: 'text-center',
                     searchable: false,
                     orderable: false
                 },
