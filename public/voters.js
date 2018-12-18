@@ -671,10 +671,15 @@ function init() {
             },
             columns: [
                 {
+                    defaultContent: '<button type="button" class="btn btn-secondary btn-sm edit-button">Edit</button>',
+                    title: '',
+                    searchable: false,
+                    orderable: false
+                },
+                {
                     data: 'page',
                     title: 'Page',
                     className: 'text-right',
-                    width: 40,
                     orderData: [0, 1],
                     searchable: false,
                     orderable: false
@@ -683,7 +688,6 @@ function init() {
                     data: 'line',
                     title: 'Line',
                     className: 'text-right',
-                    width: 40,
                     orderData: [0, 1],
                     searchable: false,
                     orderable: false
@@ -707,7 +711,6 @@ function init() {
                 {
                     data: 'finding',
                     title: 'Finding',
-                    width: 40,
                     className: 'text-center',
                     searchable: false,
                     orderable: false
@@ -728,7 +731,6 @@ function init() {
                     data: 'ward',
                     className: 'text-right',
                     title: 'Ward',
-                    width: 40,
                     searchable: true,
                     orderable: false
                 },
@@ -738,7 +740,6 @@ function init() {
                             row.date_signed.replace(/^(\d{4})-(\d\d)-(\d\d).*/, '$2/$3') : '';
                     },
                     title: 'Date',
-                    width: 50,
                     searchable: true,
                     orderable: false
                 },
@@ -746,15 +747,6 @@ function init() {
                     data: 'notes',
                     title: 'Notes',
                     searchable: true,
-                    orderable: false
-                },
-                {
-                    data: function () {
-                        return '<button type="button" class="btn btn-secondary btn-sm edit-button">Edit</button>';
-                    },
-                    title: '',
-                    width: 30,
-                    searchable: false,
                     orderable: false
                 }
             ]
