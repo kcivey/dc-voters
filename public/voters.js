@@ -781,12 +781,12 @@ function init() {
         var searchData = {},
             button = $('#search-button'),
             resetButton = function () {
-                button.text('Search').removeAttr('disabled');
+                button.text('Search').prop('disabled', false);
             },
             more = this.id && this.id == 'more-button',
             timeoutHandle;
         $.each(['q', 'name', 'address'], function (i, name) {
-            var value = $.trim($('#' + name).val());
+            var value = $.trim($('#search-form-' + name).val());
             if (value) {
                 searchData[name] = value;
             }
@@ -794,7 +794,7 @@ function init() {
         if ($.isEmptyObject(searchData)) {
             return; // don't search if no search terms
         }
-        button.text('Please Wait').attr('disabled', 'disabled');
+        button.text('Please Wait').prop('disabled', true);
         $('#result-div > *').hide();
         // Use a timeout because JSONP calls don't always raise error
         // events when there's a problem.
