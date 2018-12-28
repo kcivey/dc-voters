@@ -317,20 +317,20 @@ module.exports = function (app) {
 
         // Return line data in DataTables format
         dtLine: function (req, res) {
-            var start = +req.query.iDisplayStart || 0,
-                length = +req.query.iDisplayLength || 100,
+            var start = +req.query.start || 0,
+                length = +req.query.length || 100,
                 output = {draw: +req.query.draw || 1},
-                search = req.query.sSearch,
-                sortingCols = +req.query.iSortingCols || 0,
+                search = req.query.search && req.query.search.value,
+                columns = req.query.columns || [],
+                order = req.query.order || [],
                 checker = req.query.checker || req.params.checker,
                 filterColumn = req.query.filterColumn || '',
                 filterValue = req.query.filterValue,
                 table = 'petition_lines',
                 sql = 'SELECT COUNT(*) AS `count` FROM ' + table,
                 where = " WHERE finding <> ''",
-                order = [],
-                values = [],
-                i, sortColumnIndex, sortColumn, sortDirection;
+                orderSql = [],
+                values = [];
             db.query(sql, function (err, rows) {
                 if (err) {
                     console.error(err);
@@ -358,7 +358,7 @@ module.exports = function (app) {
                     if (search) {
                         search = '%' + search + '%';
                         sql += ' AND (';
-                        ['voter_name', 'address'].forEach(function (column, i) {
+                        ['voter_name', 'address', 'checker'].forEach(function (column, i) {
                             if (i > 0) {
                                 sql += ' OR ';
                             }
@@ -367,16 +367,15 @@ module.exports = function (app) {
                         });
                         sql += ')';
                     }
-                    for (i = 0; i < sortingCols; i++) {
-                        sortColumnIndex = +req.query['iSortCol_' + i] || 0;
-                        sortColumn = req.query['mDataProp_' + sortColumnIndex];
-                        if (/^\w+$/.test(sortColumn) && sortColumn !== 'function') {
-                            sortDirection = req.query['sSortDir_' + i];
-                            order.push(sortColumn + (sortDirection === 'desc' ? ' DESC' : ''));
+                    order.forEach(function (o) {
+                        var index = +o.column || 0,
+                            column = columns[index] ? columns[index].data : '';
+                        if (/^\w+$/.test(column) && column !== 'function') {
+                            orderSql.push(column + (o.dir === 'desc' ? ' DESC' : ''));
                         }
-                    }
-                    order.push('check_time DESC', 'id DESC'); // sort newest first if nothing else
-                    sql += ' ORDER BY ' + order.join(', ') +
+                    });
+                    orderSql.push('check_time DESC', 'id DESC'); // sort newest first if nothing else
+                    sql += ' ORDER BY ' + orderSql.join(', ') +
                         ' LIMIT ' + start + ',' + length;
                     db.query(sql, values, function (err, rows) {
                         if (err) {
