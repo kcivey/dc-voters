@@ -546,7 +546,7 @@
       </form>
     </script>
     <script type="text/template" id="alert-template">
-      <div class="alert fade in<%- successful ? '' : ' alert-danger' %>">
+      <div class="alert fade show <%- successful ? 'alert-success' : 'alert-danger' %>">
         <button type="button" class="close" data-dismiss="alert">&times;</button>
         <%= text || (successful ? 'Record successfully saved' : 'Error saving record') %>
       </div>
