@@ -30,6 +30,17 @@
       #search-form .controls {
         margin-left: 100px;
       }
+      #line-form {
+        position: relative;
+      }
+      #line-form .save {
+        position: absolute;
+        top: 6px;
+        right: 6px;
+      }
+      #finding {
+        padding-right: 84px;
+      }
       #status {
         margin: 8px 0;
       }
@@ -409,7 +420,6 @@
       </form>
     </script>
     <script type="text/template" id="line-form-template">
-      <button type="button" class="btn btn-primary btn-lg float-right save" style="margin: 6px">Save</button>
       <div class="formgroup row">
         <label class="col-form-label col-sm-2" for="finding">Finding</label>
         <div class="col-sm-10" id="finding">
@@ -475,6 +485,7 @@
           <textarea name="notes" id="notes" class="form-control"></textarea>
         </div>
       </div>
+      <button type="button" class="btn btn-primary btn-lg save">Save</button>
     </script>
     <script type="text/template" id="page-form-template">
       <form action="/" id="page-form">
