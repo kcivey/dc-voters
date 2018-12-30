@@ -318,11 +318,11 @@ function init() {
             }
             if (!status.user) {
                 $('#top-nav,#main-container').hide();
-                $('#send-token-form').show();
+                $('#send-token-card').show();
             }
             else {
                 $('#top-nav,#main-container').show();
-                $('#send-token-form').hide();
+                $('#send-token-card').hide();
                 if (!status.user.admin) {
                     $('.admin-only').remove();
                 }
