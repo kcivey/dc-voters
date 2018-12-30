@@ -690,39 +690,41 @@
         </table>
     </script>
     <script type="text/template" id="total-table-template">
-      <button type="button" class="btn btn-link back-button">Back to Checking</button>
-      <table id="total-table" class="table table-striped table-hover">
-        <caption>Totals<% if (circulatorName) { %> for <%- circulatorName %><% } %></caption>
-        <tbody>
-          <% _.each(totals, function (total, label) { %>
+      <div class="col-lg-5 col-md-8">
+        <button type="button" class="btn btn-link back-button">Back to Checking</button>
+        <table id="total-table" class="table table-striped table-hover">
+          <caption>Totals<% if (circulatorName) { %> for <%- circulatorName %><% } %></caption>
+          <tbody>
+            <% _.each(totals, function (total, label) { %>
+              <tr>
+                <td><%- label %></td>
+                <td class="text-right"><%- typeof total === 'number' ? total.toLocaleString() : total %></td>
+              </tr>
+            <% }); %>
             <tr>
-              <td><%- label %></td>
-              <td class="text-right"><%- typeof total === 'number' ? total.toLocaleString() : total %></td>
+              <td>Ward breakdown</td>
+              <td>
+                <table class="table table-striped">
+                  <tbody>
+                    <% _.each(wardBreakdown, function (info, ward) { %>
+                      <tr>
+                        <td><% if (ward !== 'TOTAL') { %>Ward <% } %><%- ward %></td>
+                        <td class="text-right">
+                          <%- info.signers.toLocaleString() %>
+                          <% if (!circulatorName) { %>
+                            / <%- info.registered.toLocaleString() %>
+                            (<%- (100 * info.signers / info.registered).toFixed(2) %>%)
+                          <% } %>
+                        </td>
+                      </tr>
+                    <% }); %>
+                  </tbody>
+                </table>
+              </td>
             </tr>
-          <% }); %>
-          <tr>
-            <td>Ward breakdown</td>
-            <td>
-              <table class="table table-striped">
-                <tbody>
-                  <% _.each(wardBreakdown, function (info, ward) { %>
-                    <tr>
-                      <td><% if (ward !== 'TOTAL') { %>Ward <% } %><%- ward %></td>
-                      <td class="text-right">
-                        <%- info.signers.toLocaleString() %>
-                        <% if (!circulatorName) { %>
-                          / <%- info.registered.toLocaleString() %>
-                          (<%- (100 * info.signers / info.registered).toFixed(2) %>%)
-                        <% } %>
-                      </td>
-                    </tr>
-                  <% }); %>
-                </tbody>
-              </table>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+          </tbody>
+        </table>
+      </div>
     </script>
   </body>
 </html>
