@@ -671,7 +671,7 @@ function init() {
             },
             columns: [
                 {
-                    defaultContent: '<button type="button" class="btn btn-secondary btn-sm edit-button">Edit</button>',
+                    defaultContent: '<button type="button" class="btn btn-outline-primary btn-sm edit-button"><i class="fas fa-edit"></i></button>',
                     title: '',
                     searchable: false,
                     orderable: false
@@ -679,7 +679,7 @@ function init() {
                 {
                     data: 'page',
                     title: 'Page',
-                    className: 'text-right',
+                    className: 'number',
                     orderData: [0, 1],
                     searchable: false,
                     orderable: false
@@ -687,7 +687,7 @@ function init() {
                 {
                     data: 'line',
                     title: 'Line',
-                    className: 'text-right',
+                    className: 'number',
                     orderData: [0, 1],
                     searchable: false,
                     orderable: false
