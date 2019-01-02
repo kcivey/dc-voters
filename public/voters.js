@@ -671,7 +671,7 @@ function init() {
             },
             columns: [
                 {
-                    defaultContent: '<button type="button" class="btn btn-outline-primary btn-sm edit-button"><i class="fas fa-edit"></i></button>',
+                    defaultContent: '<button type="button" class="btn btn-outline-primary btn-sm edit-button" title="Edit"><i class="fas fa-edit"></i></button>',
                     title: '',
                     searchable: false,
                     orderable: false
