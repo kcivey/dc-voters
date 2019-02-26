@@ -1,15 +1,15 @@
 #!/usr/bin/env node
 
-var stringifier = require('csv-stringify')({header: true}),
-    argv = require('minimist')(process.argv.slice(2)),
-    db = require('../db'),
-    sql = 'SELECT * FROM voters WHERE 1',
-    values = [];
+const stringifier = require('csv-stringify')({header: true});
+const argv = require('minimist')(process.argv.slice(2));
+const db = require('../db');
+let sql = 'SELECT * FROM voters WHERE 1';
+let values = [];
 
 stringifier
     .on('readable', function () {
-        var data;
-        while(data = stringifier.read()) {
+        let data;
+        while (data = stringifier.read()) {
             process.stdout.write(data);
         }
     })
@@ -47,6 +47,9 @@ db.query(sql, values, function (err, rows) {
         throw err;
     }
     rows.forEach(function (row) {
+        if (!argv['include-id']) {
+            delete row.voter_id;
+        }
         stringifier.write(row);
     });
     stringifier.end();
