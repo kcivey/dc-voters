@@ -4,7 +4,7 @@ const stringifier = require('csv-stringify')({header: true});
 const argv = require('minimist')(process.argv.slice(2));
 const db = require('../db');
 let sql = 'SELECT * FROM voters WHERE 1';
-let values = [];
+const values = [];
 
 stringifier
     .on('readable', function () {
@@ -13,7 +13,7 @@ stringifier
             process.stdout.write(data);
         }
     })
-    .on('error', function (err){
+    .on('error', function (err) {
         throw err;
     })
     .on('finish', function () {
