@@ -1,7 +1,6 @@
-var config = require('./config'),
-    mysql = require('mysql'),
-    dbConfig = config.get('database'),
-    db = mysql.createConnection(dbConfig);
+const mysql = require('mysql');
+const dbConfig = require('./config').get('database');
+const db = mysql.createConnection(dbConfig);
 
 db.connectionString = 'mysql://' + encodeURIComponent(dbConfig.user) + ':' +
     encodeURIComponent(dbConfig.password) + '@' + dbConfig.host +
@@ -11,18 +10,17 @@ if (dbConfig.dateStrings) {
 }
 
 db.getUser = function getUser(criteria, done) {
-    var password = criteria.password;
+    const password = criteria.password;
     delete criteria.password;
     db.query(
         'SELECT * FROM users WHERE ?',
         [criteria],
         function (err, rows) {
-            var user;
             console.log('db result', err, rows);
             if (err) {
                 return done(err);
             }
-            user = rows[0] || null;
+            const user = rows[0] || null;
             if (!user || (password && !passwordHash.verify(password, user.password))) {
                 return done(null, null);
             }

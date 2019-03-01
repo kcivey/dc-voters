@@ -1,6 +1,6 @@
-var email = require('emailjs'),
-    config = require('./config'),
-    server =  null;
+const email = require('emailjs');
+const config = require('./config');
+let server = null;
 
 module.exports = function (message, callback) {
     if (!server) {
