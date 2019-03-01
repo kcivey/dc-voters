@@ -1,17 +1,21 @@
 module.exports = function (app) {
-    var fs = require('fs'),
-        _ = require('underscore'),
-        moment = require('moment'),
-        async = require('async'),
-        config = require('../public/config.json'),
-        db = require('../db'),
-        pkg = require('../package.json'),
-        numberList = require('../number-list'),
-        challengeTemplate = _.template(fs.readFileSync(__dirname + '/challenge.html', {encoding: 'utf8'}).replace(/^\s+/gm, ''));
+    const fs = require('fs');
+    const _ = require('underscore');
+    const moment = require('moment');
+    const async = require('async');
+    const config = require('../public/config.json');
+    const db = require('../db');
+    const pkg = require('../package.json');
+    const numberList = require('../number-list');
+    const challengeTemplate = _.template(
+        fs.readFileSync(__dirname + '/challenge.html', {encoding: 'utf8'})
+            .replace(/^\s+/gm, '')
+    );
 
     function sendTsv(req, res, sql, values) {
-        var filename, m;
-        if (m = req.path.match(/([^\/]+)$/)) {
+        const m = req.path.match(/([^\/]+)$/);
+        let filename;
+        if (m) {
             filename = m[1];
         }
         else {
@@ -23,8 +27,8 @@ module.exports = function (app) {
                 res.sendStatus(500);
                 return;
             }
-            var fieldNames = _.pluck(fields, 'name'),
-                content = fieldNames.join('\t') + '\n';
+            const fieldNames = _.pluck(fields, 'name');
+            let content = fieldNames.join('\t') + '\n';
             _.forEach(rows, function (row) {
                 content += _.map(fieldNames, function (name) {
                     if (name === 'check_time' && row.check_time) {
@@ -47,20 +51,20 @@ module.exports = function (app) {
 
     return {
         search: function (req, res) {
-            var q = req.query.q,
-                name = req.query.name,
-                address = req.query.address,
-                voterId = req.query.voter_id,
-                values = [],
-                limit = Math.min(100, Math.max(0, Math.round(+req.query.limit))) || 10,
-                explanation = '',
-                match, sql, m;
+            const q = req.query.q;
+            const voterId = req.query.voter_id;
+            let name = req.query.name;
+            let address = req.query.address;
+            let explanation = '';
+            let match = '';
             if (q) {
                 match = 'MATCH (v.firstname, v.lastname, v.res_house, v.res_street) AGAINST (? IN BOOLEAN MODE)';
                 explanation += 'General query: ' + q + '\n';
             }
-            sql = 'SELECT v.registered, v.lastname, v.firstname, v.middle, v.suffix, v.status, v.res_house, ' +
+            let sql = 'SELECT v.registered, v.lastname, v.firstname, v.middle, v.suffix, v.status, v.res_house, ' +
                 'v.res_frac, v.res_apt, v.res_street, v.ward, v.voter_id';
+            const values = [];
+            const limit = Math.min(100, Math.max(0, Math.round(+req.query.limit))) || 10;
             if (config.party) {
                 sql += ', v.party';
             }
@@ -70,7 +74,8 @@ module.exports = function (app) {
             }
             sql += ' FROM voters v WHERE 1';
             if (name) {
-                if (m = /^([^,]*),\s*(.+)/.exec(name)) {
+                const m = /^([^,]*),\s*(.+)/.exec(name);
+                if (m) {
                     sql += ' AND v.firstname LIKE ?';
                     values.push(m[2] + '%');
                     name = m[1];
@@ -84,7 +89,8 @@ module.exports = function (app) {
                 }
             }
             if (address) {
-                if (m = /^(\d+)\s+(.+)/.exec(address)) {
+                const m = /^(\d+)\s+(.+)/.exec(address);
+                if (m) {
                     sql += ' AND v.res_house = ?';
                     values.push(m[1]);
                     address = m[2];
@@ -115,22 +121,22 @@ module.exports = function (app) {
                 }
                 explanation = results.length +
                     (results.length < limit ? '' : ' or more') +
-                    ' record' + (results.length === 1 ? '' : 's') +  '\n' +
+                    ' record' + (results.length === 1 ? '' : 's') + '\n' +
                     explanation;
                 res.set('Cache-Control', 'max-age=600'); // cache for 10 min
                 res.json({
                     explanation: explanation,
-                    results: results
+                    results: results,
                 });
             });
         },
 
         lineRead: function (req, res) {
-            var id = +req.params.id,
-                page = +req.params.page,
-                line = +req.params.line,
-                sql = 'SELECT * FROM petition_lines WHERE project_id = ? AND ',
-                values = [req.project.id];
+            const id = +req.params.id;
+            const page = +req.params.page;
+            const line = +req.params.line;
+            let sql = 'SELECT * FROM petition_lines WHERE project_id = ? AND ';
+            const values = [req.project.id];
             if (id) {
                 sql += 'id = ?';
                 values.push(id);
@@ -156,8 +162,8 @@ module.exports = function (app) {
         },
 
         lineUpdate: function (req, res) {
-            var id = +req.params.id,
-                lineData = req.body;
+            const id = +req.params.id;
+            const lineData = req.body;
             delete lineData.id;
             lineData.check_time = new Date();
             if (lineData.date_signed) {
@@ -177,7 +183,7 @@ module.exports = function (app) {
                         'SELECT * FROM petition_lines WHERE id = ?',
                         [id],
                         function (err, rows) {
-                            lineData = rows[0];
+                            const lineData = rows[0];
                             if (lineData.date_signed) {
                                 lineData.date_signed = moment(lineData.date_signed)
                                     .utc().format('MM/DD/YYYY');
@@ -190,77 +196,83 @@ module.exports = function (app) {
         },
 
         status: function (req, res) {
-            var project = req.project || (req.user ? req.user.projects[0] : null),
-                responseData = {
-                    user: req.user || {},
-                    project: project,
+            const project = req.project || (req.user ? req.user.projects[0] : null);
+            const responseData = {
+                user: req.user || {},
+                project: project,
+                complete: 0,
+                incomplete: 0,
+                overall: {
                     complete: 0,
                     incomplete: 0,
-                    overall: {
-                        complete: 0,
-                        incomplete: 0
-                    },
-                    version: pkg.version
                 },
-                currentPage, currentLine;
+                version: pkg.version,
+            };
+            let currentPage;
+            let currentLine;
             if (!project) {
                 res.json(responseData);
                 return;
             }
-            async.series([
-                function getCurrentLine(callback) {
-                    var sql = 'SELECT page, line FROM petition_lines ' +
-                        "WHERE project_id = ? AND checker = ? AND finding NOT IN ('', 'V') " +
-                        'ORDER BY page DESC, line DESC LIMIT 1';
-                    db.query(sql, [project.id, req.user.username], function (err, rows) {
-                        if (err) {
-                            return callback(err);
-                        }
-                        if (rows.length) {
-                            currentPage = rows[0].page;
-                            currentLine = rows[0].line;
-                        }
-                        return callback(null);
-                    });
-                },
-                function getNextLine(callback) {
-                    var sql = "SELECT * FROM petition_lines WHERE project_id = ? AND checker = ? AND finding = '' " +
-                        'ORDER BY page, line LIMIT 1';
-                    db.query(sql, [project.id, req.user.username], function (err, rows) {
-                        if (err) {
-                            return callback(err);
-                        }
-                        responseData.lineRecord = rows[0] || null;
-                        return callback(null);
-                    });
-                },
-                function getUserProgress(callback) {
-                    var sql = "SELECT IF(finding IN ('', 'S'), 'incomplete', 'complete') AS state, COUNT(*) AS `count` " +
-                        'FROM petition_lines WHERE project_id = ? AND checker = ? GROUP BY state';
-                    db.query(sql, [project.id, req.user.username], function (err, rows) {
-                        if (err) {
-                            return callback(err);
-                        }
-                        rows.forEach(function (row) {
-                            responseData[row.state] = +row.count;
+            async.series(
+                [
+                    function getCurrentLine(callback) {
+                        const sql = 'SELECT page, line FROM petition_lines ' +
+                            "WHERE project_id = ? AND checker = ? AND finding NOT IN ('', 'V') " +
+                            'ORDER BY page DESC, line DESC LIMIT 1';
+                        db.query(sql, [project.id, req.user.username], function (err, rows) {
+                            if (err) {
+                                return callback(err);
+                            }
+                            if (rows.length) {
+                                currentPage = rows[0].page;
+                                currentLine = rows[0].line;
+                            }
+                            return callback(null);
                         });
-                        return callback(null);
-                    });
-                },
-                function getOverallProgress(callback) {
-                    var sql = "SELECT IF(finding IN ('', 'S'), 'incomplete', 'complete') AS state, COUNT(*) AS `count` " +
-                        'FROM petition_lines WHERE project_id = ? GROUP BY state';
-                    db.query(sql, [project.id], function (err, rows) {
-                        if (err) {
-                            return callback(err);
-                        }
-                        rows.forEach(function (row) {
-                            responseData.overall[row.state] = +row.count;
+                    },
+                    function getNextLine(callback) {
+                        const sql = 'SELECT * FROM petition_lines WHERE project_id = ? AND checker = ? ' +
+                            "AND finding = '' " +
+                            'ORDER BY page, line LIMIT 1';
+                        db.query(sql, [project.id, req.user.username], function (err, rows) {
+                            if (err) {
+                                return callback(err);
+                            }
+                            responseData.lineRecord = rows[0] || null;
+                            return callback(null);
                         });
-                        res.json(responseData);
-                        return callback(null);
-                    });
-                }],
+                    },
+                    function getUserProgress(callback) {
+                        const sql = "SELECT IF(finding IN ('', 'S'), 'incomplete', 'complete') AS state, " +
+                            'COUNT(*) AS `count` FROM petition_lines ' +
+                            'WHERE project_id = ? AND checker = ? GROUP BY state';
+                        db.query(sql, [project.id, req.user.username], function (err, rows) {
+                            if (err) {
+                                return callback(err);
+                            }
+                            rows.forEach(function (row) {
+                                responseData[row.state] = +row.count;
+                            });
+                            return callback(null);
+                        });
+                    },
+                    function getOverallProgress(callback) {
+                        const sql = "SELECT IF(finding IN ('', 'S'), 'incomplete', 'complete') AS state, " +
+                            'COUNT(*) AS `count` FROM petition_lines ' +
+                            'WHERE project_id = ? GROUP BY state';
+                        db.query(sql, [project.id], function (err, rows) {
+                            if (err) {
+                                return callback(err);
+                            }
+                            rows.forEach(function (row) {
+                                responseData.overall[row.state] = +row.count;
+                            });
+                            res.json(responseData);
+                            return callback(null);
+                        });
+                    },
+                ],
                 function (err, results) {
                     if (err) {
                         console.error(err);
@@ -271,16 +283,16 @@ module.exports = function (app) {
         },
 
         markBlank: function (req, res) {
-            var page = +req.params.page,
-                line = req.params.line,
-                sql = "UPDATE petition_lines SET ? WHERE project_id = ? AND checker = ? AND page = ? AND line ",
-                values = [
-                    {finding: 'B', checker: req.user.username, check_time: new Date()},
-                    req.project.id,
-                    req.user.username,
-                    page
-                ],
-                m = line.match(/^(\d+)-(\d+)$/);
+            const page = +req.params.page;
+            const line = req.params.line;
+            let sql = 'UPDATE petition_lines SET ? WHERE project_id = ? AND checker = ? AND page = ? AND line ';
+            const values = [
+                {finding: 'B', checker: req.user.username, check_time: new Date()},
+                req.project.id,
+                req.user.username,
+                page,
+            ];
+            const m = line.match(/^(\d+)-(\d+)$/);
             if (m) {
                 sql += ' BETWEEN ? AND ?';
                 values.push(+m[1], +m[2]);
@@ -300,37 +312,37 @@ module.exports = function (app) {
         },
 
         completedTsv: function (req, res) {
-            var sql = "SELECT l.*, c.name AS circulator_name";
+            let sql = 'SELECT l.*, c.name AS circulator_name';
             if (!req.project) {
                 res.sendStatus(404);
                 return;
             }
             if (config.party) {
-                sql += ", v.party";
+                sql += ', v.party';
             }
-            sql += " FROM petition_lines l LEFT JOIN pages p ON l.project_id = p.project_id AND l.page = p.number " +
-                "LEFT JOIN circulators c ON p.circulator_id = c.id " +
-                "LEFT JOIN voters v ON l.voter_id = v.voter_id " +
+            sql += ' FROM petition_lines l LEFT JOIN pages p ON l.project_id = p.project_id AND l.page = p.number ' +
+                'LEFT JOIN circulators c ON p.circulator_id = c.id ' +
+                'LEFT JOIN voters v ON l.voter_id = v.voter_id ' +
                 "WHERE l.project_id = ? AND l.finding <> '' ORDER BY page, line";
             sendTsv(req, res, sql, [req.project.id]);
         },
 
         // Return line data in DataTables format
         dtLine: function (req, res) {
-            var start = +req.query.start || 0,
-                length = +req.query.length || 100,
-                output = {draw: +req.query.draw || 1},
-                search = req.query.search && req.query.search.value,
-                columns = req.query.columns || [],
-                order = req.query.order || [],
-                checker = req.query.checker || req.params.checker,
-                filterColumn = req.query.filterColumn || '',
-                filterValue = req.query.filterValue,
-                table = 'petition_lines',
-                sql = 'SELECT COUNT(*) AS `count` FROM ' + table,
-                where = " WHERE finding <> ''",
-                orderSql = [],
-                values = [];
+            const start = +req.query.start || 0;
+            const length = +req.query.length || 100;
+            const output = {draw: +req.query.draw || 1};
+            const search = req.query.search && req.query.search.value;
+            const columns = req.query.columns || [];
+            const order = req.query.order || [];
+            const checker = req.query.checker || req.params.checker;
+            const filterColumn = req.query.filterColumn || '';
+            const filterValue = req.query.filterValue;
+            const table = 'petition_lines';
+            let sql = 'SELECT COUNT(*) AS `count` FROM ' + table;
+            let where = " WHERE finding <> ''";
+            const orderSql = [];
+            const values = [];
             db.query(sql, function (err, rows) {
                 if (err) {
                     console.error(err);
@@ -356,20 +368,19 @@ module.exports = function (app) {
                     output.recordsFiltered = +rows[0].count;
                     sql = 'SELECT * FROM ' + table + where;
                     if (search) {
-                        search = '%' + search + '%';
                         sql += ' AND (';
                         ['voter_name', 'address', 'checker'].forEach(function (column, i) {
                             if (i > 0) {
                                 sql += ' OR ';
                             }
                             sql += column + ' LIKE ?';
-                            values.push(search);
+                            values.push('%' + search + '%');
                         });
                         sql += ')';
                     }
                     order.forEach(function (o) {
-                        var index = +o.column || 0,
-                            column = columns[index] ? columns[index].data : '';
+                        const index = +o.column || 0;
+                        const column = columns[index] ? columns[index].data : '';
                         if (/^\w+$/.test(column) && column !== 'function') {
                             orderSql.push(column + (o.dir === 'desc' ? ' DESC' : ''));
                         }
@@ -391,8 +402,8 @@ module.exports = function (app) {
         },
 
         getCirculator: function (req, res) {
-            var id = +req.params.id,
-                sql = 'SELECT * FROM circulators WHERE id = ?';
+            const id = +req.params.id;
+            const sql = 'SELECT * FROM circulators WHERE id = ?';
             db.query(sql, [id], function (err, rows) {
                 if (err) {
                     console.error(err);
@@ -410,7 +421,7 @@ module.exports = function (app) {
 
         getCirculators: function (req, res) {
             /* @todo Handle connection of circulators to projects */
-            var sql = 'SELECT c.*, COUNT(DISTINCT p.number) AS page_count, ' +
+            const sql = 'SELECT c.*, COUNT(DISTINCT p.number) AS page_count, ' +
                     'GROUP_CONCAT(DISTINCT p.number ORDER BY p.number) AS pages, ' +
                     "SUM(CASE WHEN l.finding NOT IN ('', 'S', 'B') THEN 1 ELSE 0 END) AS processed_lines, " +
                     "SUM(CASE WHEN l.finding = 'OK' THEN 1 ELSE 0 END) AS valid_lines " +
@@ -439,8 +450,8 @@ module.exports = function (app) {
         },
 
         getPage: function (req, res) {
-            var number = +req.params.number,
-                sql = 'SELECT * FROM pages WHERE project_id = ? AND number = ?';
+            const number = +req.params.number;
+            const sql = 'SELECT * FROM pages WHERE project_id = ? AND number = ?';
             db.query(sql, [req.project.id, number], function (err, rows) {
                 if (err) {
                     console.error(err);
@@ -457,7 +468,7 @@ module.exports = function (app) {
         },
 
         getPages: function (req, res) {
-            var sql = 'SELECT p.*, c.name AS circulator_name, ' +
+            const sql = 'SELECT p.*, c.name AS circulator_name, ' +
                     "SUM(IF(l.finding IN ('', 'S'), 0, 1)) AS processed_lines, " +
                     'COUNT(l.id) AS total_lines, ' +
                     'GROUP_CONCAT(DISTINCT l.checker ORDER BY l.checker) AS checker ' +
@@ -476,8 +487,8 @@ module.exports = function (app) {
         },
 
         getUser: function (req, res) {
-            var id = +req.params.id,
-                sql = 'SELECT * FROM users WHERE id = ?';
+            const id = +req.params.id;
+            const sql = 'SELECT * FROM users WHERE id = ?';
             db.query(sql, [id], function (err, rows) {
                 if (err) {
                     console.error(err);
@@ -494,7 +505,7 @@ module.exports = function (app) {
         },
 
         getUsers: function (req, res) {
-            var sql = 'SELECT u.*, COUNT(DISTINCT l.page) AS page_count,' +
+            const sql = 'SELECT u.*, COUNT(DISTINCT l.page) AS page_count,' +
                     'GROUP_CONCAT(DISTINCT l.page ORDER BY l.page) AS pages ' +
                     'FROM users u LEFT JOIN petition_lines l ON u.username = l.checker ' +
                     'INNER JOIN project_users pu ON u.id = pu.user_id ' +
@@ -514,13 +525,13 @@ module.exports = function (app) {
         },
 
         getTotals: function (req, res) {
-            var sql = "SELECT (CASE WHEN c.status = '' THEN l.finding ELSE c.status END) AS combinedFinding, " +
+            let sql = "SELECT (CASE WHEN c.status = '' THEN l.finding ELSE c.status END) AS combinedFinding, " +
                 'COUNT(*) AS count FROM petition_lines l ' +
                 'LEFT JOIN pages p ON l.project_id = p.project_id AND l.page = p.number ' +
                 'LEFT JOIN circulators c ON p.circulator_id = c.id ' +
-                'WHERE l.project_id = ? ',
-                values = [req.project.id],
-                circulatorId = +req.query.circulator;
+                'WHERE l.project_id = ? ';
+            const values = [req.project.id];
+            const circulatorId = +req.query.circulator;
             if (circulatorId) {
                 sql += 'AND p.circulator_id = ? ';
                 values.push(circulatorId);
@@ -532,8 +543,8 @@ module.exports = function (app) {
                     res.sendStatus(500);
                     return;
                 }
-                var totals = {},
-                    wardBreakdown = {};
+                const totals = {};
+                const wardBreakdown = {};
                 rows.forEach(function (row) {
                     totals[row.combinedFinding] = +row.count;
                 });
@@ -541,7 +552,7 @@ module.exports = function (app) {
                     // WHERE is because of bad data in BOE database (2 records with no ward)
                     'SELECT ward, COUNT(*) as registered FROM voters WHERE ward > 0 GROUP BY ward',
                     function (err, rows) {
-                        var totalRegistered = 0;
+                        let totalRegistered = 0;
                         if (err) {
                             console.error(err);
                             res.sendStatus(500);
@@ -550,20 +561,20 @@ module.exports = function (app) {
                         rows.forEach(function (row) {
                             wardBreakdown[row.ward] = {
                                 signers: 0,
-                                registered: row.registered
+                                registered: row.registered,
                             };
                             totalRegistered += row.registered;
                         });
                         wardBreakdown.TOTAL = {
                             signers: 0,
-                            registered: totalRegistered
+                            registered: totalRegistered,
                         };
-                        sql = 'SELECT l.ward, COUNT(*) AS count FROM petition_lines l ';
+                        let sql = 'SELECT l.ward, COUNT(*) AS count FROM petition_lines l ';
                         if (circulatorId) {
                             sql += 'INNER JOIN pages p ON l.project_id = p.project_id AND l.page = p.number ';
                         }
                         sql += "WHERE l.finding = 'OK' AND l.project_id = ? ";
-                        values = [req.project.id];
+                        const values = [req.project.id];
                         if (circulatorId) {
                             sql += 'AND p.circulator_id = ? ';
                             values.push(circulatorId);
@@ -589,11 +600,11 @@ module.exports = function (app) {
         },
 
         createOrUpdateCirculator: function (req, res) {
-            var table = 'circulators',
-                id = +req.params.id,
-                data = req.body,
-                values = [data],
-                sql;
+            const table = 'circulators';
+            let id = +req.params.id;
+            const data = req.body;
+            const values = [data];
+            let sql;
             if (!data.notes) {
                 data.notes = '';
             }
@@ -633,9 +644,8 @@ module.exports = function (app) {
         },
 
         deleteCirculator: function (req, res) {
-            var table = 'circulators',
-                id = +req.params.id,
-                sql;
+            const table = 'circulators';
+            const id = +req.params.id;
             db.query(
                 'SELECT COUNT(*) FROM pages WHERE circulator_id = ?',
                 [id],
@@ -656,17 +666,14 @@ module.exports = function (app) {
                             res.sendStatus(204);
                         }
                     );
-            });
+                }
+            );
         },
 
         createOrUpdatePage: function (req, res) {
-            var table = 'pages',
-                projectId = req.project.id,
-                number = +req.params.number,
-                data = req.body,
-                id = data.id,
-                values = [],
-                sql, numbers;
+            const table = 'pages';
+            const projectId = req.project.id;
+            const data = req.body;
             data.project_id = projectId;
             if (data.date_signed) {
                 data.date_signed = data.date_signed
@@ -675,6 +682,11 @@ module.exports = function (app) {
             if (!data.notes) {
                 data.notes = '';
             }
+            const id = data.id;
+            let sql;
+            const values = [];
+            let number = +req.params.number;
+            let numbers;
             if (id) {
                 delete data.id;
                 delete data.number;
@@ -706,14 +718,13 @@ module.exports = function (app) {
                     res.sendStatus(500);
                     return;
                 }
-                var sql = 'INSERT IGNORE INTO petition_lines (project_id, page, line) VALUES ',
-                    linesPerPage = 20,
-                    line;
+                let sql = 'INSERT IGNORE INTO petition_lines (project_id, page, line) VALUES ';
+                const linesPerPage = 20;
                 numbers.forEach(function (number, i) {
                     if (i > 0) {
                         sql += ',';
                     }
-                    for (line = 1; line <= linesPerPage; line++) {
+                    for (let line = 1; line <= linesPerPage; line++) {
                         if (line > 1) {
                             sql += ',';
                         }
@@ -743,10 +754,10 @@ module.exports = function (app) {
         },
 
         createOrUpdateUser: function (req, res) {
-            var id = +req.params.id,
-                userData = req.body,
-                values = [userData],
-                sql;
+            const userData = req.body;
+            let id = +req.params.id;
+            const values = [userData];
+            let sql;
             if (id) {
                 delete userData.id;
                 sql = 'UPDATE users SET ? WHERE id = ?';
@@ -795,9 +806,9 @@ module.exports = function (app) {
         },
 
         assignPages: function (req, res) {
-            var username = req.params.username,
-                pages = req.body;
-            if (!Array.isArray(pages) || pages.filter(function (v) { return !/^\d+$/.test(v); }).length) {
+            const username = req.params.username;
+            const pages = req.body;
+            if (!Array.isArray(pages) || pages.filter(v => !/^\d+$/.test(v)).length) {
                 res.sendStatus(400);
                 return;
             }
@@ -824,11 +835,12 @@ module.exports = function (app) {
                 res.sendStatus(404);
                 return;
             }
-            var sql = 'SELECT l.*, c.status as circulator_status, c.name as circulator_name, c.notes AS circulator_notes ' +
-                    'FROM petition_lines l LEFT JOIN pages p ON l.project_id = p.project_id AND l.page = p.number ' +
-                    'LEFT JOIN circulators c ON p.circulator_id = c.id ' +
-                    'WHERE l.project_id = ?',
-                values = [req.project.id];
+            let sql = 'SELECT l.*, c.status as circulator_status, c.name as circulator_name, ' +
+                'c.notes AS circulator_notes ' +
+                'FROM petition_lines l LEFT JOIN pages p ON l.project_id = p.project_id AND l.page = p.number ' +
+                'LEFT JOIN circulators c ON p.circulator_id = c.id ' +
+                'WHERE l.project_id = ?';
+            const values = [req.project.id];
             if (req.query.p) {
                 sql += ' AND l.page in (?)';
                 values.push(numberList.parse(req.query.p));
@@ -840,33 +852,33 @@ module.exports = function (app) {
                     res.sendStatus(500);
                     return;
                 }
-                var regulations = {
-                        "A": "1607.1(b) not registered at address",
-                        "NM": "1607.1(b) not registered at address",
-                        "NR": "1607.1(b) not registered at address",
-                        "I": "1607.1(f) illegible",
-                        "MA": "1607.1(e) no address",
-                        "MD": "1607.1(d) no date",
-                        "MS": "1607.1(i) signature not made by person purported",
-                        "WP": "1607.1(n) wrong party",
-                        "WW": "1607.1(m) wrong ward",
-                        "D": "1607.1(c)",
-                        "CU": "1607.1(g) circulator not qualified",
-                        "CA": "1607.1(h) circulator affidavit defective"
-                    },
-                    circulators = {},
-                    data = {};
+                const regulations = {
+                    A: '1607.1(b) not registered at address',
+                    NM: '1607.1(b) not registered at address',
+                    NR: '1607.1(b) not registered at address',
+                    I: '1607.1(f) illegible',
+                    MA: '1607.1(e) no address',
+                    MD: '1607.1(d) no date',
+                    MS: '1607.1(i) signature not made by person purported',
+                    WP: '1607.1(n) wrong party',
+                    WW: '1607.1(m) wrong ward',
+                    D: '1607.1(c)',
+                    CU: '1607.1(g) circulator not qualified',
+                    CA: '1607.1(h) circulator affidavit defective',
+                };
+                const circulators = {};
+                const data = {};
                 _.forEach(rows, function (row) {
-                    var signer = '',
-                        explanation = '',
-                        circulatorExplanation = '',
-                        m;
                     if (!data[row.page]) {
                         data[row.page] = [];
                     }
+                    let signer = '';
+                    let explanation = '';
+                    let circulatorExplanation = '';
                     if (!circulators[row.page]) {
                         if (row.circulator_status) {
-                            circulatorExplanation = config.circulatorStatuses[row.circulator_status] || row.circulator_status;
+                            circulatorExplanation =
+                                config.circulatorStatuses[row.circulator_status] || row.circulator_status;
                         }
                         if (row.circulator_notes) {
                             if (circulatorExplanation) {
@@ -875,13 +887,13 @@ module.exports = function (app) {
                         }
                         circulators[row.page] = {
                             name: row.circulator_name,
-                            explanation: circulatorExplanation
+                            explanation: circulatorExplanation,
                         };
                     }
                     if (row.circulator_status === 'CU') {
                         explanation = regulations.CU;
                     }
-                    if (['', 'S', 'OK'].indexOf(row.finding) == -1) {
+                    if (['', 'S', 'OK'].indexOf(row.finding) === -1) {
                         signer = row.voter_name || '';
                         if (row.address) {
                             if (signer) {
@@ -896,9 +908,10 @@ module.exports = function (app) {
                             if (explanation) {
                                 explanation += '; ';
                             }
-                            //explanation = config.findingCodes[row.finding] || row.finding;
+                            // explanation = config.findingCodes[row.finding] || row.finding;
                             explanation += regulations[row.finding] || row.finding;
                         }
+                        let m;
                         if (row.notes && (m = row.notes.match(/(Duplicate of page \d+, line \d+)/))) {
                             explanation += '; ' + (/1607\.1\(c\)/.test(explanation) ? '' : '1607.1(c) ') +
                                 m[1].replace('Duplicate', 'duplicate')
@@ -912,15 +925,15 @@ module.exports = function (app) {
                     }
                     data[row.page][row.line - 1] = {
                         signer: signer,
-                        explanation: explanation
+                        explanation: explanation,
                     };
                 });
                 res.send(challengeTemplate({
                     challengeHeader: config.challengeHeader,
                     circulators: circulators,
-                    data: data
+                    data: data,
                 }));
             });
-        }
+        },
     };
 };

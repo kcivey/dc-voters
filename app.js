@@ -1,27 +1,27 @@
 #!/usr/bin/env node
 
-var express = require('express'),
-    bodyParser = require('body-parser'),
-    compression = require('compression'),
-    morgan = require('morgan'),
-    errorHandler = require('errorhandler'),
-    passwordless = require('passwordless'),
-    PasswordlessMysqlStore = require('passwordless-mysql'),
-    session = require('express-session'),
-    SessionMySqlStore = require('express-mysql-session')(session),
-    db = require('./db'),
-    sessionStore = new SessionMySqlStore({}, db),
-    path = require('path'),
-    URL = require('url').URL,
-    config = require('./config'),
-    sendEmail = require('./send-email'),
-    apiUrlBase = '/api/';
+const express = require('express');
+const bodyParser = require('body-parser');
+const compression = require('compression');
+const morgan = require('morgan');
+const errorHandler = require('errorhandler');
+const passwordless = require('passwordless');
+const PasswordlessMysqlStore = require('passwordless-mysql');
+const session = require('express-session');
+const SessionMySqlStore = require('express-mysql-session')(session);
+const db = require('./db');
+const sessionStore = new SessionMySqlStore({}, db);
+const path = require('path');
+const URL = require('url').URL;
+const config = require('./config');
+const sendEmail = require('./send-email');
+const apiUrlBase = '/api/';
 
 passwordless.init(new PasswordlessMysqlStore(db.connectionString));
 passwordless.addDelivery(
     function (tokenToSend, uidToSend, recipient, callback) {
-        var urlBase = config.get('urlBase'),
-            host = (new URL(urlBase)).host;
+        const urlBase = config.get('urlBase');
+        const host = (new URL(urlBase)).host;
         sendEmail(
             {
                 text: 'Log into your account with this link:\n' + urlBase +
@@ -30,7 +30,7 @@ passwordless.addDelivery(
                     'you submit your email address in the form you get at the site.',
                 from: config.get('senderEmail'),
                 to: recipient,
-                subject: 'Login link for ' + host
+                subject: 'Login link for ' + host,
             },
             function (err, message) {
                 if (err) {
@@ -42,7 +42,7 @@ passwordless.addDelivery(
     }
 );
 
-var app = express();
+const app = express();
 
 app.set('port', process.env.PORT || 3000);
 app.use(morgan('combined'));
@@ -71,16 +71,15 @@ app.use(function (req, res, next) {
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
 
-var routes = require('./routes')(app);
-
-var env = process.env.NODE_ENV || 'development';
+const routes = require('./routes')(app);
+const env = process.env.NODE_ENV || 'development';
 if ('development' === env) {
-  app.use(errorHandler());
+    app.use(errorHandler());
 }
 
 app.use(function setProject(req, res, next) {
-    var m = req.url.match(/^(?:\/api)?\/([\w-]+)\//),
-        projectCode = m && m[1];
+    const m = req.url.match(/^(?:\/api)?\/([\w-]+)\//);
+    const projectCode = m && m[1];
     if (!m || projectCode === 'api') {
         return next();
     }
@@ -125,8 +124,9 @@ app.post(
     ),
     routes.sendToken
 );
-app.get('/login', function (req, res) { res.redirect('/'); });
-app.get('/logout', passwordless.logout(), function (req, res) { res.redirect('/'); });
+const redirectToFrontPage = (req, res) => res.redirect('/');
+app.get('/login', redirectToFrontPage);
+app.get('/logout', passwordless.logout(), redirectToFrontPage);
 app.get('/challenge.html', passwordless.restricted(), routes.challenge);
 app.use(apiUrlBase, passwordless.restricted());
 app.get(apiUrlBase + 'search', routes.search);
@@ -154,6 +154,6 @@ app.put(apiUrlBase + 'users/:id', routes.createOrUpdateUser);
 app.post(apiUrlBase + 'users/:username/pages', routes.assignPages);
 app.get(apiUrlBase + 'totals', routes.getTotals);
 
-app.listen(app.get('port'), function(){
-  console.log("Express server listening on port " + app.get('port'));
+app.listen(app.get('port'), function () {
+    console.log('Express server listening on port ' + app.get('port'));
 });
