@@ -6,7 +6,7 @@ module.exports = function (app) {
     const config = require('../public/config.json');
     const db = require('../db');
     const pkg = require('../package.json');
-    const numberList = require('../number-list');
+    const NumberList = require('number-list');
     const challengeTemplate = _.template(
         fs.readFileSync(__dirname + '/challenge.html', {encoding: 'utf8'})
             .replace(/^\s+/gm, '')
@@ -442,7 +442,7 @@ module.exports = function (app) {
                         return;
                     }
                     rows.forEach(function (row) {
-                        row.pages = row.pages ? numberList.stringify(row.pages.split(',')) : '';
+                        row.pages = row.pages ? NumberList.stringify(row.pages.split(',')) : '';
                     });
                     res.json(rows);
                 });
@@ -518,7 +518,7 @@ module.exports = function (app) {
                     return;
                 }
                 rows.forEach(function (row) {
-                    row.pages = row.pages ? numberList.stringify(row.pages.split(',')) : '';
+                    row.pages = row.pages ? NumberList.stringify(row.pages.split(',')) : '';
                 });
                 res.json(rows);
             });
@@ -700,7 +700,7 @@ module.exports = function (app) {
                     res.sendStatus(400);
                     return;
                 }
-                numbers = numberList.parse(data.number);
+                numbers = NumberList.parse(data.number);
                 sql = 'INSERT INTO ' + table + ' (' + Object.keys(data).join(', ') + ') VALUES';
                 numbers.forEach(function (number, i) {
                     data.number = number;
@@ -843,7 +843,7 @@ module.exports = function (app) {
             const values = [req.project.id];
             if (req.query.p) {
                 sql += ' AND l.page in (?)';
-                values.push(numberList.parse(req.query.p));
+                values.push(NumberList.parse(req.query.p));
             }
             sql += ' ORDER BY l.page, l.line';
             db.query(sql, values, function (err, rows) {
