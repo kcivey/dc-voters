@@ -2,11 +2,13 @@
 
 const async = require('async');
 const db = require('../db');
+const argv = require('minimist')(process.argv.slice(2), {boolean: ['dry-run']});
 const sql = 'SELECT l1.page AS original_page, l1.line AS original_line, l1.finding AS original_finding, ' +
     'l2.page AS duplicate_page, l2.line AS duplicate_line, l2.finding AS duplicate_finding, ' +
     'l2.notes AS duplicate_notes ' +
     'FROM petition_lines l1 INNER JOIN petition_lines l2 ON l1.voter_id = l2.voter_id ' +
-    "WHERE l1.voter_id <> '' AND l1.id < l2.id AND " +
+    "WHERE l1.voter_id <> '' AND l1.id < l2.id AND l1.finding <> 'D' AND l2.finding <> 'D' AND " +
+    "l1.notes NOT LIKE '%Duplicate%' AND l2.notes NOT LIKE '%Duplicate%' AND " +
     'l1.id = (SELECT MIN(l3.id) FROM petition_lines l3 WHERE l3.voter_id = l1.voter_id) ' +
     'ORDER BY l1.page, l1.line';
 
@@ -30,6 +32,10 @@ db.query(sql, function (err, rows) {
         updates.push(next => db.query(sql, values, next));
     });
     console.log(`Marking ${updates.length} duplicates`);
+    if (argv['dry-run']) {
+        console.log('Skipping updates because this is a dry run');
+        process.exit();
+    }
     async.series(updates, function (err, results) {
         if (err) {
             throw err;
