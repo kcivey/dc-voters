@@ -915,17 +915,26 @@ function init() {
                 var rawTotals = data.totals,
                     totals = {'Unprocessed': rawTotals[''] || 0},
                     processedLines = 0,
+                    seen = {},
                     nonBlank;
                 _.each(circulatorStatuses, function (label, code) {
                     var count = rawTotals[code] || 0;
                     label += ' [' + code + ']';
                     totals[label] = count;
+                    seen[code] = true;
                 });
                 _.each(findingCodes, function (label, code) {
                     var count = rawTotals[code] || 0;
                     label += ' [' + code + ']';
                     totals[label] = count;
                     if (code !== '' && code !== 'S') {
+                        processedLines += count;
+                    }
+                    seen[code] = true;
+                });
+                _.each(rawTotals, function (count, code) {
+                    if (code !== '' && !seen[code]) {
+                        totals[code] = count;
                         processedLines += count;
                     }
                 });
