@@ -8,7 +8,8 @@ const sql = 'SELECT l1.page AS original_page, l1.line AS original_line, l1.findi
     'l2.notes AS duplicate_notes ' +
     'FROM petition_lines l1 INNER JOIN petition_lines l2 ON l1.voter_id = l2.voter_id ' +
     "WHERE l1.voter_id <> '' AND l1.id < l2.id AND l1.finding <> 'D' AND l2.finding <> 'D' AND " +
-    "l1.notes NOT LIKE '%Duplicate%' AND l2.notes NOT LIKE '%Duplicate%' AND " +
+    "(l1.notes NOT LIKE '%Duplicate%' OR l1.notes IS NULL) AND " +
+    "(l2.notes NOT LIKE '%Duplicate%' OR l2.notes IS NULL) AND " +
     'l1.id = (SELECT MIN(l3.id) FROM petition_lines l3 WHERE l3.voter_id = l1.voter_id) ' +
     'ORDER BY l1.page, l1.line';
 
