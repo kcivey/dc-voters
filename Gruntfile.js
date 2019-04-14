@@ -1,4 +1,4 @@
-var files = ['package.json', 'package-lock.json'];
+const files = ['package.json', 'package-lock.json'];
 
 module.exports = function (grunt) {
     grunt.initConfig({
@@ -6,9 +6,9 @@ module.exports = function (grunt) {
             options: {
                 commitFiles: files,
                 files: files,
-                push: false
-            }
-        }
+                push: false,
+            },
+        },
     });
     require('load-grunt-tasks')(grunt);
 };

@@ -1,23 +1,24 @@
 #!/usr/bin/env node
 
-var db = require('../db'),
-    passwordHash = require('password-hash'),
-    _ = require('underscore'),
-    async = require('async'),
-    argv = require('minimist')(process.argv.slice(2), {boolean: ['admin']}),
-    table = 'users',
-    username = argv._[0],
-    password = argv._[1],
-    admin = argv.admin,
-    pageRange = argv.pages,
-    email = argv.email || '',
-    m, startPage, endPage, digits, todo;
+const passwordHash = require('password-hash');
+const _ = require('underscore');
+const async = require('async');
+const argv = require('minimist')(process.argv.slice(2), {boolean: ['admin']});
+const db = require('../db');
+const table = 'users';
+const admin = argv.admin;
+const email = argv.email || '';
+let username = argv._[0];
+let password = argv._[1];
+let pageRange = argv.pages;
+let startPage;
+let endPage;
 
 if (!username) {
-    throw 'Missing username';
+    throw new Error('Missing username');
 }
 if (!/^\w+$/.test(username)) {
-    throw 'Username must contain only letters, numbers, and underscores';
+    throw new Error('Username must contain only letters, numbers, and underscores');
 }
 username = username.toLowerCase();
 
@@ -27,12 +28,12 @@ if (/^\d+-\d+$/.test(password)) {
 }
 
 if (!password) {
-    digits = _.range(10);
     password = _.range(4).map(function () {
         return _.range(10)[Math.floor(Math.random() * 10)].toString();
     }).join('');
 }
 
+let m;
 if (pageRange && (m = pageRange.match(/^(\d+)-(\d+)$/))) {
     startPage = +m[1];
     endPage = +m[2];
@@ -40,11 +41,11 @@ if (pageRange && (m = pageRange.match(/^(\d+)-(\d+)$/))) {
 
 function insertUser(callback) {
     db.query(
-        'INSERT INTO ' + table + ' (username, password, admin, email) VALUES (?, ?, ?, ?)',
+        `INSERT INTO ${table} (username, password, admin, email) VALUES (?, ?, ?, ?)`,
         [username, passwordHash.generate(password), admin ? 1 : 0, email],
         function (err, result) {
             if (err) {
-                if (err.code == 'ER_DUP_ENTRY') {
+                if (err.code === 'ER_DUP_ENTRY') {
                     console.log('User ' + username + ' already exists');
                 }
                 else {
@@ -74,7 +75,7 @@ function assignPages(callback) {
     );
 }
 
-todo = [insertUser];
+const todo = [insertUser];
 if (pageRange) {
     todo.push(assignPages);
 }
