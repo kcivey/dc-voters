@@ -208,8 +208,6 @@ module.exports = function (app) {
                 },
                 version: pkg.version,
             };
-            let currentPage;
-            let currentLine;
             if (!project) {
                 res.json(responseData);
                 return;
