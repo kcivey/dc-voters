@@ -2,7 +2,7 @@
 
 const stringifier = require('csv-stringify')({header: true});
 const argv = require('minimist')(process.argv.slice(2));
-const db = require('../db');
+const db = require('../lib/db');
 let sql = 'SELECT * FROM voters WHERE 1';
 const values = [];
 

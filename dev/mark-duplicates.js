@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 const async = require('async');
-const db = require('../db');
+const db = require('../lib/db');
 const argv = require('minimist')(process.argv.slice(2), {boolean: ['dry-run']});
 const sql = 'SELECT l1.page AS original_page, l1.line AS original_line, l1.finding AS original_finding, ' +
     'l2.page AS duplicate_page, l2.line AS duplicate_line, l2.finding AS duplicate_finding, ' +

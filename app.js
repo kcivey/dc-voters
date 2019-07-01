@@ -9,12 +9,12 @@ const passwordless = require('passwordless');
 const PasswordlessMysqlStore = require('passwordless-mysql');
 const session = require('express-session');
 const SessionMySqlStore = require('express-mysql-session')(session);
-const db = require('./db');
+const db = require('./lib/db');
 const sessionStore = new SessionMySqlStore({}, db);
 const path = require('path');
 const URL = require('url').URL;
-const config = require('./config');
-const sendEmail = require('./send-email');
+const config = require('./lib/config');
+const sendEmail = require('./lib/send-email');
 const apiUrlBase = '/api/';
 
 passwordless.init(new PasswordlessMysqlStore(db.connectionString));
