@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 
+require('dotenv').config();
 const express = require('express');
 const bodyParser = require('body-parser');
 const compression = require('compression');
@@ -13,14 +14,15 @@ const db = require('./lib/db');
 const sessionStore = new SessionMySqlStore({}, db);
 const path = require('path');
 const URL = require('url').URL;
-const config = require('./lib/config');
 const sendEmail = require('./lib/send-email');
 const apiUrlBase = '/api/';
+const urlBase = process.env.URL_BASE;
+const senderEmail = process.env.SENDER_EMAIL;
+const secret = process.env.SECRET;
 
 passwordless.init(new PasswordlessMysqlStore(db.connectionString));
 passwordless.addDelivery(
     function (tokenToSend, uidToSend, recipient, callback) {
-        const urlBase = config.get('urlBase');
         const host = (new URL(urlBase)).host;
         sendEmail(
             {
@@ -28,7 +30,7 @@ passwordless.addDelivery(
                     '/login?token=' + tokenToSend + '&uid=' + encodeURIComponent(uidToSend) + '\n\n' +
                     'This link can be used only once and will expire, but you can be sent a fresh link if ' +
                     'you submit your email address in the form you get at the site.',
-                from: config.get('senderEmail'),
+                from: senderEmail,
                 to: recipient,
                 subject: 'Login link for ' + host,
             },
@@ -47,7 +49,7 @@ const app = express();
 app.set('port', process.env.PORT || 3000);
 app.use(morgan('combined'));
 app.use(express.static(path.join(__dirname, 'public'), {maxAge: '15m'}));
-app.use(session({secret: config.get('secret'), store: sessionStore, resave: false, saveUninitialized: false}));
+app.use(session({secret, store: sessionStore, resave: false, saveUninitialized: false}));
 app.use(passwordless.sessionSupport());
 app.use(passwordless.acceptToken({successRedirect: '/'}));
 app.use(function (req, res, next) {

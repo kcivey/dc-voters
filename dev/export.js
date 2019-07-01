@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+require('dotenv');
 
 const stringifier = require('csv-stringify')({header: true});
 const argv = require('minimist')(process.argv.slice(2));
