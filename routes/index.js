@@ -222,10 +222,6 @@ module.exports = function (app) {
                             if (err) {
                                 return callback(err);
                             }
-                            if (rows.length) {
-                                currentPage = rows[0].page;
-                                currentLine = rows[0].line;
-                            }
                             return callback(null);
                         });
                     },
