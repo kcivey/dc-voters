@@ -80,9 +80,6 @@
       #line-table>thead>tr>th {
         padding-right: 0.3rem;
       }
-      .btn-group-sm>.btn, .btn-sm {
-        min-width: 34px;
-      }
     </style>
   </head>
   <body>
@@ -620,15 +617,15 @@
               <td>
                 <div class="btn-group btn-group-sm">
                   <button type="button" class="btn btn-outline-primary circulator-edit-button" data-id="<%- c.id %>" title="Edit">
-                    <i class="fas fa-edit"></i>
+                    <i class="fas fa-edit fa-fw"></i>
                   </button>
                   <% if (c.page_count) { %>
                     <button type="button" class="btn btn-outline-success circulator-totals-button" data-id="<%- c.id %>" data-name="<%- c.name %>" title="Totals">
-                      <i class="fas fa-table"></i>
+                      <i class="fas fa-table fa-fw"></i>
                     </button>
                   <% } else { %>
                     <button type="button" class="btn btn-outline-danger circulator-delete-button" data-id="<%- c.id %>" title="Delete">
-                      <i class="fas fa-trash"></i>
+                      <i class="fas fa-trash fa-fw"></i>
                     </button>
                   <% } %>
                 </div>
@@ -724,13 +721,13 @@
                 <td>
                   <div class="btn-group btn-group-sm">
                     <button type="button" class="btn btn-outline-primary user-edit-button" data-id="<%- user.id %>" title="Edit">
-                      <i class="fas fa-edit"></i>
+                      <i class="fas fa-edit fa-fw"></i>
                     </button>
                     <button type="button" class="btn btn-outline-success send-token-button" data-email="<%- user.email %>" title="Send Link">
-                      <i class="fas fa-envelope"></i>
+                      <i class="fas fa-envelope fa-fw"></i>
                     </button>
                     <button type="button" class="btn btn-outline-info assign-modal-button" data-toggle="modal" data-target="#assign-pages-modal" data-backdrop="false" title="Assign Pages">
-                      <i class="fas fa-file-contract"></i>
+                      <i class="fas fa-file-contract fa-fw"></i>
                     </button>
                   </div>
                 </td>
