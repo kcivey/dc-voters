@@ -202,10 +202,6 @@ module.exports = function (app) {
                 project: project,
                 complete: 0,
                 incomplete: 0,
-                overall: {
-                    complete: 0,
-                    incomplete: 0,
-                },
                 version: pkg.version,
             };
             if (!project) {
@@ -251,20 +247,9 @@ module.exports = function (app) {
                             return callback(null);
                         });
                     },
-                    function getOverallProgress(callback) {
-                        const sql = "SELECT IF(finding IN ('', 'S'), 'incomplete', 'complete') AS state, " +
-                            'COUNT(*) AS `count` FROM petition_lines ' +
-                            'WHERE project_id = ? GROUP BY state';
-                        db.query(sql, [project.id], function (err, rows) {
-                            if (err) {
-                                return callback(err);
-                            }
-                            rows.forEach(function (row) {
-                                responseData.overall[row.state] = +row.count;
-                            });
-                            res.json(responseData);
-                            return callback(null);
-                        });
+                    function returnResponse(callback) {
+                        res.json(responseData);
+                        return callback(null);
                     },
                 ],
                 function (err, results) {

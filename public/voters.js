@@ -337,17 +337,12 @@
         }
 
         function setStatus(status) {
-            const overall = status.overall;
-            const overallTotal = overall.incomplete + overall.complete;
             const statusDiv = $('#status');
             $('#username', statusDiv).text(status.user.username || '(anonymous)');
             $('.complete', statusDiv).text(commify(status.complete));
             const total = status.incomplete + status.complete;
             $('.total', statusDiv).text(commify(total));
             $('#complete-bar').width(total ? (100 * status.complete / total) + '%' : 0);
-            $('.overall-complete', statusDiv).text(commify(overall.complete));
-            $('.overall-total', statusDiv).text(commify(overallTotal));
-            $('#overall-complete-bar').width(overallTotal ? (100 * overall.complete / overallTotal) + '%' : 0);
             const rec = status.lineRecord || {};
             if (rec.line) {
                 $('#page-line').html('Petition Page ' + rec.page + ', Line ' + rec.line)
