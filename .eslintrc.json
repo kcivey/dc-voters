@@ -13,7 +13,7 @@
         "ecmaVersion": 2018
     },
     "rules": {
-        "indent": ["error", 4, {"SwitchCase":  1}],
+        "indent": ["error", 4, {"SwitchCase": 1}],
         "space-before-function-paren": [
             "error",
             {
@@ -39,6 +39,7 @@
         "quotes": ["error", "single", {"avoidEscape":  true}],
         "padded-blocks": ["error", {"classes":  "always"}],
         "max-len": ["error", {"code":  120}],
-        "no-undef": "error"
+        "no-undef": "error",
+        "eqeqeq": ["error", "smart"]
     }
 }
