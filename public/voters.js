@@ -138,7 +138,11 @@
                             });
                             if (that.tableName === 'pages' && isNew) {
                                 // default to same values on next page
-                                status.defaultPage = _.pick(data, 'number', 'circulator_id', 'date_signed');
+                                status.defaultPage = {
+                                    number: data.number,
+                                    circulator_id: data.circulator_id,
+                                    date_signed: data.date_signed,
+                                };
                                 status.defaultPage.number++;
                             }
                             showTable(that.tableName);
@@ -908,13 +912,13 @@
                     const totals = {'Unprocessed': rawTotals[''] || 0};
                     const seen = {};
                     let processedLines = 0;
-                    _.each(circulatorStatuses, function (label, code) {
+                    $.each(circulatorStatuses, function (code, label) {
                         const count = rawTotals[code] || 0;
                         label += ' [' + code + ']';
                         totals[label] = count;
                         seen[code] = true;
                     });
-                    _.each(findingCodes, function (label, code) {
+                    $.each(findingCodes, function (code, label) {
                         const count = rawTotals[code] || 0;
                         label += ' [' + code + ']';
                         totals[label] = count;
@@ -923,7 +927,7 @@
                         }
                         seen[code] = true;
                     });
-                    _.each(rawTotals, function (count, code) {
+                    $.each(rawTotals, function (code, count) {
                         if (code !== '' && !seen[code]) {
                             totals[code] = count;
                             processedLines += count;
