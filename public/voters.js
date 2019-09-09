@@ -1,4 +1,5 @@
 /* global Backbone _ jQuery */
+/* eslint-disable no-restricted-properties */
 (function ($) {
     let findingCodes;
     let circulatorStatuses;
@@ -25,29 +26,25 @@
         let searchTimeout;
 
         const Line = Backbone.Model.extend({
-            initialize: function () {
+            initialize() {
                 const line = this; // save to use in inner function
                 this.saved = !this.isNew();
                 this.on('change', this.setUnsaved, this);
                 this.on('sync', this.setSaved, this);
-                window.onbeforeunload = function () {
-                    if (!line.saved) {
-                        return 'The form has not been submitted.';
-                    }
-                };
+                window.onbeforeunload = () => (line.saved ? null : 'The form has not been submitted.');
             },
             urlRoot: () => apiUrl('line'),
-            setSaved: function () {
+            setSaved() {
                 this.saved = true;
             },
-            setUnsaved: function () {
+            setUnsaved() {
                 this.saved = false;
             },
         });
 
         const LineView = Backbone.View.extend({
             template: getTemplate('line-form'),
-            initialize: function () {
+            initialize() {
                 this.modelBinder = new Backbone.ModelBinder();
                 this.render();
             },
@@ -55,21 +52,21 @@
                 'click .save': 'save',
                 'change #date_signed': 'checkDateSigned',
             },
-            checkDateSigned: checkDateSigned,
-            render: function () {
-                this.$el.html(this.template({findingCodes: findingCodes, extraFields: extraFields}));
+            checkDateSigned,
+            render() {
+                this.$el.html(this.template({findingCodes, extraFields}));
                 this.modelBinder.bind(this.model, this.el);
                 return this;
             },
-            showAlert: function (successful, text) {
-                const alert = $(alertTemplate({successful: successful, text: text || ''}));
+            showAlert(successful, text = '') {
+                const alert = $(alertTemplate({successful, text}));
                 // remove any earlier alerts
                 while (this.$el.prev().hasClass('alert')) {
                     this.$el.prev().remove();
                 }
                 return alert.insertBefore(this.$el);
             },
-            save: function () {
+            save() {
                 const error = this.check();
                 const that = this; // save to use in inner functions
                 let jqXhr;
@@ -92,11 +89,8 @@
                     this.showAlert(false, error);
                 }
             },
-            check: function () {
-                const line = this.model;
-                if (!line.get('finding')) {
-                    return 'Missing finding';
-                }
+            check() {
+                return this.model.get('finding') ? null : 'Missing finding';
             },
         });
 
@@ -107,27 +101,27 @@
         const CirculatorView = Backbone.View.extend({
             template: getTemplate('circulator-form'),
             tableName: 'circulators',
-            initialize: function () {
+            initialize() {
                 this.modelBinder = new Backbone.ModelBinder();
                 this.render();
             },
             events: {
                 'click .save': 'save',
             },
-            render: function () {
-                this.$el.html(this.template({circulatorStatuses: circulatorStatuses}));
+            render() {
+                this.$el.html(this.template({circulatorStatuses}));
                 this.modelBinder.bind(this.model, this.el);
                 return this;
             },
-            showAlert: function (successful, text) {
-                const alert = $(alertTemplate({successful: successful, text: text || ''}));
+            showAlert(successful, text = '') {
+                const alert = $(alertTemplate({successful, text}));
                 // remove any earlier alerts
                 while (this.$el.prev().hasClass('alert')) {
                     this.$el.prev().remove();
                 }
                 return alert.insertBefore(this.$el);
             },
-            save: function () {
+            save() {
                 const error = this.check();
                 const that = this; // save to use in inner functions
                 const isNew = !that.model.get('id');
@@ -158,7 +152,7 @@
                     this.showAlert(false, error);
                 }
             },
-            check: function () {
+            check() {
                 // @todo Add some checks
                 // const circulator = this.model;
                 return null;
@@ -177,10 +171,10 @@
                 'click .save': 'save',
                 'change [name=date_signed]': 'checkDateSigned',
             },
-            checkDateSigned: checkDateSigned,
-            render: function () {
+            checkDateSigned,
+            render() {
                 $.getJSON(apiUrl('circulators')).then(function (circulators) {
-                    this.$el.html(this.template({circulators: circulators}));
+                    this.$el.html(this.template({circulators}));
                     if (this.model.get('id')) {
                         this.$('[name=number]').prop('readonly', true) // to prevent changing page number
                             .removeClass('form-control')
@@ -202,7 +196,7 @@
             events: {
                 'click .save': 'save',
             },
-            render: function () {
+            render() {
                 this.$el.html(this.template());
                 this.modelBinder.bind(this.model, this.el);
                 return this;
@@ -293,11 +287,9 @@
                 },
                 function (jqXhr, textStatus, errorThrown) {
                     if (errorThrown === 'Unauthorized') {
-                        callback(null, {});
+                        return callback(null, {});
                     }
-                    else {
-                        callback('Unexpected problem: ' + textStatus + ' (' + errorThrown + ')');
-                    }
+                    return callback('Unexpected problem: ' + textStatus + ' (' + errorThrown + ')');
                 }
             );
         }
@@ -359,14 +351,16 @@
             }
             else {
                 const checkFormTemplate = getTemplate('check-form');
-                $('#check-form').html(
-                    checkFormTemplate({
-                        page: rec.page,
-                        line: rec.line,
-                        complete: status.complete,
-                        admin: status.user.admin,
-                    })
-                ).show();
+                $('#check-form')
+                    .html(
+                        checkFormTemplate({
+                            page: rec.page,
+                            line: rec.line,
+                            complete: status.complete,
+                            admin: status.user.admin,
+                        })
+                    )
+                    .show();
                 $('#result-div .alert').insertAfter($('#check-form'));
                 $('#search-form, #result-div > *').hide();
                 hideImageRow();
@@ -437,11 +431,11 @@
                 dataType: 'json',
                 type: 'post',
             }).then(
-                function (data, textStatus, jqXhr) {
+                function () {
                     button.text('Sent').addClass('btn-success');
                     setTimeout(restoreButton, 500);
                 },
-                function (jqXhr, textStatus, errorThrown) {
+                function () {
                     button.text('Error').addClass('btn-danger');
                     setTimeout(restoreButton, 500);
                 }
@@ -514,29 +508,30 @@
                     dataType: 'json',
                     type: 'post',
                 }).then(
-                    function (data, textStatus, jqXhr) {
+                    function () {
                         showAlert(true, 'Check your email for a login link.');
                         start();
                     },
-                    function (jqXhr, textStatus, errorThrown) {
+                    function () {
                         showAlert(false, 'Problem sending link. Is this email address registered?');
                     }
                 );
             }
 
-            function showAlert(successful, text) {
+            function showAlert(successful, text = '') {
                 const form = $('#send-token-form');
                 // remove any earlier alerts
                 while (form.next().hasClass('alert')) {
                     form.next().remove();
                 }
-                const alert = $(alertTemplate({successful: successful, text: text || ''}));
+                const alert = $(alertTemplate({successful, text}));
                 alert.insertAfter(form);
             }
         });
         $('#voter-table')
             .on('click', '.match', function () {
-                const voterData = $(this).closest('tr').data('voterData');
+                const voterData = $(this).closest('tr')
+                    .data('voterData');
                 const formData = {
                     voter_id: voterData.voter_id,
                     voter_name: makeName(voterData),
@@ -558,7 +553,8 @@
         $('#check-form')
             .on('click', '#check-button', function () {
                 $('#check-form, #check-results, #line-form').hide();
-                $('#check-form').next('.alert').remove(); // remove leftover alert if there
+                $('#check-form').next('.alert')
+                    .remove(); // remove leftover alert if there
                 $('#search-form').show();
                 const rec = status.lineRecord || {};
                 showImageRow(rec.page, rec.line);
@@ -573,7 +569,7 @@
                     url += '-' + 20;
                 }
                 $.ajax({
-                    url: url,
+                    url,
                     type: 'post',
                     dataType: 'json',
                 }).then(start);
@@ -631,7 +627,8 @@
             $('#top-row').hide();
             hideImageRow();
             const lineTableTemplate = getTemplate('line-table');
-            $('#bottom-row').show().html(lineTableTemplate({}));
+            $('#bottom-row').html(lineTableTemplate({}))
+                .show();
             let url = apiUrl('dt-line');
             if (!status.user.admin) {
                 url += '/' + status.user.username;
@@ -649,7 +646,7 @@
                 orderClasses: false,
                 order: [], // no sorting by default
                 deferRender: true,
-                initComplete: function () { // @todo Fix this for Bootstrap 4
+                initComplete() { // @todo Fix this for Bootstrap 4
                     const button = $('<button type="button"/>')
                         .text('Back to Checking')
                         .addClass('btn btn-link')
@@ -693,9 +690,10 @@
                         title: 'Check Time',
                         searchable: false,
                         orderable: false,
-                        createdCell: function (cell, cellData) {
+                        createdCell(cell, cellData) {
                             $(cell).wrapInner('<time datetime="' + cellData + 'Z"></time>')
-                                .find('time').timeago();
+                                .find('time')
+                                .timeago();
                         },
                     },
                     {
@@ -725,9 +723,10 @@
                         orderable: false,
                     },
                     {
-                        data: function (row) {
-                            return row.date_signed ?
-                                row.date_signed.replace(/^(\d{4})-(\d\d)-(\d\d).*/, '$2/$3') : '';
+                        data(row) {
+                            return row.date_signed
+                                ? row.date_signed.replace(/^(\d{4})-(\d\d)-(\d\d).*/, '$2/$3')
+                                : '';
                         },
                         title: 'Date',
                         searchable: true,
@@ -743,10 +742,12 @@
             });
             $('#line-table').on('click', '.edit-button', function () {
                 const row = $(this).closest('tr');
-                const lineData = dataTable.api().row(row[0]).data();
+                const lineData = dataTable.api().row(row[0])
+                    .data();
                 status.lineRecord = lineData;
                 $('#top-row').show();
-                $('#bottom-row').hide().empty();
+                $('#bottom-row').hide()
+                    .empty();
                 setStatus(status);
                 editLine(lineData);
             });
@@ -754,7 +755,8 @@
 
         function backToChecking() {
             $('#top-row').show();
-            $('#bottom-row').hide().empty();
+            $('#bottom-row').hide()
+                .empty();
             start();
         }
 
@@ -838,7 +840,7 @@
         $('.table-link').on('click', showTable);
 
         function showTable(name) {
-            if (!_.isString(name)) {
+            if (typeof name !== 'string') {
                 name = $(this).data('name');
             }
             $.ajax({
@@ -854,36 +856,41 @@
                     $('#top-row').hide();
                     hideImageRow();
                     const template = getTemplate(name.replace(/s$/, '') + '-table');
-                    $('#bottom-row').html(template(values)).show()
+                    $('#bottom-row').html(template(values))
+                        .show()
                         .on('click', '.back-button', backToChecking);
                 }
             );
             return false;
         }
 
-        $('#bottom-row').on('click', '.assign-send-button', function () {
-            const modal = $('#assign-pages-modal');
-            const username = $('.username', modal).text();
-            const pageString = $('[name=pages]', modal).val();
-            const pages = stringToList(pageString);
-            if (pages.length) {
-                $.ajax({
-                    url: apiUrl('users/' + username + '/pages'),
-                    data: JSON.stringify(pages),
-                    dataType: 'json',
-                    contentType: 'application/json',
-                    type: 'POST',
-                }).then(
-                    function () {
-                        $('#assign-pages-modal').modal('hide');
-                        showTable('users');
-                    }
-                );
-            }
-        }).on('click', '.assign-modal-button', function () {
-            const username = $(this).closest('tr').find('td:first').text();
-            $('#assign-pages-modal .username').text(username);
-        });
+        $('#bottom-row')
+            .on('click', '.assign-send-button', function () {
+                const modal = $('#assign-pages-modal');
+                const username = $('.username', modal).text();
+                const pageString = $('[name=pages]', modal).val();
+                const pages = stringToList(pageString);
+                if (pages.length) {
+                    $.ajax({
+                        url: apiUrl('users/' + username + '/pages'),
+                        data: JSON.stringify(pages),
+                        dataType: 'json',
+                        contentType: 'application/json',
+                        type: 'POST',
+                    }).then(
+                        function () {
+                            $('#assign-pages-modal').modal('hide');
+                            showTable('users');
+                        }
+                    );
+                }
+            })
+            .on('click', '.assign-modal-button', function () {
+                const username = $(this).closest('tr')
+                    .find('td:first')
+                    .text();
+                $('#assign-pages-modal .username').text(username);
+            });
 
         $('#totals-link').on('click', () => showTotals());
 
@@ -933,9 +940,9 @@
                     const totalTableTemplate = getTemplate('total-table');
                     $('#bottom-row')
                         .html(totalTableTemplate({
-                            totals: totals,
+                            totals,
                             wardBreakdown: data.wardBreakdown,
-                            circulatorName: circulatorName,
+                            circulatorName,
                         }))
                         .show()
                         .on('click', '.back-button', backToChecking);
@@ -982,14 +989,17 @@
                 .html(
                     $('<a/>').attr({href: imageUrl, target: '_blank'})
                         .html(
-                            $('<img/>').attr('src', imageUrl).css({
-                                position: 'absolute',
-                                width: divWidth + 'px',
-                                height: (divWidth * 11 / 8.5) + 'px',
-                                top: top + 'px',
-                            }).draggable({axis: 'y'})
+                            $('<img/>').attr('src', imageUrl)
+                                .css({
+                                    position: 'absolute',
+                                    width: divWidth + 'px',
+                                    height: (divWidth * 11 / 8.5) + 'px',
+                                    top: top + 'px',
+                                })
+                                .draggable({axis: 'y'})
                         )
-                ).resizable({handles: 's'});
+                )
+                .resizable({handles: 's'});
         }
 
         function stringToList(s) {

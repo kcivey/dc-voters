@@ -10,7 +10,7 @@ const values = [];
 stringifier
     .on('readable', function () {
         let data;
-        while (data = stringifier.read()) {
+        while ((data = stringifier.read())) {
             process.stdout.write(data);
         }
     })

@@ -22,7 +22,7 @@ const secret = process.env.SECRET;
 
 passwordless.init(new PasswordlessMysqlStore(db.connectionString));
 passwordless.addDelivery(
-    function (tokenToSend, uidToSend, recipient, callback) {
+    function (tokenToSend, uidToSend, recipient, callback) { // eslint-disable-line max-params
         const host = (new URL(urlBase)).host;
         sendEmail(
             {
@@ -34,7 +34,7 @@ passwordless.addDelivery(
                 to: recipient,
                 subject: 'Login link for ' + host,
             },
-            function (err, message) {
+            function (err) {
                 if (err) {
                     console.log(err);
                 }
@@ -54,21 +54,18 @@ app.use(passwordless.sessionSupport());
 app.use(passwordless.acceptToken({successRedirect: '/'}));
 app.use(function (req, res, next) {
     if (req.user) {
-        db.getUser({id: req.user},
+        return db.getUser(
+            {id: req.user},
             function (err, user) {
                 if (err) {
-                    res.sendStatus(500);
+                    return res.sendStatus(500);
                 }
-                else {
-                    req.user = user;
-                    next();
-                }
+                req.user = user;
+                return next();
             }
         );
     }
-    else {
-        next();
-    }
+    return next();
 });
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
@@ -85,21 +82,19 @@ app.use(function setProject(req, res, next) {
     if (!m || projectCode === 'api') {
         return next();
     }
-    db.query(
+    return db.query(
         'SELECT * FROM projects WHERE code = ?',
         [projectCode],
         function (err, rows) {
             if (err) {
-                res.sendStatus(500);
+                return res.sendStatus(500);
             }
-            else if (rows.length) {
+            if (rows.length) {
                 req.project = rows[0];
                 req.url = req.url.replace('/' + rows[0].code, '');
-                next();
+                return next();
             }
-            else {
-                res.sendStatus(404);
-            }
+            return res.sendStatus(404);
         }
     );
 });
@@ -107,19 +102,18 @@ app.use(function setProject(req, res, next) {
 app.post(
     '/send-token',
     passwordless.requestToken(
-        function (email, delivery, callback, req) {
-            db.getUser({email: email},
+        function (email, delivery, callback) {
+            db.getUser(
+                {email},
                 function (err, user) {
                     if (err) {
-                        callback(err);
+                        return callback(err);
                     }
-                    else if (user && !user.blocked) {
+                    if (user && !user.blocked) {
                         console.log('sending token for user', user);
-                        callback(null, user.id);
+                        return callback(null, user.id);
                     }
-                    else {
-                        callback(null, null);
-                    }
+                    return callback(null, null);
                 }
             );
         }

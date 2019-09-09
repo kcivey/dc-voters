@@ -37,7 +37,7 @@ db.query(sql, function (err, rows) {
         console.log('Skipping updates because this is a dry run');
         process.exit();
     }
-    async.series(updates, function (err, results) {
+    async.series(updates, function (err) {
         if (err) {
             throw err;
         }

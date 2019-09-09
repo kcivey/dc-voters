@@ -1,19 +1,20 @@
-module.exports = function (app) {
-    const fs = require('fs');
-    const _ = require('underscore');
-    const moment = require('moment');
-    const async = require('async');
-    const config = require('../public/config.json');
-    const db = require('../lib/db');
-    const pkg = require('../package.json');
-    const NumberList = require('number-list');
+const fs = require('fs');
+const _ = require('underscore');
+const moment = require('moment');
+const async = require('async');
+const config = require('../public/config.json');
+const db = require('../lib/db');
+const pkg = require('../package.json');
+const NumberList = require('number-list');
+
+module.exports = function () {
     const challengeTemplate = _.template(
         fs.readFileSync(__dirname + '/challenge.html', {encoding: 'utf8'})
             .replace(/^\s+/gm, '')
     );
 
-    function sendTsv(req, res, sql, values) {
-        const m = req.path.match(/([^\/]+)$/);
+    function sendTsv(req, res, sql, values) { // eslint-disable-line max-params
+        const m = req.path.match(/([^/]+)$/);
         let filename;
         if (m) {
             filename = m[1];
@@ -29,7 +30,7 @@ module.exports = function (app) {
             }
             const fieldNames = _.pluck(fields, 'name');
             let content = fieldNames.join('\t') + '\n';
-            _.forEach(rows, function (row) {
+            rows.forEach(function (row) {
                 content += _.map(fieldNames, function (name) {
                     if (name === 'check_time' && row.check_time) {
                         return moment(row.check_time).format('YYYY-MM-DD HH:mm:ss');
@@ -50,7 +51,7 @@ module.exports = function (app) {
     }
 
     return {
-        search: function (req, res) {
+        search(req, res) {
             const q = req.query.q;
             const voterId = req.query.voter_id;
             let name = req.query.name;
@@ -124,14 +125,11 @@ module.exports = function (app) {
                     ' record' + (results.length === 1 ? '' : 's') + '\n' +
                     explanation;
                 res.set('Cache-Control', 'max-age=600'); // cache for 10 min
-                res.json({
-                    explanation: explanation,
-                    results: results,
-                });
+                res.json({explanation, results});
             });
         },
 
-        lineRead: function (req, res) {
+        lineRead(req, res) {
             const id = +req.params.id;
             const page = +req.params.page;
             const line = +req.params.line;
@@ -161,7 +159,7 @@ module.exports = function (app) {
             });
         },
 
-        lineUpdate: function (req, res) {
+        lineUpdate(req, res) {
             const id = +req.params.id;
             const lineData = req.body;
             delete lineData.id;
@@ -173,33 +171,37 @@ module.exports = function (app) {
             db.query(
                 'UPDATE petition_lines SET ? WHERE id = ?',
                 [lineData, id],
-                function (err, result) {
+                function (err) {
                     if (err) {
                         console.error(err);
-                        res.sendStatus(500);
-                        return;
+                        return res.sendStatus(500);
                     }
-                    db.query(
+                    return db.query(
                         'SELECT * FROM petition_lines WHERE id = ?',
                         [id],
                         function (err, rows) {
+                            if (err) {
+                                console.error(err);
+                                return res.sendStatus(500);
+                            }
                             const lineData = rows[0];
                             if (lineData.date_signed) {
                                 lineData.date_signed = moment(lineData.date_signed)
-                                    .utc().format('MM/DD/YYYY');
+                                    .utc()
+                                    .format('MM/DD/YYYY');
                             }
-                            res.json(lineData);
+                            return res.json(lineData);
                         }
                     );
                 }
             );
         },
 
-        status: function (req, res) {
+        status(req, res) {
             const project = req.project || (req.user ? req.user.projects[0] : null);
             const responseData = {
                 user: req.user || {},
-                project: project,
+                project,
                 complete: 0,
                 incomplete: 0,
                 version: pkg.version,
@@ -214,12 +216,7 @@ module.exports = function (app) {
                         const sql = 'SELECT page, line FROM petition_lines ' +
                             "WHERE project_id = ? AND checker = ? AND finding NOT IN ('', 'V') " +
                             'ORDER BY page DESC, line DESC LIMIT 1';
-                        db.query(sql, [project.id, req.user.username], function (err, rows) {
-                            if (err) {
-                                return callback(err);
-                            }
-                            return callback(null);
-                        });
+                        db.query(sql, [project.id, req.user.username], err => callback(err || null));
                     },
                     function getNextLine(callback) {
                         const sql = 'SELECT * FROM petition_lines WHERE project_id = ? AND checker = ? ' +
@@ -252,7 +249,7 @@ module.exports = function (app) {
                         return callback(null);
                     },
                 ],
-                function (err, results) {
+                function (err) {
                     if (err) {
                         console.error(err);
                         res.sendStatus(500);
@@ -261,7 +258,7 @@ module.exports = function (app) {
             );
         },
 
-        markBlank: function (req, res) {
+        markBlank(req, res) {
             const page = +req.params.page;
             const line = req.params.line;
             let sql = 'UPDATE petition_lines SET ? WHERE project_id = ? AND checker = ? AND page = ? AND line ';
@@ -286,11 +283,11 @@ module.exports = function (app) {
                     res.sendStatus(500);
                     return;
                 }
-                res.json({results: results});
+                res.json({results});
             });
         },
 
-        completedTsv: function (req, res) {
+        completedTsv(req, res) {
             let sql = 'SELECT l.*, c.name AS circulator_name';
             if (!req.project) {
                 res.sendStatus(404);
@@ -307,7 +304,7 @@ module.exports = function (app) {
         },
 
         // Return line data in DataTables format
-        dtLine: function (req, res) {
+        dtLine(req, res) {
             const start = +req.query.start || 0;
             const length = +req.query.length || 100;
             const output = {draw: +req.query.draw || 1};
@@ -380,7 +377,7 @@ module.exports = function (app) {
             });
         },
 
-        getCirculator: function (req, res) {
+        getCirculator(req, res) {
             const id = +req.params.id;
             const sql = 'SELECT * FROM circulators WHERE id = ?';
             db.query(sql, [id], function (err, rows) {
@@ -398,8 +395,8 @@ module.exports = function (app) {
             });
         },
 
-        getCirculators: function (req, res) {
-            /* @todo Handle connection of circulators to projects */
+        getCirculators(req, res) {
+            // @todo Handle connection of circulators to projects
             const sql = 'SELECT c.*, COUNT(DISTINCT p.number) AS page_count, ' +
                     'GROUP_CONCAT(DISTINCT p.number ORDER BY p.number) AS pages, ' +
                     "SUM(CASE WHEN l.finding NOT IN ('', 'S', 'B') THEN 1 ELSE 0 END) AS processed_lines, " +
@@ -428,7 +425,7 @@ module.exports = function (app) {
             });
         },
 
-        getPage: function (req, res) {
+        getPage(req, res) {
             const number = +req.params.number;
             const sql = 'SELECT * FROM pages WHERE project_id = ? AND number = ?';
             db.query(sql, [req.project.id, number], function (err, rows) {
@@ -446,7 +443,7 @@ module.exports = function (app) {
             });
         },
 
-        getPages: function (req, res) {
+        getPages(req, res) {
             const sql = 'SELECT p.*, c.name AS circulator_name, ' +
                     "SUM(IF(l.finding IN ('', 'S'), 0, 1)) AS processed_lines, " +
                     'COUNT(l.id) AS total_lines, ' +
@@ -465,7 +462,7 @@ module.exports = function (app) {
             });
         },
 
-        getUser: function (req, res) {
+        getUser(req, res) {
             const id = +req.params.id;
             const sql = 'SELECT * FROM users WHERE id = ?';
             db.query(sql, [id], function (err, rows) {
@@ -483,7 +480,7 @@ module.exports = function (app) {
             });
         },
 
-        getUsers: function (req, res) {
+        getUsers(req, res) {
             const sql = 'SELECT u.*, COUNT(DISTINCT l.page) AS page_count,' +
                     'GROUP_CONCAT(DISTINCT l.page ORDER BY l.page) AS pages ' +
                     'FROM users u LEFT JOIN petition_lines l ON u.username = l.checker ' +
@@ -503,7 +500,7 @@ module.exports = function (app) {
             });
         },
 
-        getTotals: function (req, res) {
+        getTotals(req, res) {
             let sql = "SELECT (CASE WHEN c.status = '' THEN l.finding ELSE c.status END) AS combinedFinding, " +
                 'COUNT(*) AS count FROM petition_lines l ' +
                 'LEFT JOIN pages p ON l.project_id = p.project_id AND l.page = p.number ' +
@@ -571,14 +568,14 @@ module.exports = function (app) {
                                     wardBreakdown.TOTAL.signers += row.count;
                                 }
                             });
-                            res.json({totals: totals, wardBreakdown: wardBreakdown});
+                            res.json({totals, wardBreakdown});
                         });
                     }
                 );
             });
         },
 
-        createOrUpdateCirculator: function (req, res) {
+        createOrUpdateCirculator(req, res) {
             const table = 'circulators';
             let id = +req.params.id;
             const data = req.body;
@@ -616,13 +613,17 @@ module.exports = function (app) {
                     'SELECT * FROM ' + table + ' WHERE id = ?',
                     [id],
                     function (err, rows) {
-                        res.json(rows[0]);
+                        if (err) {
+                            console.log(err);
+                            return res.sendStatus(500);
+                        }
+                        return res.json(rows[0]);
                     }
                 );
             });
         },
 
-        deleteCirculator: function (req, res) {
+        deleteCirculator(req, res) {
             const table = 'circulators';
             const id = +req.params.id;
             db.query(
@@ -641,15 +642,19 @@ module.exports = function (app) {
                     db.query(
                         'DELETE FROM ' + table + ' WHERE id = ?',
                         [id],
-                        function (err, rows) {
-                            res.sendStatus(204);
+                        function (err) {
+                            if (err) {
+                                console.log(err);
+                                return res.sendStatus(500);
+                            }
+                            return res.sendStatus(204);
                         }
                     );
                 }
             );
         },
 
-        createOrUpdatePage: function (req, res) {
+        createOrUpdatePage(req, res) {
             const table = 'pages';
             const projectId = req.project.id;
             const data = req.body;
@@ -691,7 +696,7 @@ module.exports = function (app) {
                 });
                 number = numbers[0];
             }
-            db.query(sql, values, function (err, result) {
+            db.query(sql, values, function (err) {
                 if (err) {
                     console.log(table + ' SQL error', err);
                     res.sendStatus(500);
@@ -710,7 +715,7 @@ module.exports = function (app) {
                         sql += '(' + projectId + ',' + number + ',' + line + ')';
                     }
                 });
-                db.query(sql, function (err, result) {
+                db.query(sql, function (err) {
                     if (err) {
                         console.log(table + ' SQL error', err);
                         res.sendStatus(500);
@@ -732,7 +737,7 @@ module.exports = function (app) {
             });
         },
 
-        createOrUpdateUser: function (req, res) {
+        createOrUpdateUser(req, res) {
             const userData = req.body;
             let id = +req.params.id;
             const values = [userData];
@@ -765,7 +770,7 @@ module.exports = function (app) {
                 db.query(
                     'INSERT IGNORE INTO project_users SET ?',
                     [{project_id: req.project.id, user_id: id}],
-                    function (err, rows) {
+                    function (err) {
                         if (err) {
                             console.log('user SQL error', err);
                             res.sendStatus(500);
@@ -775,7 +780,11 @@ module.exports = function (app) {
                             'SELECT * FROM users WHERE id = ?',
                             [id],
                             function (err, rows) {
-                                res.json(rows[0]);
+                                if (err) {
+                                    console.log(err);
+                                    return res.sendStatus(500);
+                                }
+                                return res.json(rows[0]);
                             }
                         );
 
@@ -784,7 +793,7 @@ module.exports = function (app) {
             });
         },
 
-        assignPages: function (req, res) {
+        assignPages(req, res) {
             const username = req.params.username;
             const pages = req.body;
             if (!Array.isArray(pages) || pages.filter(v => !/^\d+$/.test(v)).length) {
@@ -794,22 +803,21 @@ module.exports = function (app) {
             db.query(
                 'UPDATE petition_lines SET checker = ? WHERE project_id = ? AND page IN (?)',
                 [username, req.project.id, pages],
-                function (err, result) {
+                function (err) {
                     if (err) {
                         console.error(err);
-                        res.sendStatus(500);
-                        return;
+                        return res.sendStatus(500);
                     }
-                    res.sendStatus(204);
+                    return res.sendStatus(204);
                 }
             );
         },
 
-        sendToken: function (req, res) {
+        sendToken(req, res) {
             res.json({sent: true});
         },
 
-        challenge: function (req, res) {
+        challenge(req, res) {
             if (!req.project) {
                 res.sendStatus(404);
                 return;
@@ -902,15 +910,12 @@ module.exports = function (app) {
                                     );
                         }
                     }
-                    data[row.page][row.line - 1] = {
-                        signer: signer,
-                        explanation: explanation,
-                    };
+                    data[row.page][row.line - 1] = {signer, explanation};
                 });
                 res.send(challengeTemplate({
                     challengeHeader: config.challengeHeader,
-                    circulators: circulators,
-                    data: data,
+                    circulators,
+                    data,
                 }));
             });
         },

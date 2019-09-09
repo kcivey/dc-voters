@@ -28,9 +28,9 @@ if (/^\d+-\d+$/.test(password)) {
 }
 
 if (!password) {
-    password = _.range(4).map(function () {
-        return _.range(10)[Math.floor(Math.random() * 10)].toString();
-    }).join('');
+    password = _.range(4)
+        .map(() => _.range(10)[Math.floor(Math.random() * 10)].toString())
+        .join('');
 }
 
 let m;
@@ -56,7 +56,7 @@ function insertUser(callback) {
                 console.log(result.affectedRows + ' user record created');
                 console.log('Username ' + username + ', password ' + password);
             }
-            callback(null, result);
+            return callback(null, result);
         }
     );
 }
@@ -70,7 +70,7 @@ function assignPages(callback) {
                 return callback(err);
             }
             console.log(result.affectedRows + ' lines assigned');
-            callback(null, result);
+            return callback(null, result);
         }
     );
 }
@@ -80,7 +80,7 @@ if (pageRange) {
     todo.push(assignPages);
 }
 
-async.series(todo, function (err, results) {
+async.series(todo, function (err) {
     if (err) {
         throw err;
     }
