@@ -1,24 +1,10 @@
 /* global Backbone _ jQuery */
 /* eslint-disable no-restricted-properties */
 (function ($) {
-    let findingCodes;
-    let circulatorStatuses;
-    let extraFields;
-    let party;
-    let ward;
-    let imageDpi;
 
-    $.getJSON('/config.json', function (data) {
-        findingCodes = data.findingCodes;
-        circulatorStatuses = data.circulatorStatuses;
-        extraFields = data.extraFields;
-        party = data.party;
-        ward = data.ward;
-        imageDpi = data.imageDpi;
-        $(init);
-    });
+    $.getJSON('/config.json', init);
 
-    function init() {
+    function init(config) {
         const templateCache = {};
         const alertTemplate = getTemplate('alert');
         let status = {};
@@ -54,7 +40,7 @@
             },
             checkDateSigned,
             render() {
-                this.$el.html(this.template({findingCodes, extraFields}));
+                this.$el.html(this.template(config));
                 this.modelBinder.bind(this.model, this.el);
                 return this;
             },
@@ -109,7 +95,7 @@
                 'click .save': 'save',
             },
             render() {
-                this.$el.html(this.template({circulatorStatuses}));
+                this.$el.html(this.template({circulatorStatuses: config.circulatorStatuses}));
                 this.modelBinder.bind(this.model, this.el);
                 return this;
             },
@@ -542,11 +528,11 @@
                     address: makeAddress(voterData),
                     ward: voterData.ward,
                 };
-                if (party && voterData.party !== party) {
+                if (config.party && voterData.party !== config.party) {
                     formData.finding = 'WP';
                     formData.notes = voterData.party;
                 }
-                else if (ward && voterData.ward !== ward) {
+                else if (config.ward && voterData.ward !== config.ward) {
                     formData.finding = 'WW';
                     formData.notes = 'Ward ' + voterData.ward;
                 }
@@ -817,7 +803,7 @@
 
         function handleResults(data) {
             $('#result-div > *').hide();
-            $('#party-column-head').toggle(!!party);
+            $('#party-column-head').toggle(!!config.party);
             $('#voter-table').show();
             const results = data.results;
             const voterRowTemplate = getTemplate('voter-row');
@@ -826,8 +812,8 @@
                 v.name = makeName(v, true); // reversed
                 v.address = makeAddress(v);
                 v.partyDisplay = v.party ? v.party.substr(0, 3) : '';
-                v.wantedParty = party;
-                v.wantedWard = ward;
+                v.wantedParty = config.party;
+                v.wantedWard = config.ward;
                 const tr = $(voterRowTemplate(v)).data('voterData', v);
                 tbody.append(tr);
             });
@@ -853,7 +839,7 @@
             }).then(
                 function (data) {
                     const values = {
-                        useCirculatorStatus: !!Object.keys(circulatorStatuses).length,
+                        useCirculatorStatus: !!Object.keys(config.circulatorStatuses).length,
                         project: status.project,
                     };
                     values[name] = data;
@@ -912,13 +898,13 @@
                     const totals = {'Unprocessed': rawTotals[''] || 0};
                     const seen = {};
                     let processedLines = 0;
-                    $.each(circulatorStatuses, function (code, label) {
+                    $.each(config.circulatorStatuses, function (code, label) {
                         const count = rawTotals[code] || 0;
                         label += ' [' + code + ']';
                         totals[label] = count;
                         seen[code] = true;
                     });
-                    $.each(findingCodes, function (code, label) {
+                    $.each(config.findingCodes, function (code, label) {
                         const count = rawTotals[code] || 0;
                         label += ' [' + code + ']';
                         totals[label] = count;
@@ -976,7 +962,7 @@
         function showImageRow(page, line) {
             const $imageRow = $('#image-row');
             const $imageDiv = $('#image-div');
-            if (!page || !imageDpi) {
+            if (!page || !config.imageDpi) {
                 $imageRow.slideUp();
                 return;
             }
@@ -987,7 +973,7 @@
             const imageUrl = '/page-images/' + page + (+line <= 10 ? 'a' : 'b') + '.jpeg';
             $imageRow.slideDown();
             const divWidth = $imageDiv.innerWidth();
-            const ratio = divWidth / (8.5 * imageDpi);
+            const ratio = divWidth / (8.5 * config.imageDpi);
             const top = -((line <= 10 ? 902 : -956) + 104 * line) * ratio;
             $imageDiv.css({height: (120 * ratio) + 'px'})
                 .html(
