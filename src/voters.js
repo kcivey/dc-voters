@@ -1,3 +1,8 @@
+/**
+ * Copyright 2019 Keith C. Ivey
+ * keith@iveys.org
+ * https://dcgeekery.com
+ */
 /* global Backbone _ jQuery */
 /* eslint-disable no-restricted-properties */
 (function ($) {
