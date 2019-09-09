@@ -2,7 +2,7 @@
 .idea
 .env
 /dev/voters.sql
-/public/config.json
+/src/config.json
 *.csv
 *.xlsx
 *.pdf

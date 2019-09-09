@@ -1,786 +1,744 @@
 <!DOCTYPE html>
-<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
-  <head>
-    <title>Petition Validation</title>
-    <meta charset="utf-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
-    <meta name="author" content="Keith C. Ivey (keith at iveys dot org)"/>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.9.0/css/fontawesome.min.css"
-      integrity="sha256-AaQqnjfGDRZd/lUp0Dvy7URGOyRsh8g9JdWUkyYxNfI=" crossorigin="anonymous" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.9.0/css/solid.min.css"
-      integrity="sha256-3FfMfpeajSEpxWZTFowWZPTv7k3GEu7w4rQv49EWsEY=" crossorigin="anonymous" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.3.1/css/bootstrap.min.css"
-      integrity="sha256-YLGeXaapI0/5IgZopewRJcFXomhRMlYYjugPLSyNjTY=" crossorigin="anonymous" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.19/css/dataTables.bootstrap4.min.css"
-      integrity="sha256-F+DaKAClQut87heMIC6oThARMuWne8+WzxIDT7jXuPA=" crossorigin="anonymous" />
-    <style>
-      body {
-        padding-top: 76px; /* to make the container go all the way to the bottom of the topbar */
-        padding-bottom: 60px;
-      }
-      #send-token-card {
-        max-width: 360px;
-        margin: 0 auto;
-      }
-      #check-card {
-        margin-left: -15px;
-        margin-top: -2px;
-        border-radius: 0;
-      }
-      #result-div {
-        min-height: 300px;
-      }
-      #search-form .control-label {
-        width: 80px;
-      }
-      #search-form .controls {
-        margin-left: 100px;
-      }
-      #line-form {
-        position: relative;
-      }
-      #line-form .save {
-        position: absolute;
-        top: 6px;
-        right: 6px;
-      }
-      #finding {
-        padding-right: 84px;
-      }
-      #status {
-        margin: 8px 0;
-      }
-      #status .username {
-        margin: 0 2px 0 8px;
-      }
-      #explanation {
-        font-size: 85%;
-      }
-      .progress {
-        display: inline-block;
-        width: 80px;
-        margin-bottom: -4px;
-      }
-      .progressbar {
-        height: 1rem;
-      }
-      #status .navbar-item {
-        margin-right: 1rem;
-      }
-      td.number, th.number {
-        text-align: right;
-        width: 30px;
-      }
-      #image-div {
-        overflow: hidden;
-        border:1px solid #ccc;
-        height: 100px;
-        position: relative;
-      }
-      #line-table>thead>tr>th {
-        padding-right: 0.3rem;
-      }
-      .navbar-dark .navbar-nav .nav-link, .navbar-dark .navbar-text {
-        color: rgba(255,255,255,.75);
-      }
-    </style>
-  </head>
-  <body>
-
-    <div id="send-token-card" class="card bg-light">
-      <div class="card-body">
-        <h4 class="card-title">Get Login Link</h4>
-        <form action="/send-token" method="post" id="send-token-form">
-          <div class="form-group row">
-            <label class="col-form-label col-sm-3" for="send-token-email">Email</label>
-            <div class="col-sm-9">
-              <input type="text" class="form-control" name="mail" id="send-token-email"/>
-            </div>
-          </div>
-          <div class="form-group row">
-            <div class="col-12">
-              <button type="submit" class="btn btn-primary btn-block">Send Link</button>
-            </div>
-          </div>
-        </form>
-      </div>
-    </div>
-
-    <nav id="top-nav" class="navbar navbar-expand-lg navbar-dark bg-primary fixed-top" style="display: none;">
-      <a class="navbar-brand" href="/"></a>
-      <div class="navbar-nav" id="status">
-        <div class="navbar-item navbar-text">
-          <strong id="username" class="username"></strong>
-          <div class="progress">
-            <div id="complete-bar" class="progressbar" style="width: 0;"></div>
-          </div>
-          <small>
-            <span class="complete">0</span> of <span class="total">0</span>
-          </small>
-        </div>
-      </div>
-      <div class="navbar-nav ml-auto">
-        <div class="nav-item dropdown">
-          <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">
-            Downloads
-          </a>
-          <div class="dropdown-menu">
-            <a href="/api/completed.tsv" class="dropdown-item project-link">All completed lines</a>
-            <a href="/challenge.html" class="dropdown-item project-link">Challenge report</a>
-          </div>
-        </div>
-        <div class="nav-item dropdown">
-          <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">
-            Review Your Work
-          </a>
-          <div class="dropdown-menu" id="review-links">
-            <a href="#" class="dropdown-item">All</a>
-            <a href="#" class="dropdown-item" data-value="S">Skipped Lines</a>
-            <a href="#" class="dropdown-item" data-value="I">Illegible Lines</a>
-            <a href="#" class="dropdown-item" data-value="NR">Not Registered</a>
-            <a href="#" id="go-back" class="dropdown-item">Back to Checking</a>
-          </div>
-        </div>
-        <div class="nav-item dropdown admin-only">
-          <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">
-              Admin
-          </a>
-          <div class="dropdown-menu">
-            <a class="dropdown-item table-link" data-name="circulators" href="#">Circulators</a>
-            <a class="dropdown-item table-link" data-name="pages" href="#">Pages</a>
-            <a class="dropdown-item table-link" data-name="users" href="#">Users</a>
-            <a id="totals-link" class="dropdown-item" href="#">Totals</a>
-          </div>
-        </div>
-        <div class="nav-item">
-          <button type="button" id="log-out" class="nav-link btn btn-link">Log Out</button>
-        </div>
-      </div>
-    </nav>
-
-    <div id="main-container" class="container-fluid" style="display: none;">
-      <div id="image-row" class="row" style="display: none;">
-        <div id="image-div" class="col">
-        </div>
-      </div>
-      <div id="top-row" class="row">
-        <div class="col-sm-4">
-          <div id="check-card" class="card bg-light">
-            <div class="card-body">
-              <h2 id="page-line" class="card-title"></h2>
-              <form action="/" id="check-form"></form>
-              <form action="/" id="search-form" style="display: none;">
-                <p>Now use one or both of these fields to search for the voter (does a prefix search for
-                  names, so <code>richards</code> will match "Richardson" and
-                  <code>connect</code> will match "Connecticut Ave").</p>
-                <div class="form-group">
-                  <label for="search-form-name">Name</label>
-                  <input type="text" class="form-control" name="name" id="search-form-name"/>
-                  <p class="form-text text-muted"><i class="text-info">Last name</i> or
-                    <i class="text-info">last, first</i> or <i class="text-info">, first</i></p>
-                </div>
-                <div class="form-group">
-                  <label for="search-form-address">Address</label>
-                  <input type="text" class="form-control" name="address" id="search-form-address"/>
-                  <p class="form-text text-muted"><i class="text-info">House number</i> (optional) followed by
-                    <i class="text-info">street name</i></p>
-                </div>
-                <div class="form-group">
-                  <div class="btn-group">
-                    <button id="search-button" type="button" class="btn btn-primary">Search</button>
-                    <button id="reset-button" type="reset" class="btn btn-secondary">Clear</button>
-                  </div>
-                </div>
-              </form>
-            </div>
-          </div>
-        </div>
-        <div class="col-sm-8" id="result-div">
-          <table id="voter-table" class="table table-sm table-striped" style="display: none;">
-            <thead>
-              <tr>
-                <td colspan="7">
-                  <button type="button" class="btn btn-secondary btn-sm float-right not-found" style="margin-left: 6px;">Not Found</button>
-                  If you find a voter that matches the signer, click the button for that row.
-                  If not, you can search again. If you can't find a match, click "Not Found".
-                </td>
-              </tr>
-              <tr>
-                <th>Name</th>
-                <th>Address</th>
-                <th id="party-column-head">Party</th>
-                <th>Ward</th>
-                <th>Date</th>
-                <th>Status</th>
-                <th></th>
-              </tr>
-            </thead>
-            <tfoot>
-              <tr>
-                <td colspan="8">
-                  <button id="more-button" class="btn btn-secondary btn-sm">More</button>
-                </td>
-              </tr>
-            </tfoot>
-            <tbody></tbody>
-          </table>
-          <pre id="explanation" style="display: none;"></pre>
-          <form action="/" id="line-form" style="display: none;"></form>
-          <table id="skipped-table" class="table table-condensed" style="display: none;">
-            <thead>
-              <tr>
-                <td colspan="3">
-                  We're skipping these lines because the Board of Elections has already ruled them valid.
-                </td>
-              </tr>
-              <tr>
-                <th>Page</th>
-                <th>Line</th>
-                <th>Signed By</th>
-              </tr>
-            </thead>
-            <tbody></tbody>
-          </table>
-        </div>
-      </div>
-      <div id="bottom-row" class="row" style="display: none;">
-      </div>
-    </div>
-
-    <div id="bottom-nav" class="navbar fixed-bottom navbar-dark bg-primary">
-      <div class="navbar-item navbar-text">Site by <a href="https://twitter.com/kcivey">Keith C. Ivey</a>, 2012–2018.
-        Send corrections and comments to keith at iveys dot org.</div>
-      <div class="navbar-item navbar-text ml-auto version"></div>
-    </div>
-
-    <div class="modal fade" id="global-modal" role="dialog">
-      <div class="modal-dialog" role="document">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title"></h5>
-            <button type="button" class="close" data-dismiss="modal">&times;</button>
-          </div>
-          <div class="modal-body">
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="modal fade" id="assign-pages-modal" role="dialog">
-      <div class="modal-dialog" role="document">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title">Assign Pages to <span class="username"></span></h5>
-            <button type="button" class="close" data-dismiss="modal">&times;</button>
-          </div>
-          <div class="modal-body">
-            <p>Enter list of individual pages or ranges separated by commas. Example syntax:</p>
-            <ul>
-              <li>34</li>
-              <li>151-200</li>
-              <li>213, 215-220, 227</li>
-            </ul>
-            <form>
-              <input type="text" name="pages" class="form-control"/>
-            </form>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-            <button type="button" class="btn btn-primary assign-send-button">Assign</button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"
-      integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.15.0/umd/popper.min.js"
-      integrity="sha256-fTuUgtT7O2rqoImwjrhDgbXTKUwyxxujIMRIK7TbuNU=" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.19/js/jquery.dataTables.min.js"
-      integrity="sha256-t5ZQTZsbQi8NxszC10CseKjJ5QeMw5NINtOXQrESGSU=" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.3.1/js/bootstrap.min.js"
-      integrity="sha256-CjSoeELFOcH0/uxWu6mC/Vlrc1AARqbm/jiiImDGV3s=" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.19/js/dataTables.bootstrap4.min.js"
-      integrity="sha256-hJ44ymhBmRPJKIaKRf3DSX5uiFEZ9xB/qx8cNbJvIMU=" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.9.1/underscore-min.js"
-      integrity="sha256-G7A4JrJjJlFqP0yamznwPjAApIKPkadeHfyIwiaa9e0=" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/backbone.js/1.4.0/backbone-min.js"
-      integrity="sha256-OO+KD/bMG3Dr57LO27ZhYL2zYhLP1CJIkCXUUDnFNuc=" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/backbone.modelbinder/1.1.0/Backbone.ModelBinder.min.js"
-      integrity="sha256-/uxumFqYk2oMzz4st7VDQetVtAJq1OfbifhgX8HlJeA=" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-timeago/1.6.7/jquery.timeago.min.js"
-      integrity="sha256-0+5OfvOxkLHqpLPPwy9pDjug8N3cwaqcmleaxnR5VS8=" crossorigin="anonymous"></script>
-    <script src="/voters.js"></script>
-    <script type="text/template" id="check-form-template">
-      <% if (line) { %>
-        <p>Click "Check" if you want to check a name, "Blank" if the line has no name,
-          "Rest Blank" if the rest of the page is blank, or "Illegible" if you can't even
-          figure out what to search for.
-        </p>
-      <% } else { %>
-        <% if (complete) { %>
-          <p>You have completed your assigned pages.</p>
-          <p>Congratulations! And thanks!</p>
-        <% } else { %>
-          <p>No pages have been assigned to you yet.</p>
-        <% } %>
-        <p>You can still search, if you'd like.</p>
-      <% } %>
-      <p>
-        <button type="button" class="btn btn-primary" id="check-button">Check</button>
-        <% if (line) { %>
-          <button type="button" class="btn btn-secondary" id="blank-button">Blank</button>
-          <button type="button" class="btn btn-secondary" id="rest-blank-button">Rest Blank</button>
-          <button type="button" class="btn btn-secondary" id="illegible-button">Illegible</button>
-        <% } %>
-      </p>
-      <% if (admin) { %>
-      <p>Or edit a specific page and line number:</p>
-          <div class="form-row">
-            <div class="form-group col-sm-4">
-              <label for="check-form-page">Page</label>
-              <input type="number" id="check-form-page" class="form-control" name="page"/>
-            </div>
-            <div class="form-group col-sm-4">
-              <label for="check-form-line">Line</label>
-              <input type="number" id="check-form-line" class="form-control" name="line"/>
-            </div>
-            <div class="form-group col-sm-4 d-flex align-items-end">
-              <button type="button" class="btn btn-primary edit-button">Edit</button>
-            </div>
-          </div>
-      <% } %>
-    </script>
-    <script type="text/template" id="voter-row-template">
-      <tr>
-        <td><%- name %></td>
-        <td><%- address %></td>
-        <% if (wantedParty) { %><td><%- partyDisplay %></td><% } else { %><td style="display: none;"></td><% } %>
-        <td><%- ward %></td>
-        <td><%- registered %></td>
-        <td><%- status %></td>
-        <td>
-          <button class="btn btn-secondary btn-sm match" data-voter-id="<?- voter_id %>">
-            <% if (wantedParty && wantedParty !== party) { %>
-              Wrong Party
-            <% } else if (wantedWard && wantedWard !== ward) { %>
-              Wrong Ward
-            <% } else { %>
-              Match
-            <% } %>
-          </button>
-        </td>
-      </tr>
-    </script>
-    <script type="text/template" id="skipped-row-template">
-      <tr>
-        <td class="number"><%- page %></td>
-        <td class="number"><%- line %></td>
-        <td><%- signed_by %></td>
-      </tr>
-    </script>
-    <script type="text/template" id="user-form-template">
-      <form action="/" id="user-form">
-        <div class="form-group row">
-          <label class="col-form-label col-sm-2" for="user-name">Name</label>
-          <div class="col-sm-10">
-            <input type="text" class="form-control" name="name" id="user-name"/>
-          </div>
-        </div>
-        <div class="form-group row">
-          <label class="col-form-label col-sm-2" for="user-email">Email</label>
-          <div class="col-sm-10">
-            <input type="text" class="form-control" name="email" id="user-email"/>
-          </div>
-        </div>
-        <div class="form-group row">
-          <label class="col-form-label col-sm-2" for="user-username">Username</label>
-          <div class="col-sm-10">
-            <input type="text" class="form-control" name="username" id="user-username"/>
-          </div>
-        </div>
-        <div class="form-group row">
-          <label class="col-form-label col-sm-2" for="user-admin">Admin?</label>
-          <div class="col-sm-10">
-            <div class="form-check">
-              <input type="checkbox" class="form-check-input position-static align-middle" name="admin" id="user-admin" value="1"/>
-            </div>
-          </div>
-        </div>
-        <div class="form-group row">
-          <label class="col-form-label col-sm-2" for="user-blocked">Blocked?</label>
-          <div class="col-sm-10">
-            <div class="form-check">
-              <input type="checkbox" class="form-check-input position-static align-middle" name="blocked" id="user-blocked" value="1"/>
-            </div>
-          </div>
-        </div>
-        <div class="form-group row">
-          <label class="col-form-label col-sm-2" for="user-notes">Notes</label>
-          <div class="col-sm-10">
-            <textarea name="notes" id="user-notes" class="form-control"></textarea>
-          </div>
-        </div>
-        <div class="form-group row">
-          <div class="col-12">
-            <input type="hidden" name="id"/>
-            <button type="button" class="btn btn-primary btn save">Save</button>
-          </div>
-        </div>
-      </form>
-    </script>
-    <script type="text/template" id="line-form-template">
-      <div class="form-group row">
-        <label class="col-form-label col-sm-2" for="finding">Finding</label>
-        <div class="col-sm-10" id="finding">
-          <input type="hidden" name="id"/>
-          <input type="hidden" name="page"/>
-          <input type="hidden" name="line"/>
-          <input type="hidden" name="checker"/>
-          <% _.each(findingCodes, function (label, value) { %>
-            <div class="form-check">
-              <input type="radio" class="form-check-input" id="line-finding-<%- value %>" name="finding" value="<%- value %>"/>
-              <label class="form-check-label" for="line-finding-<%- value %>">
-                <%= label %> [<%- value %>]
-              </label>
-            </div>
-          <% }); %>
-        </div>
-      </div>
-      <div class="form-group row" style="display: none;">
-        <label class="col-form-label col-sm-2" for="voter_id">Voter ID</label>
-        <div class="col-sm-10">
-          <input type="text" name="voter_id" id="voter_id" class="form-control-plaintext" readonly/>
-        </div>
-      </div>
-      <div class="form-group row">
-        <label class="col-form-label col-sm-2" for="voter_name">Name</label>
-        <div class="col-sm-10">
-          <input type="text" class="form-control" name="voter_name" id="voter_name"/>
-        </div>
-      </div>
-      <div class="form-group row">
-        <label class="col-form-label col-sm-2" for="line-address">Address</label>
-        <div class="col-sm-10">
-          <input type="text" name="address" id="line-address" class="form-control"/>
-        </div>
-      </div>
-      <div class="form-group row" style="display: none;">
-        <label class="col-form-label col-sm-2" for="ward">Ward</label>
-        <div class="col-sm-10">
-          <input type="text" name="ward" id="ward" class="form-control"/>
-        </div>
-      </div>
-      <div class="form-group row">
-        <label class="col-form-label col-sm-2" for="date_signed">Date signed</label>
-        <div class="col-sm-10">
-          <input type="text" name="date_signed" id="date_signed" class="form-control"/>
-        </div>
-      </div>
-      <% _.each(extraFields, function (field, code) { %>
-        <div class="form-group row">
-          <label class="col-form-label col-sm-2" for="<%- code %>"><%- field.label %></label>
-          <div class="col-sm-10">
-            <% if (field.type == 'boolean') { %>
-              <input type="checkbox" name="<%- code %>" id="<%- code %>" value="1"/>
-            <% } else { %>
-              <input type="text" name="<%- code %>" id="<%- code %>" class="form-control"/>
-            <% } %>
-          </div>
-        </div>
-      <% }); %>
-      <div class="form-group row">
-        <label class="col-form-label col-sm-2" for="notes">Notes</label>
-        <div class="col-sm-10">
-          <textarea name="notes" id="notes" class="form-control"></textarea>
-        </div>
-      </div>
-      <button type="button" class="btn btn-primary btn-lg save">Save</button>
-    </script>
-    <script type="text/template" id="page-form-template">
-      <form action="/" id="page-form">
-        <div class="form-group row">
-          <label class="col-form-label col-sm-2" for="page-number">Page Number</label>
-          <div class="col-sm-10">
-            <input type="text" class="form-control" name="number" id="page-number"/>
-          </div>
-        </div>
-        <div class="form-group row">
-          <label class="col-form-label col-sm-2" for="page-circulator-id">Circulator</label>
-          <div class="col-sm-10">
-            <select class="form-control" name="circulator_id" id="page-circulator-id">
-              <option value="">-- Select --</option>
-              <% _.each(circulators, function (c) { %>
-                <option value="<%- c.id %>"><%- c.name %></option>
-              <% }); %>
-            </select>
-          </div>
-        </div>
-        <div class="form-group row">
-          <label class="col-form-label col-sm-2" for="page-date-signed">Date Signed</label>
-          <div class="col-sm-10">
-            <input type="text" class="form-control" name="date_signed" id="page-date-signed"/>
-          </div>
-        </div>
-        <div class="form-group row">
-          <label class="col-form-label col-sm-2" for="page-notes">Notes</label>
-          <div class="col-sm-10">
-            <textarea name="notes" id="page-notes" class="form-control"></textarea>
-          </div>
-        </div>
-        <div class="form-group row">
-          <div class="col-12">
-            <input type="hidden" name="id"/>
-            <button type="button" class="btn btn-primary btn save">Save</button>
-          </div>
-        </div>
-      </form>
-    </script>
-    <script type="text/template" id="circulator-form-template">
-      <form action="/" id="circulator-form">
-        <div class="form-group row">
-          <label class="col-form-label col-sm-2" for="circulator-name">Name</label>
-          <div class="col-sm-10">
-            <input type="text" class="form-control" name="name" id="circulator-name"/>
-          </div>
-        </div>
-        <% if (Object.keys(circulatorStatuses).length) { %>
-          <div class="form-group row">
-            <label class="col-form-label col-sm-2" for="circulator-status">Status</label>
-            <div class="col-sm-10">
-              <select class="form-control" name="status" id="circulator-status">
-                <option value="">OK</option>
-                <% _.each(circulatorStatuses, function (status, code) { %>
-                  <option value="<%- code %>"><%- status %> [<%- code %>]</option>
-                <% }); %>
-              </select>
-            </div>
-          </div>
-        <% } %>
-        <div class="form-group row">
-          <label class="col-form-label col-sm-2" for="circulator-notes">Notes</label>
-          <div class="col-sm-10">
-            <textarea name="notes" id="circulator-notes" class="form-control"></textarea>
-          </div>
-        </div>
-        <div class="form-group row">
-          <div class="col-12">
-            <input type="hidden" name="id"/>
-            <button type="button" class="btn btn-primary save">Save</button>
-          </div>
-        </div>
-      </form>
-    </script>
-    <script type="text/template" id="alert-template">
-      <div class="alert fade show <%- successful ? 'alert-success' : 'alert-danger' %>">
-        <button type="button" class="close" data-dismiss="alert">&times;</button>
-        <%= text || (successful ? 'Record successfully saved' : 'Error saving record') %>
-      </div>
-    </script>
-    <script type="text/template" id="line-table-template">
-      <button type="button" class="btn btn-link back-button">Back to Checking</button>
-      <div class="col-12">
-        <table id="line-table" class="table table-sm table-striped table-hover w-100"></table>
-      </div>
-    </script>
-    <script type="text/template" id="circulator-table-template">
-      <button type="button" class="btn btn-link back-button">Back to Checking</button>
-      <button type="button" class="btn btn-primary circulator-edit-button">
-        <i class="fas fa-plus"></i>
-        New Circulator
-      </button>
-      <table id="circulator-table" class="table table-sm table-striped table-hover">
-        <thead>
-          <tr>
-            <th></th>
-            <th class="number">ID</th>
-            <th>Name</th>
-            <th class="number">Page Count</th>
-            <th>Pages</th>
-            <th class="number">Processed Lines</th>
-            <th class="number">Valid Lines</th>
-            <th class="number">% Valid</th>
-            <% if (useCirculatorStatus) { %>
-              <th>Status</th>
-            <% } %>
-            <th>Notes</th>
-          </tr>
-        </thead>
-        <tbody>
-          <% _.each(circulators, function (c) { %>
-            <tr>
-              <td>
-                <div class="btn-group btn-group-sm">
-                  <button type="button" class="btn btn-outline-primary circulator-edit-button" data-id="<%- c.id %>" title="Edit">
-                    <i class="fas fa-edit fa-fw"></i>
-                  </button>
-                  <% if (c.page_count) { %>
-                    <button type="button" class="btn btn-outline-success circulator-totals-button" data-id="<%- c.id %>" data-name="<%- c.name %>" title="Totals">
-                      <i class="fas fa-table fa-fw"></i>
-                    </button>
-                  <% } else { %>
-                    <button type="button" class="btn btn-outline-danger circulator-delete-button" data-id="<%- c.id %>" title="Delete">
-                      <i class="fas fa-trash fa-fw"></i>
-                    </button>
-                  <% } %>
-                </div>
-              </td>
-              <td class="number"><%- c.id %></td>
-              <td><%- c.name %></td>
-              <td class="number"><%- c.page_count %></td>
-              <td class="w-25">
-                <% if (c.pages) { %>
-                  <a href="/<%= project.code %>/challenge.html?p=<%= encodeURIComponent(c.pages) %>" target="_blank"
-                    title="Get list of petition defects">
-                    <%- c.pages %>
-                  </a>
-                <% } else { %>
-                  <%- c.pages %>
-                <% } %>
-              </td>
-              <td class="number"><%- c.processed_lines %></td>
-              <td class="number"><%- c.valid_lines %></td>
-              <td class="number">
-                <% if (c.processed_lines) { %>
-                  <%- Math.round(100 * c.valid_lines / c.processed_lines, 1) %>
-                <% } %>
-              </td>
-              <% if (useCirculatorStatus) { %>
-                <td><%- c.status %></td>
-              <% } %>
-              <td><%- c.notes %></td>
-            </tr>
-          <% }); %>
-        </tbody>
-      </table>
-    </script>
-    <script type="text/template" id="page-table-template">
-      <button type="button" class="btn btn-link back-button">Back to Checking</button>
-      <button type="button" class="btn btn-primary page-edit-button">
-        <i class="fas fa-plus"></i>
-        New Page
-      </button>
-      <table id="page-table" class="table table-sm table-striped table-hover">
-        <thead>
-        <tr>
-          <th></th>
-          <th class="number">Page</th>
-          <th>Circulator</th>
-          <th>Date</th>
-          <th>Notes</th>
-          <th class="text-right">Processed</th>
-          <th>Checker</th>
-        </tr>
-        </thead>
-        <tbody>
-        <% _.each(pages, function (p) { %>
-        <tr>
-          <td>
-            <button type="button" class="btn btn-outline-primary btn-sm page-edit-button" data-number="<%- p.number %>" title="Edit">
-              <i class="fas fa-edit"></i>
-            </button>
-          </td>
-          <td class="number"><%- p.number %></td>
-          <td><%- p.circulator_name %></td>
-          <td><%- p.date_signed ? p.date_signed.replace(/^(\d{4})-(\d\d)-(\d\d).*/, '$2/$3') : '' %></td>
-          <td><%- p.notes || '' %></td>
-          <td class="text-right"><%- p.processed_lines %></td>
-          <td><%- p.checker %></td>
-        </tr>
-        <% }); %>
-        </tbody>
-      </table>
-    </script>
-    <script type="text/template" id="user-table-template">
-        <button type="button" class="btn btn-link back-button">Back to Checking</button>
-        <button type="button" class="btn btn-primary user-edit-button">
-          <i class="fas fa-plus"></i>
-          New User
-        </button>
-        <table id="user-table" class="table table-sm table-striped table-hover">
-          <thead>
-            <tr>
-              <th></th>
-              <th>Username</th>
-              <th>Name</th>
-              <th>Email</th>
-              <th class="text-center">Admin</th>
-              <th class="text-center">Blocked</th>
-              <th class="number">Page Count</th>
-              <th>Pages</th>
-            </tr>
-          </thead>
-          <tbody>
-            <% _.each(users, function (user) { %>
-              <tr data-id="<%- user.id %>">
-                <td>
-                  <div class="btn-group btn-group-sm">
-                    <button type="button" class="btn btn-outline-primary user-edit-button" data-id="<%- user.id %>" title="Edit">
-                      <i class="fas fa-edit fa-fw"></i>
-                    </button>
-                    <button type="button" class="btn btn-outline-success send-token-button" data-email="<%- user.email %>" title="Send Link">
-                      <i class="fas fa-envelope fa-fw"></i>
-                    </button>
-                    <button type="button" class="btn btn-outline-info assign-modal-button" data-toggle="modal" data-target="#assign-pages-modal" data-backdrop="false" title="Assign Pages">
-                      <i class="fas fa-file-contract fa-fw"></i>
-                    </button>
-                  </div>
-                </td>
-                <td><%- user.username %></td>
-                <td><%- user.name %></td>
-                <td><%- user.email %></td>
-                <td class="text-center">
-                  <% if (user.admin) { %>
-                    <i class="fas fa-user-check"></i>
-                  <% } %>
-                </td>
-                <td class="text-center">
-                  <% if (user.blocked) { %>
-                    <i class="fas fa-ban"></i>
-                  <% } %>
-                </td>
-                <td class="number"><%- user.page_count %></td>
-                <td><%- user.pages %></td>
-              </tr>
-            <% }); %>
-          </tbody>
-        </table>
-    </script>
-    <script type="text/template" id="total-table-template">
-      <div class="col-lg-6 col-md-8">
-        <button type="button" class="btn btn-link back-button">Back to Checking</button>
-        <table id="total-table" class="table table-striped table-hover">
-          <caption>Totals<% if (circulatorName) { %> for <%- circulatorName %><% } %></caption>
-          <tbody>
-            <% _.each(totals, function (total, label) { %>
-              <tr>
-                <td><%- label %></td>
-                <td class="text-right"><%- typeof total === 'number' ? total.toLocaleString() : total %></td>
-              </tr>
-            <% }); %>
-            <tr>
-              <td>Ward breakdown</td>
-              <td>
-                <table class="table table-striped">
-                  <tbody>
-                    <% _.each(wardBreakdown, function (info, ward) { %>
-                      <tr>
-                        <td><% if (ward !== 'TOTAL') { %>Ward <% } %><%- ward %></td>
-                        <td class="text-right">
-                          <%- info.signers.toLocaleString() %>
-                          <% if (!circulatorName) { %>
-                            / <%- info.registered.toLocaleString() %>
-                            (<%- (100 * info.signers / info.registered).toFixed(2) %>%)
-                          <% } %>
-                        </td>
-                      </tr>
-                    <% }); %>
-                  </tbody>
-                </table>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </script>
-  </body>
+<html lang="en">
+<head>
+<meta name="generator" content="HTML Tidy for HTML5 for Linux version 5.2.0">
+<title>Petition Validation</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="author" content="Keith C. Ivey (keith at iveys dot org)">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.9.0/css/fontawesome.min.css"
+integrity="sha256-AaQqnjfGDRZd/lUp0Dvy7URGOyRsh8g9JdWUkyYxNfI=" crossorigin="anonymous">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.9.0/css/solid.min.css" integrity=
+"sha256-3FfMfpeajSEpxWZTFowWZPTv7k3GEu7w4rQv49EWsEY=" crossorigin="anonymous">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.3.1/css/bootstrap.min.css"
+integrity="sha256-YLGeXaapI0/5IgZopewRJcFXomhRMlYYjugPLSyNjTY=" crossorigin="anonymous">
+<link rel="stylesheet" href=
+"https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.19/css/dataTables.bootstrap4.min.css" integrity=
+"sha256-F+DaKAClQut87heMIC6oThARMuWne8+WzxIDT7jXuPA=" crossorigin="anonymous">
+<style>
+body {
+padding-top: 76px; /* to make the container go all the way to the bottom of the topbar */
+padding-bottom: 60px;
+}
+#send-token-card {
+max-width: 360px;
+margin: 0 auto;
+}
+#check-card {
+margin-left: -15px;
+margin-top: -2px;
+border-radius: 0;
+}
+#result-div {
+min-height: 300px;
+}
+#search-form .control-label {
+width: 80px;
+}
+#search-form .controls {
+margin-left: 100px;
+}
+#line-form {
+position: relative;
+}
+#line-form .save {
+position: absolute;
+top: 6px;
+right: 6px;
+}
+#finding {
+padding-right: 84px;
+}
+#status {
+margin: 8px 0;
+}
+#status .username {
+margin: 0 2px 0 8px;
+}
+#explanation {
+font-size: 85%;
+}
+.progress {
+display: inline-block;
+width: 80px;
+margin-bottom: -4px;
+}
+.progressbar {
+height: 1rem;
+}
+#status .navbar-item {
+margin-right: 1rem;
+}
+td.number, th.number {
+text-align: right;
+width: 30px;
+}
+#image-div {
+overflow: hidden;
+border:1px solid #ccc;
+height: 100px;
+position: relative;
+}
+#line-table>thead>tr>th {
+padding-right: 0.3rem;
+}
+.navbar-dark .navbar-nav .nav-link, .navbar-dark .navbar-text {
+color: rgba(255,255,255,.75);
+}
+</style>
+</head>
+<body>
+<div id="send-token-card" class="card bg-light">
+<div class="card-body">
+<h4 class="card-title">Get Login Link</h4>
+<form action="/send-token" method="post" id="send-token-form" name="send-token-form">
+<div class="form-group row"><label class="col-form-label col-sm-3" for="send-token-email">Email</label>
+<div class="col-sm-9"><input type="text" class="form-control" name="mail" id="send-token-email"></div>
+</div>
+<div class="form-group row">
+<div class="col-12"><button type="submit" class="btn btn-primary btn-block">Send Link</button></div>
+</div>
+</form>
+</div>
+</div>
+<nav id="top-nav" class="navbar navbar-expand-lg navbar-dark bg-primary fixed-top" style="display: none;"><a class=
+"navbar-brand" href="/"></a>
+<div class="navbar-nav" id="status">
+<div class="navbar-item navbar-text"><strong id="username" class="username"></strong>
+<div class="progress">
+<div id="complete-bar" class="progressbar" style="width: 0;"></div>
+</div>
+<small><span class="complete">0</span> of <span class="total">0</span></small></div>
+</div>
+<div class="navbar-nav ml-auto">
+<div class="nav-item dropdown"><a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">Downloads</a>
+<div class="dropdown-menu"><a href="/api/completed.tsv" class="dropdown-item project-link">All completed lines</a>
+<a href="/challenge.html" class="dropdown-item project-link">Challenge report</a></div>
+</div>
+<div class="nav-item dropdown"><a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">Review Your Work</a>
+<div class="dropdown-menu" id="review-links"><a href="#" class="dropdown-item">All</a> <a href="#" class=
+"dropdown-item" data-value="S">Skipped Lines</a> <a href="#" class="dropdown-item" data-value="I">Illegible Lines</a>
+<a href="#" class="dropdown-item" data-value="NR">Not Registered</a> <a href="#" id="go-back" class=
+"dropdown-item">Back to Checking</a></div>
+</div>
+<div class="nav-item dropdown admin-only"><a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">Admin</a>
+<div class="dropdown-menu"><a class="dropdown-item table-link" data-name="circulators" href="#">Circulators</a>
+<a class="dropdown-item table-link" data-name="pages" href="#">Pages</a> <a class="dropdown-item table-link" data-name=
+"users" href="#">Users</a> <a id="totals-link" class="dropdown-item" href="#">Totals</a></div>
+</div>
+<div class="nav-item"><button type="button" id="log-out" class="nav-link btn btn-link">Log Out</button></div>
+</div>
+</nav>
+<div id="main-container" class="container-fluid" style="display: none;">
+<div id="image-row" class="row" style="display: none;">
+<div id="image-div" class="col"></div>
+</div>
+<div id="top-row" class="row">
+<div class="col-sm-4">
+<div id="check-card" class="card bg-light">
+<div class="card-body">
+<h2 id="page-line" class="card-title"></h2>
+<form action="/" id="check-form" name="check-form"></form>
+<form action="/" id="search-form" style="display: none;" name="search-form">
+<p>Now use one or both of these fields to search for the voter (does a prefix search for names, so
+<code>richards</code> will match "Richardson" and <code>connect</code> will match "Connecticut Ave").</p>
+<div class="form-group"><label for="search-form-name">Name</label> <input type="text" class="form-control" name="name"
+id="search-form-name">
+<p class="form-text text-muted"><i class="text-info">Last name</i> or <i class="text-info">last, first</i> or <i class=
+"text-info">, first</i></p>
+</div>
+<div class="form-group"><label for="search-form-address">Address</label> <input type="text" class="form-control" name=
+"address" id="search-form-address">
+<p class="form-text text-muted"><i class="text-info">House number</i> (optional) followed by <i class=
+"text-info">street name</i></p>
+</div>
+<div class="form-group">
+<div class="btn-group"><button id="search-button" type="button" class="btn btn-primary">Search</button> <button id=
+"reset-button" type="reset" class="btn btn-secondary">Clear</button></div>
+</div>
+</form>
+</div>
+</div>
+</div>
+<div class="col-sm-8" id="result-div">
+<table id="voter-table" class="table table-sm table-striped" style="display: none;">
+<thead>
+<tr>
+<td colspan="7"><button type="button" class="btn btn-secondary btn-sm float-right not-found" style=
+"margin-left: 6px;">Not Found</button> If you find a voter that matches the signer, click the button for that row. If
+not, you can search again. If you can't find a match, click "Not Found".</td>
+</tr>
+<tr>
+<th>Name</th>
+<th>Address</th>
+<th id="party-column-head">Party</th>
+<th>Ward</th>
+<th>Date</th>
+<th>Status</th>
+<th></th>
+</tr>
+</thead>
+<tfoot>
+<tr>
+<td colspan="8"><button id="more-button" class="btn btn-secondary btn-sm">More</button></td>
+</tr>
+</tfoot>
+<tbody></tbody>
+</table>
+<pre id="explanation" style="display: none;"></pre>
+<form action="/" id="line-form" style="display: none;" name="line-form"></form>
+<table id="skipped-table" class="table table-condensed" style="display: none;">
+<thead>
+<tr>
+<td colspan="3">We're skipping these lines because the Board of Elections has already ruled them valid.</td>
+</tr>
+<tr>
+<th>Page</th>
+<th>Line</th>
+<th>Signed By</th>
+</tr>
+</thead>
+<tbody></tbody>
+</table>
+</div>
+</div>
+<div id="bottom-row" class="row" style="display: none;"></div>
+</div>
+<div id="bottom-nav" class="navbar fixed-bottom navbar-dark bg-primary">
+<div class="navbar-item navbar-text">Site by <a href="https://twitter.com/kcivey">Keith C. Ivey</a>, 2012–2018. Send
+corrections and comments to keith at iveys dot org.</div>
+<div class="navbar-item navbar-text ml-auto version"></div>
+</div>
+<div class="modal fade" id="global-modal" role="dialog">
+<div class="modal-dialog" role="document">
+<div class="modal-content">
+<div class="modal-header">
+<h5 class="modal-title"></h5>
+<button type="button" class="close" data-dismiss="modal">×</button></div>
+<div class="modal-body"></div>
+</div>
+</div>
+</div>
+<div class="modal fade" id="assign-pages-modal" role="dialog">
+<div class="modal-dialog" role="document">
+<div class="modal-content">
+<div class="modal-header">
+<h5 class="modal-title">Assign Pages to <span class="username"></span></h5>
+<button type="button" class="close" data-dismiss="modal">×</button></div>
+<div class="modal-body">
+<p>Enter list of individual pages or ranges separated by commas. Example syntax:</p>
+<ul>
+<li>34</li>
+<li>151-200</li>
+<li>213, 215-220, 227</li>
+</ul>
+<form><input type="text" name="pages" class="form-control"></form>
+</div>
+<div class="modal-footer"><button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+<button type="button" class="btn btn-primary assign-send-button">Assign</button></div>
+</div>
+</div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity=
+"sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous">
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.15.0/umd/popper.min.js" integrity=
+"sha256-fTuUgtT7O2rqoImwjrhDgbXTKUwyxxujIMRIK7TbuNU=" crossorigin="anonymous">
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.19/js/jquery.dataTables.min.js" integrity=
+"sha256-t5ZQTZsbQi8NxszC10CseKjJ5QeMw5NINtOXQrESGSU=" crossorigin="anonymous">
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.3.1/js/bootstrap.min.js" integrity=
+"sha256-CjSoeELFOcH0/uxWu6mC/Vlrc1AARqbm/jiiImDGV3s=" crossorigin="anonymous">
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.19/js/dataTables.bootstrap4.min.js" integrity=
+"sha256-hJ44ymhBmRPJKIaKRf3DSX5uiFEZ9xB/qx8cNbJvIMU=" crossorigin="anonymous">
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.9.1/underscore-min.js" integrity=
+"sha256-G7A4JrJjJlFqP0yamznwPjAApIKPkadeHfyIwiaa9e0=" crossorigin="anonymous">
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/backbone.js/1.4.0/backbone-min.js" integrity=
+"sha256-OO+KD/bMG3Dr57LO27ZhYL2zYhLP1CJIkCXUUDnFNuc=" crossorigin="anonymous">
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/backbone.modelbinder/1.1.0/Backbone.ModelBinder.min.js" integrity=
+"sha256-/uxumFqYk2oMzz4st7VDQetVtAJq1OfbifhgX8HlJeA=" crossorigin="anonymous">
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-timeago/1.6.7/jquery.timeago.min.js" integrity=
+"sha256-0+5OfvOxkLHqpLPPwy9pDjug8N3cwaqcmleaxnR5VS8=" crossorigin="anonymous">
+</script>
+<script src="/voters.js">
+</script>
+<script type="text/template" id="check-form-template">
+<% if (line) { %>
+<p>Click "Check" if you want to check a name, "Blank" if the line has no name,
+"Rest Blank" if the rest of the page is blank, or "Illegible" if you can't even
+figure out what to search for.
+</p>
+<% } else { %>
+<% if (complete) { %>
+<p>You have completed your assigned pages.</p>
+<p>Congratulations! And thanks!</p>
+<% } else { %>
+<p>No pages have been assigned to you yet.</p>
+<% } %>
+<p>You can still search, if you'd like.</p>
+<% } %>
+<p>
+<button type="button" class="btn btn-primary" id="check-button">Check</button>
+<% if (line) { %>
+<button type="button" class="btn btn-secondary" id="blank-button">Blank</button>
+<button type="button" class="btn btn-secondary" id="rest-blank-button">Rest Blank</button>
+<button type="button" class="btn btn-secondary" id="illegible-button">Illegible</button>
+<% } %>
+</p>
+<% if (admin) { %>
+<p>Or edit a specific page and line number:</p>
+<div class="form-row">
+<div class="form-group col-sm-4">
+<label for="check-form-page">Page</label>
+<input type="number" id="check-form-page" class="form-control" name="page"/>
+</div>
+<div class="form-group col-sm-4">
+<label for="check-form-line">Line</label>
+<input type="number" id="check-form-line" class="form-control" name="line"/>
+</div>
+<div class="form-group col-sm-4 d-flex align-items-end">
+<button type="button" class="btn btn-primary edit-button">Edit</button>
+</div>
+</div>
+<% } %>
+</script>
+<script type="text/template" id="voter-row-template">
+<tr>
+<td><%- name %></td>
+<td><%- address %></td>
+<% if (wantedParty) { %><td><%- partyDisplay %></td><% } else { %><td style="display: none;"></td><% } %>
+<td><%- ward %></td>
+<td><%- registered %></td>
+<td><%- status %></td>
+<td>
+<button class="btn btn-secondary btn-sm match" data-voter-id="<?- voter_id %>">
+<% if (wantedParty && wantedParty !== party) { %>
+Wrong Party
+<% } else if (wantedWard && wantedWard !== ward) { %>
+Wrong Ward
+<% } else { %>
+Match
+<% } %>
+</button>
+</td>
+</tr>
+</script>
+<script type="text/template" id="skipped-row-template">
+<tr>
+<td class="number"><%- page %></td>
+<td class="number"><%- line %></td>
+<td><%- signed_by %></td>
+</tr>
+</script>
+<script type="text/template" id="user-form-template">
+<form action="/" id="user-form">
+<div class="form-group row">
+<label class="col-form-label col-sm-2" for="user-name">Name</label>
+<div class="col-sm-10">
+<input type="text" class="form-control" name="name" id="user-name"/>
+</div>
+</div>
+<div class="form-group row">
+<label class="col-form-label col-sm-2" for="user-email">Email</label>
+<div class="col-sm-10">
+<input type="text" class="form-control" name="email" id="user-email"/>
+</div>
+</div>
+<div class="form-group row">
+<label class="col-form-label col-sm-2" for="user-username">Username</label>
+<div class="col-sm-10">
+<input type="text" class="form-control" name="username" id="user-username"/>
+</div>
+</div>
+<div class="form-group row">
+<label class="col-form-label col-sm-2" for="user-admin">Admin?</label>
+<div class="col-sm-10">
+<div class="form-check">
+<input type="checkbox" class="form-check-input position-static align-middle" name="admin" id="user-admin" value="1"/>
+</div>
+</div>
+</div>
+<div class="form-group row">
+<label class="col-form-label col-sm-2" for="user-blocked">Blocked?</label>
+<div class="col-sm-10">
+<div class="form-check">
+<input type="checkbox" class="form-check-input position-static align-middle" name="blocked" id="user-blocked" value="1"/>
+</div>
+</div>
+</div>
+<div class="form-group row">
+<label class="col-form-label col-sm-2" for="user-notes">Notes</label>
+<div class="col-sm-10">
+<textarea name="notes" id="user-notes" class="form-control"></textarea>
+</div>
+</div>
+<div class="form-group row">
+<div class="col-12">
+<input type="hidden" name="id"/>
+<button type="button" class="btn btn-primary btn save">Save</button>
+</div>
+</div>
+</form>
+</script>
+<script type="text/template" id="line-form-template">
+<div class="form-group row">
+<label class="col-form-label col-sm-2" for="finding">Finding</label>
+<div class="col-sm-10" id="finding">
+<input type="hidden" name="id"/>
+<input type="hidden" name="page"/>
+<input type="hidden" name="line"/>
+<input type="hidden" name="checker"/>
+<% _.each(findingCodes, function (label, value) { %>
+<div class="form-check">
+<input type="radio" class="form-check-input" id="line-finding-<%- value %>" name="finding" value="<%- value %>"/>
+<label class="form-check-label" for="line-finding-<%- value %>">
+<%= label %> [<%- value %>]
+</label>
+</div>
+<% }); %>
+</div>
+</div>
+<div class="form-group row" style="display: none;">
+<label class="col-form-label col-sm-2" for="voter_id">Voter ID</label>
+<div class="col-sm-10">
+<input type="text" name="voter_id" id="voter_id" class="form-control-plaintext" readonly/>
+</div>
+</div>
+<div class="form-group row">
+<label class="col-form-label col-sm-2" for="voter_name">Name</label>
+<div class="col-sm-10">
+<input type="text" class="form-control" name="voter_name" id="voter_name"/>
+</div>
+</div>
+<div class="form-group row">
+<label class="col-form-label col-sm-2" for="line-address">Address</label>
+<div class="col-sm-10">
+<input type="text" name="address" id="line-address" class="form-control"/>
+</div>
+</div>
+<div class="form-group row" style="display: none;">
+<label class="col-form-label col-sm-2" for="ward">Ward</label>
+<div class="col-sm-10">
+<input type="text" name="ward" id="ward" class="form-control"/>
+</div>
+</div>
+<div class="form-group row">
+<label class="col-form-label col-sm-2" for="date_signed">Date signed</label>
+<div class="col-sm-10">
+<input type="text" name="date_signed" id="date_signed" class="form-control"/>
+</div>
+</div>
+<% _.each(extraFields, function (field, code) { %>
+<div class="form-group row">
+<label class="col-form-label col-sm-2" for="<%- code %>"><%- field.label %></label>
+<div class="col-sm-10">
+<% if (field.type == 'boolean') { %>
+<input type="checkbox" name="<%- code %>" id="<%- code %>" value="1"/>
+<% } else { %>
+<input type="text" name="<%- code %>" id="<%- code %>" class="form-control"/>
+<% } %>
+</div>
+</div>
+<% }); %>
+<div class="form-group row">
+<label class="col-form-label col-sm-2" for="notes">Notes</label>
+<div class="col-sm-10">
+<textarea name="notes" id="notes" class="form-control"></textarea>
+</div>
+</div>
+<button type="button" class="btn btn-primary btn-lg save">Save</button>
+</script>
+<script type="text/template" id="page-form-template">
+<form action="/" id="page-form">
+<div class="form-group row">
+<label class="col-form-label col-sm-2" for="page-number">Page Number</label>
+<div class="col-sm-10">
+<input type="text" class="form-control" name="number" id="page-number"/>
+</div>
+</div>
+<div class="form-group row">
+<label class="col-form-label col-sm-2" for="page-circulator-id">Circulator</label>
+<div class="col-sm-10">
+<select class="form-control" name="circulator_id" id="page-circulator-id">
+<option value="">-- Select --</option>
+<% _.each(circulators, function (c) { %>
+<option value="<%- c.id %>"><%- c.name %></option>
+<% }); %>
+</select>
+</div>
+</div>
+<div class="form-group row">
+<label class="col-form-label col-sm-2" for="page-date-signed">Date Signed</label>
+<div class="col-sm-10">
+<input type="text" class="form-control" name="date_signed" id="page-date-signed"/>
+</div>
+</div>
+<div class="form-group row">
+<label class="col-form-label col-sm-2" for="page-notes">Notes</label>
+<div class="col-sm-10">
+<textarea name="notes" id="page-notes" class="form-control"></textarea>
+</div>
+</div>
+<div class="form-group row">
+<div class="col-12">
+<input type="hidden" name="id"/>
+<button type="button" class="btn btn-primary btn save">Save</button>
+</div>
+</div>
+</form>
+</script>
+<script type="text/template" id="circulator-form-template">
+<form action="/" id="circulator-form">
+<div class="form-group row">
+<label class="col-form-label col-sm-2" for="circulator-name">Name</label>
+<div class="col-sm-10">
+<input type="text" class="form-control" name="name" id="circulator-name"/>
+</div>
+</div>
+<% if (Object.keys(circulatorStatuses).length) { %>
+<div class="form-group row">
+<label class="col-form-label col-sm-2" for="circulator-status">Status</label>
+<div class="col-sm-10">
+<select class="form-control" name="status" id="circulator-status">
+<option value="">OK</option>
+<% _.each(circulatorStatuses, function (status, code) { %>
+<option value="<%- code %>"><%- status %> [<%- code %>]</option>
+<% }); %>
+</select>
+</div>
+</div>
+<% } %>
+<div class="form-group row">
+<label class="col-form-label col-sm-2" for="circulator-notes">Notes</label>
+<div class="col-sm-10">
+<textarea name="notes" id="circulator-notes" class="form-control"></textarea>
+</div>
+</div>
+<div class="form-group row">
+<div class="col-12">
+<input type="hidden" name="id"/>
+<button type="button" class="btn btn-primary save">Save</button>
+</div>
+</div>
+</form>
+</script>
+<script type="text/template" id="alert-template">
+<div class="alert fade show <%- successful ? 'alert-success' : 'alert-danger' %>">
+<button type="button" class="close" data-dismiss="alert">&times;</button>
+<%= text || (successful ? 'Record successfully saved' : 'Error saving record') %>
+</div>
+</script>
+<script type="text/template" id="line-table-template">
+<button type="button" class="btn btn-link back-button">Back to Checking</button>
+<div class="col-12">
+<table id="line-table" class="table table-sm table-striped table-hover w-100"></table>
+</div>
+</script>
+<script type="text/template" id="circulator-table-template">
+<button type="button" class="btn btn-link back-button">Back to Checking</button>
+<button type="button" class="btn btn-primary circulator-edit-button">
+<i class="fas fa-plus"></i>
+New Circulator
+</button>
+<table id="circulator-table" class="table table-sm table-striped table-hover">
+<thead>
+<tr>
+<th></th>
+<th class="number">ID</th>
+<th>Name</th>
+<th class="number">Page Count</th>
+<th>Pages</th>
+<th class="number">Processed Lines</th>
+<th class="number">Valid Lines</th>
+<th class="number">% Valid</th>
+<% if (useCirculatorStatus) { %>
+<th>Status</th>
+<% } %>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<% _.each(circulators, function (c) { %>
+<tr>
+<td>
+<div class="btn-group btn-group-sm">
+<button type="button" class="btn btn-outline-primary circulator-edit-button" data-id="<%- c.id %>" title="Edit">
+<i class="fas fa-edit fa-fw"></i>
+</button>
+<% if (c.page_count) { %>
+<button type="button" class="btn btn-outline-success circulator-totals-button" data-id="<%- c.id %>" data-name="<%- c.name %>" title="Totals">
+<i class="fas fa-table fa-fw"></i>
+</button>
+<% } else { %>
+<button type="button" class="btn btn-outline-danger circulator-delete-button" data-id="<%- c.id %>" title="Delete">
+<i class="fas fa-trash fa-fw"></i>
+</button>
+<% } %>
+</div>
+</td>
+<td class="number"><%- c.id %></td>
+<td><%- c.name %></td>
+<td class="number"><%- c.page_count %></td>
+<td class="w-25">
+<% if (c.pages) { %>
+<a href="/<%= project.code %>/challenge.html?p=<%= encodeURIComponent(c.pages) %>" target="_blank"
+title="Get list of petition defects">
+<%- c.pages %>
+</a>
+<% } else { %>
+<%- c.pages %>
+<% } %>
+</td>
+<td class="number"><%- c.processed_lines %></td>
+<td class="number"><%- c.valid_lines %></td>
+<td class="number">
+<% if (c.processed_lines) { %>
+<%- Math.round(100 * c.valid_lines / c.processed_lines, 1) %>
+<% } %>
+</td>
+<% if (useCirculatorStatus) { %>
+<td><%- c.status %></td>
+<% } %>
+<td><%- c.notes %></td>
+</tr>
+<% }); %>
+</tbody>
+</table>
+</script>
+<script type="text/template" id="page-table-template">
+<button type="button" class="btn btn-link back-button">Back to Checking</button>
+<button type="button" class="btn btn-primary page-edit-button">
+<i class="fas fa-plus"></i>
+New Page
+</button>
+<table id="page-table" class="table table-sm table-striped table-hover">
+<thead>
+<tr>
+<th></th>
+<th class="number">Page</th>
+<th>Circulator</th>
+<th>Date</th>
+<th>Notes</th>
+<th class="text-right">Processed</th>
+<th>Checker</th>
+</tr>
+</thead>
+<tbody>
+<% _.each(pages, function (p) { %>
+<tr>
+<td>
+<button type="button" class="btn btn-outline-primary btn-sm page-edit-button" data-number="<%- p.number %>" title="Edit">
+<i class="fas fa-edit"></i>
+</button>
+</td>
+<td class="number"><%- p.number %></td>
+<td><%- p.circulator_name %></td>
+<td><%- p.date_signed ? p.date_signed.replace(/^(\d{4})-(\d\d)-(\d\d).*/, '$2/$3') : '' %></td>
+<td><%- p.notes || '' %></td>
+<td class="text-right"><%- p.processed_lines %></td>
+<td><%- p.checker %></td>
+</tr>
+<% }); %>
+</tbody>
+</table>
+</script>
+<script type="text/template" id="user-table-template">
+<button type="button" class="btn btn-link back-button">Back to Checking</button>
+<button type="button" class="btn btn-primary user-edit-button">
+<i class="fas fa-plus"></i>
+New User
+</button>
+<table id="user-table" class="table table-sm table-striped table-hover">
+<thead>
+<tr>
+<th></th>
+<th>Username</th>
+<th>Name</th>
+<th>Email</th>
+<th class="text-center">Admin</th>
+<th class="text-center">Blocked</th>
+<th class="number">Page Count</th>
+<th>Pages</th>
+</tr>
+</thead>
+<tbody>
+<% _.each(users, function (user) { %>
+<tr data-id="<%- user.id %>">
+<td>
+<div class="btn-group btn-group-sm">
+<button type="button" class="btn btn-outline-primary user-edit-button" data-id="<%- user.id %>" title="Edit">
+<i class="fas fa-edit fa-fw"></i>
+</button>
+<button type="button" class="btn btn-outline-success send-token-button" data-email="<%- user.email %>" title="Send Link">
+<i class="fas fa-envelope fa-fw"></i>
+</button>
+<button type="button" class="btn btn-outline-info assign-modal-button" data-toggle="modal" data-target="#assign-pages-modal" data-backdrop="false" title="Assign Pages">
+<i class="fas fa-file-contract fa-fw"></i>
+</button>
+</div>
+</td>
+<td><%- user.username %></td>
+<td><%- user.name %></td>
+<td><%- user.email %></td>
+<td class="text-center">
+<% if (user.admin) { %>
+<i class="fas fa-user-check"></i>
+<% } %>
+</td>
+<td class="text-center">
+<% if (user.blocked) { %>
+<i class="fas fa-ban"></i>
+<% } %>
+</td>
+<td class="number"><%- user.page_count %></td>
+<td><%- user.pages %></td>
+</tr>
+<% }); %>
+</tbody>
+</table>
+</script>
+<script type="text/template" id="total-table-template">
+<div class="col-lg-6 col-md-8">
+<button type="button" class="btn btn-link back-button">Back to Checking</button>
+<table id="total-table" class="table table-striped table-hover">
+<caption>Totals<% if (circulatorName) { %> for <%- circulatorName %><% } %></caption>
+<tbody>
+<% _.each(totals, function (total, label) { %>
+<tr>
+<td><%- label %></td>
+<td class="text-right"><%- typeof total === 'number' ? total.toLocaleString() : total %></td>
+</tr>
+<% }); %>
+<tr>
+<td>Ward breakdown</td>
+<td>
+<table class="table table-striped">
+<tbody>
+<% _.each(wardBreakdown, function (info, ward) { %>
+<tr>
+<td><% if (ward !== 'TOTAL') { %>Ward <% } %><%- ward %></td>
+<td class="text-right">
+<%- info.signers.toLocaleString() %>
+<% if (!circulatorName) { %>
+/ <%- info.registered.toLocaleString() %>
+(<%- (100 * info.signers / info.registered).toFixed(2) %>%)
+<% } %>
+</td>
+</tr>
+<% }); %>
+</tbody>
+</table>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</script>
+</body>
 </html>

@@ -1,0 +1,27 @@
+{
+  "findingCodes": {
+    "OK": "OK (name and address match)",
+    "A": "address change (distinctive name matches but address does not)",
+    "NM": "possible name variation/change (address matches)",
+    "NR": "not registered",
+    "I": "illegible (or missing name)",
+    "MA": "missing address",
+    "MD": "missing date",
+    "MS": "missing (or forged) signature",
+    "WP": "wrong party",
+    "WW": "wrong ward",
+    "D": "duplicate",
+    "B": "blank (or scratched out)",
+    "S": "skip for now and deal with it later"
+  },
+  "circulatorStatuses": {
+    "CU": "Circulator unqualified at time of collection (not DC resident and had not filled out paperwork)",
+    "CF": "Circulator shows pattern of fraud"
+  },
+  "extraFields": {
+  },
+  "party": "",
+  "ward": "",
+  "imageDpi": 0,
+  "challengeHeader": ""
+}
