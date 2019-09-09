@@ -80,8 +80,11 @@
       #line-table>thead>tr>th {
         padding-right: 0.3rem;
       }
-      .navbar-dark .navbar-nav .nav-link, .navbar-dark .navbar-text {
-        color: rgba(255,255,255,.75);
+      .navbar.navbar-light {
+        background-color: #d2e1ec;
+      }
+      .navbar-light .navbar-nav .nav-link, .navbar-light .navbar-text {
+        color: #333333;
       }
     </style>
   </head>
@@ -106,7 +109,7 @@
       </div>
     </div>
 
-    <nav id="top-nav" class="navbar navbar-expand-lg navbar-dark bg-primary fixed-top" style="display: none;">
+    <nav id="top-nav" class="navbar navbar-expand-lg navbar-light fixed-top" style="display: none;">
       <a class="navbar-brand" href="/"></a>
       <div class="navbar-nav" id="status">
         <div class="navbar-item navbar-text">
@@ -247,7 +250,7 @@
       </div>
     </div>
 
-    <div id="bottom-nav" class="navbar fixed-bottom navbar-dark bg-primary">
+    <div id="bottom-nav" class="navbar fixed-bottom navbar-light">
       <div class="navbar-item navbar-text">Copyright <a href="https://dcgeekery.com">Keith C. Ivey</a>, 2012–2019.
         Send corrections and comments to keith@iveys.org.</div>
       <div class="navbar-item navbar-text ml-auto version"></div>
