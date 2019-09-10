@@ -35,25 +35,27 @@ passwordless.addDelivery(
     }
 );
 
+function setUser(req, res, next) {
+    if (req.user) {
+        return db.getUser(
+            {id: req.user},
+            function (err, user) {
+                if (err) {
+                    return res.sendStatus(500);
+                }
+                req.user = user;
+                return next();
+            }
+        );
+    }
+    return next();
+}
+
 module.exports = function (app, apiApp) {
     app.use(session({secret, store: sessionStore, resave: false, saveUninitialized: false}));
     app.use(passwordless.sessionSupport());
     app.use(passwordless.acceptToken({successRedirect: '/'}));
-    app.use(function (req, res, next) {
-        if (req.user) {
-            return db.getUser(
-                {id: req.user},
-                function (err, user) {
-                    if (err) {
-                        return res.sendStatus(500);
-                    }
-                    req.user = user;
-                    return next();
-                }
-            );
-        }
-        return next();
-    });
+    app.use(setUser);
     app.post(
         '/send-token',
         passwordless.requestToken(
