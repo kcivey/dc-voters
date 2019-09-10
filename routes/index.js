@@ -2,7 +2,7 @@ const async = require('async');
 const config = require('../public/config.json');
 const db = require('../lib/db');
 const pkg = require('../package.json');
-const challengeRoutes = require('./challenge');
+const authentication = require('./authentication');
 const circulatorRoutes = require('./circulator');
 const lineRoutes = require('./line');
 const pageRoutes = require('./page');
@@ -227,16 +227,13 @@ module.exports = function (/* app */) {
             });
         },
 
-        sendToken(req, res) {
-            res.json({sent: true});
-        },
-
-        ...challengeRoutes,
         ...circulatorRoutes,
         ...lineRoutes,
         ...pageRoutes,
         ...tsvRoutes,
         ...userRoutes,
+
+        authentication,
 
     };
 
