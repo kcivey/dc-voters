@@ -27,7 +27,7 @@ module.exports = function (/* app */) {
 
         status(req, res) {
             const project = req.project || (req.user ? req.user.projects[0] : null);
-            const responseData = {
+            const status = {
                 user: req.user || {},
                 project,
                 complete: 0,
@@ -35,55 +35,17 @@ module.exports = function (/* app */) {
                 version: pkg.version,
             };
             if (!project) {
-                res.json(responseData);
+                res.json(status);
                 return;
             }
-            async.series(
-                [
-                    function getCurrentLine(callback) {
-                        const sql = 'SELECT page, line FROM petition_lines ' +
-                            "WHERE project_id = ? AND checker = ? AND finding NOT IN ('', 'V') " +
-                            'ORDER BY page DESC, line DESC LIMIT 1';
-                        db.query(sql, [project.id, req.user.username], err => callback(err || null));
-                    },
-                    function getNextLine(callback) {
-                        const sql = 'SELECT * FROM petition_lines WHERE project_id = ? AND checker = ? ' +
-                            "AND finding = '' " +
-                            'ORDER BY page, line LIMIT 1';
-                        db.query(sql, [project.id, req.user.username], function (err, rows) {
-                            if (err) {
-                                return callback(err);
-                            }
-                            responseData.lineRecord = rows[0] || null;
-                            return callback(null);
-                        });
-                    },
-                    function getUserProgress(callback) {
-                        const sql = "SELECT IF(finding IN ('', 'S'), 'incomplete', 'complete') AS state, " +
-                            'COUNT(*) AS `count` FROM petition_lines ' +
-                            'WHERE project_id = ? AND checker = ? GROUP BY state';
-                        db.query(sql, [project.id, req.user.username], function (err, rows) {
-                            if (err) {
-                                return callback(err);
-                            }
-                            rows.forEach(function (row) {
-                                responseData[row.state] = +row.count;
-                            });
-                            return callback(null);
-                        });
-                    },
-                    function returnResponse(callback) {
-                        res.json(responseData);
-                        return callback(null);
-                    },
-                ],
-                function (err) {
-                    if (err) {
-                        console.error(err);
-                        res.sendStatus(500);
-                    }
+            db.getStatus(project.id, req.user.username, function (err, partialStatus) {
+                if (err) {
+                    console.error(err);
+                    return res.sendStatus(500);
                 }
-            );
+                Object.assign(status, partialStatus);
+                return res.json(status);
+            });
         },
 
         getTotals(req, res) {
