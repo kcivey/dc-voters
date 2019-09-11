@@ -16,7 +16,6 @@ app.use(morgan('combined'));
 app.use(express.static(path.join(__dirname, 'public'), {maxAge: '15m'}));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
-app.use(setProject);
 
 const env = process.env.NODE_ENV || 'development';
 if ('development' === env) {
@@ -27,6 +26,7 @@ const routes = require('./routes')(app);
 const apiApp = express();
 routes.authentication(app, apiApp);
 app.use(apiUrlBase, apiApp);
+app.use(setProject);
 apiApp.get('/search', routes.search);
 apiApp.get('/line/:page/:line', routes.getLine);
 apiApp.get('/line/:id', routes.getLine);
@@ -59,19 +59,18 @@ app.listen(app.get('port'), function () {
 function setProject(req, res, next) {
     const m = req.url.match(/^\/([\w-]+)\//);
     const projectCode = m && m[1];
-    if (!m || projectCode === 'api') {
+    if (!projectCode) {
         return next();
     }
-    return db.query(
-        'SELECT * FROM projects WHERE code = ?',
-        [projectCode],
-        function (err, rows) {
+    return db.getProjectByCode(
+        projectCode,
+        function (err, project) {
             if (err) {
                 return res.sendStatus(500);
             }
-            if (rows.length) {
-                req.project = rows[0];
-                req.url = req.url.replace('/' + rows[0].code, '');
+            if (project) {
+                req.project = project;
+                req.url = req.url.replace('/' + projectCode, '');
                 return next();
             }
             return res.sendStatus(404);

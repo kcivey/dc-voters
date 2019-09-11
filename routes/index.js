@@ -14,80 +14,14 @@ module.exports = function (/* app */) {
     return {
 
         search(req, res) {
-            const q = req.query.q;
-            const voterId = req.query.voter_id;
-            let name = req.query.name;
-            let address = req.query.address;
-            let explanation = '';
-            let match = '';
-            if (q) {
-                match = 'MATCH (v.firstname, v.lastname, v.res_house, v.res_street) AGAINST (? IN BOOLEAN MODE)';
-                explanation += 'General query: ' + q + '\n';
-            }
-            let sql = 'SELECT v.registered, v.lastname, v.firstname, v.middle, v.suffix, v.status, v.res_house, ' +
-                'v.res_frac, v.res_apt, v.res_street, v.ward, v.voter_id';
-            const values = [];
-            const limit = Math.min(100, Math.max(0, Math.round(+req.query.limit))) || 10;
-            if (config.party) {
-                sql += ', v.party';
-            }
-            if (match) {
-                sql += ', ' + match + ' AS score';
-                values.push(q);
-            }
-            sql += ' FROM voters v WHERE 1';
-            if (name) {
-                const m = /^([^,]*),\s*(.+)/.exec(name);
-                if (m) {
-                    sql += ' AND v.firstname LIKE ?';
-                    values.push(m[2] + '%');
-                    name = m[1];
-                    explanation += 'First name: ' + m[2] + '*\n';
-                }
-                if (name) {
-                    name = name.replace(/\s*,\s*$/, '');
-                    sql += ' AND v.lastname LIKE ?';
-                    values.push(name + '%');
-                    explanation += 'Last name: ' + name + '*\n';
-                }
-            }
-            if (address) {
-                const m = /^(\d+)\s+(.+)/.exec(address);
-                if (m) {
-                    sql += ' AND v.res_house = ?';
-                    values.push(m[1]);
-                    address = m[2];
-                    explanation += 'House number: ' + m[1] + '\n';
-                }
-                sql += ' AND v.res_street LIKE ?';
-                values.push(address + '%');
-                explanation += 'Street name: ' + address + '*\n';
-            }
-            if (voterId) {
-                sql += ' AND v.voter_id = ?';
-                values.push(voterId);
-                explanation += 'Voter ID: ' + voterId + '\n';
-            }
-            if (match) {
-                sql += ' AND ' + match + ' ORDER BY score DESC';
-                values.push(q);
-            }
-            else {
-                sql += ' ORDER BY v.lastname, v.firstname, v.middle, v.suffix';
-            }
-            sql += ' LIMIT ' + limit;
-            db.query(sql, values, function (err, results) {
+            const options = req.query;
+            db.searchForVoter(options, function (err, results) {
                 if (err) {
                     console.error(err);
-                    res.sendStatus(500);
-                    return;
+                    return res.sendStatus(500);
                 }
-                explanation = results.length +
-                    (results.length < limit ? '' : ' or more') +
-                    ' record' + (results.length === 1 ? '' : 's') + '\n' +
-                    explanation;
                 res.set('Cache-Control', 'max-age=600'); // cache for 10 min
-                res.json({explanation, results});
+                return res.json(results);
             });
         },
 
