@@ -8,16 +8,16 @@ const morgan = require('morgan');
 const errorHandler = require('errorhandler');
 const path = require('path');
 const db = require('./lib/db');
+const env = process.env.NODE_ENV || 'development';
+const staticDir = 'development' === env ? 'src' : 'public';
 const apiUrlBase = '/api';
 
 const app = express();
 app.set('port', process.env.PORT || 3000);
 app.use(morgan('combined'));
-app.use(express.static(path.join(__dirname, 'public'), {maxAge: '15m'}));
+app.use(express.static(path.join(__dirname, staticDir), {maxAge: '15m'}));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
-
-const env = process.env.NODE_ENV || 'development';
 if ('development' === env) {
     app.use(errorHandler());
 }
