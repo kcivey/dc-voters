@@ -1,5 +1,3 @@
-const async = require('async');
-const config = require('../public/config.json');
 const db = require('../lib/db');
 const pkg = require('../package.json');
 const authentication = require('../authentication');
