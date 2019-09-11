@@ -4,58 +4,18 @@ const NumberList = require('number-list');
 module.exports = {
 
     createOrUpdateUser(req, res) {
+        const projectId = req.project.id;
         const userData = req.body;
-        let id = +req.params.id;
-        const values = [userData];
-        let sql;
-        if (id) {
-            delete userData.id;
-            sql = 'UPDATE users SET ? WHERE id = ?';
-            values.push(id);
+        const id = +req.params.id;
+        if (!id && !(userData.username && userData.email)) {
+            return res.sendStatus(400);
         }
-        else {
-            if (!userData.username || !userData.email) {
-                res.sendStatus(400);
-                return;
-            }
-            sql = 'INSERT INTO users SET ?';
-        }
-        db.query(sql, values, function (err, result) {
+        return db.createOrUpdateUser(projectId, userData, id, function (err, user) {
             if (err) {
-                console.log('user SQL error', err);
-                res.sendStatus(500);
-                return;
+                console.log(err);
+                return res.sendStatus(500);
             }
-            if (result.insertId) {
-                id = result.insertId;
-            }
-            if (!id) {
-                res.sendStatus(500);
-                return;
-            }
-            db.query(
-                'INSERT IGNORE INTO project_users SET ?',
-                [{project_id: req.project.id, user_id: id}],
-                function (err) {
-                    if (err) {
-                        console.log('user SQL error', err);
-                        res.sendStatus(500);
-                        return;
-                    }
-                    db.query(
-                        'SELECT * FROM users WHERE id = ?',
-                        [id],
-                        function (err, rows) {
-                            if (err) {
-                                console.log(err);
-                                return res.sendStatus(500);
-                            }
-                            return res.json(rows[0]);
-                        }
-                    );
-
-                }
-            );
+            return res.json(user);
         });
     },
 
