@@ -63,18 +63,17 @@ function setProject(req, res, next) {
     if (!projectCode) {
         return next();
     }
-    return db.getProjectByCode(
-        projectCode,
-        function (err, project) {
-            if (err) {
-                return res.sendStatus(500);
-            }
+    return db.getProjectByCode(projectCode)
+        .then(function (project) {
             if (project) {
                 req.project = project;
                 req.url = req.url.replace('/' + projectCode, '');
                 return next();
             }
             return res.sendStatus(404);
-        }
-    );
+        })
+        .catch(function (err) {
+            console.log(err);
+            res.sendStatus(500);
+        });
 }

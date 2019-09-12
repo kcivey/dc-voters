@@ -13,14 +13,15 @@ module.exports = function (/* app */) {
 
         search(req, res) {
             const options = req.query;
-            db.searchForVoter(options, function (err, results) {
-                if (err) {
+            db.searchForVoter(options)
+                .then(function (results) {
+                    res.set('Cache-Control', 'max-age=600'); // cache for 10 min
+                    res.json(results);
+                })
+                .catch(function (err) {
                     console.error(err);
-                    return res.sendStatus(500);
-                }
-                res.set('Cache-Control', 'max-age=600'); // cache for 10 min
-                return res.json(results);
-            });
+                    res.sendStatus(500);
+                });
         },
 
         status(req, res) {
@@ -47,13 +48,12 @@ module.exports = function (/* app */) {
         },
 
         getTotals(req, res) {
-            db.getTotals(req.project.id, +req.query.circulator, function (err, results) {
-                if (err) {
+            db.getTotals(req.project.id, +req.query.circulator)
+                .then(results => res.json(results))
+                .catch(function (err) {
                     console.error(err);
-                    return res.sendStatus(500);
-                }
-                return res.json(results);
-            });
+                    res.sendStatus(500);
+                });
         },
 
         ...circulatorRoutes,

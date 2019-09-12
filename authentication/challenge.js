@@ -24,8 +24,7 @@ const challengeTemplate = _.template(
 
 function challenge(req, res) {
     if (!req.project) {
-        res.sendStatus(404);
-        return null;
+        return res.sendStatus(404);
     }
     return db.getChallengeRows(req.project.id)
         .then(function (rows) {

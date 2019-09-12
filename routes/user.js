@@ -1,5 +1,4 @@
 const db = require('../lib/db');
-const NumberList = require('number-list');
 
 module.exports = {
 
@@ -10,51 +9,34 @@ module.exports = {
         if (!id && !(userData.username && userData.email)) {
             return res.sendStatus(400);
         }
-        return db.createOrUpdateUser(projectId, userData, id, function (err, user) {
-            if (err) {
+        return db.createOrUpdateUser(projectId, userData, id)
+            .then(user => res.json(user))
+            .catch(function (err) {
                 console.log(err);
-                return res.sendStatus(500);
-            }
-            return res.json(user);
-        });
+                res.sendStatus(500);
+            });
     },
 
     getUser(req, res) {
-        const id = +req.params.id;
-        const sql = 'SELECT * FROM users WHERE id = ?';
-        db.query(sql, [id], function (err, rows) {
+        db.getUser({id: +req.params.id}, function (err, user) {
             if (err) {
                 console.error(err);
-                res.sendStatus(500);
-                return;
+                return res.sendStatus(500);
             }
-            if (rows.length) {
-                res.json(rows[0]);
+            if (user) {
+                return res.json(user);
             }
-            else {
-                res.sendStatus(404);
-            }
+            return res.sendStatus(404);
         });
     },
 
     getUsers(req, res) {
-        const sql = 'SELECT u.*, COUNT(DISTINCT l.page) AS page_count,' +
-            'GROUP_CONCAT(DISTINCT l.page ORDER BY l.page) AS pages ' +
-            'FROM users u LEFT JOIN petition_lines l ON u.username = l.checker ' +
-            'INNER JOIN project_users pu ON u.id = pu.user_id ' +
-            'WHERE (l.project_id = ? OR l.project_id IS NULL) AND pu.project_id = ? ' +
-            'GROUP BY u.id ORDER BY u.username';
-        db.query(sql, [req.project.id, req.project.id], function (err, rows) {
-            if (err) {
+        db.getUser(req.project.id)
+            .then(rows => res.json(rows))
+            .catch(function (err) {
                 console.error(err);
                 res.sendStatus(500);
-                return;
-            }
-            rows.forEach(function (row) {
-                row.pages = row.pages ? NumberList.stringify(row.pages.split(',')) : '';
             });
-            res.json(rows);
-        });
     },
 
 };
