@@ -1,6 +1,5 @@
 const fs = require('fs');
 const _ = require('underscore');
-const NumberList = require('number-list');
 const config = require('../public/config.json');
 const db = require('../lib/db');
 const regulations = {
@@ -26,28 +25,17 @@ const challengeTemplate = _.template(
 function challenge(req, res) {
     if (!req.project) {
         res.sendStatus(404);
-        return;
+        return null;
     }
-    let sql = 'SELECT l.*, c.status as circulator_status, c.name as circulator_name, ' +
-        'c.notes AS circulator_notes ' +
-        'FROM petition_lines l LEFT JOIN pages p ON l.project_id = p.project_id AND l.page = p.number ' +
-        'LEFT JOIN circulators c ON p.circulator_id = c.id ' +
-        'WHERE l.project_id = ?';
-    const values = [req.project.id];
-    if (req.query.p) {
-        sql += ' AND l.page in (?)';
-        values.push(NumberList.parse(req.query.p));
-    }
-    sql += ' ORDER BY l.page, l.line';
-    db.query(sql, values, function (err, rows) {
-        if (err) {
+    return db.getChallengeRows(req.project.id)
+        .then(function (rows) {
+            const challengeInfo = getChallengeInfo(rows);
+            res.send(challengeTemplate(challengeInfo));
+        })
+        .catch(function (err) {
             console.error(err);
             res.sendStatus(500);
-            return;
-        }
-        const challengeInfo = getChallengeInfo(rows);
-        res.send(challengeTemplate(challengeInfo));
-    });
+        });
 }
 
 function getChallengeInfo(rows) {
