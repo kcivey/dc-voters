@@ -1,7 +1,7 @@
 const fs = require('fs');
 const _ = require('underscore');
-const config = require('../public/config.json');
-const db = require('../lib/db');
+const config = require('../../public/config.json');
+const db = require('../../lib/db');
 const regulations = {
     A: '1607.1(b) not registered at address',
     NM: '1607.1(b) not registered at address',

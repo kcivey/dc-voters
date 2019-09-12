@@ -1,6 +1,6 @@
 const db = require('../lib/db');
 const pkg = require('../package.json');
-const authentication = require('../authentication');
+const authentication = require('./authentication');
 const circulatorRoutes = require('./circulator');
 const lineRoutes = require('./line');
 const pageRoutes = require('./page');
