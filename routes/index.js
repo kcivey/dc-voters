@@ -37,14 +37,15 @@ module.exports = function (/* app */) {
                 res.json(status);
                 return;
             }
-            db.getStatus(project.id, req.user.username, function (err, partialStatus) {
-                if (err) {
+            db.getStatus(project.id, req.user.username)
+                .then(function (partialStatus) {
+                    Object.assign(status, partialStatus);
+                    return res.json(status);
+                })
+                .catch(function (err) {
                     console.error(err);
-                    return res.sendStatus(500);
-                }
-                Object.assign(status, partialStatus);
-                return res.json(status);
-            });
+                    res.sendStatus(500);
+                });
         },
 
         getTotals(req, res) {

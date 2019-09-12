@@ -37,16 +37,15 @@ passwordless.addDelivery(
 
 function setUser(req, res, next) {
     if (req.user) {
-        return db.getUser(
-            {id: req.user},
-            function (err, user) {
-                if (err) {
-                    return res.sendStatus(500);
-                }
+        return db.getUser({id: req.user})
+            .then(function (user) {
                 req.user = user;
-                return next();
-            }
-        );
+                next();
+            })
+            .catch(function (err) {
+                console.error(err);
+                res.sendStatus(500);
+            });
     }
     return next();
 }
@@ -60,19 +59,15 @@ module.exports = function (app, apiApp) {
         '/send-token',
         passwordless.requestToken(
             function (email, delivery, callback) {
-                db.getUser(
-                    {email},
-                    function (err, user) {
-                        if (err) {
-                            return callback(err);
-                        }
+                db.getUser({email})
+                    .then(function (user) {
                         if (user && !user.blocked) {
                             console.log('sending token for user', user);
                             return callback(null, user.id);
                         }
                         return callback(null, null);
-                    }
-                );
+                    })
+                    .catch(callback);
             }
         ),
         function (req, res) {
