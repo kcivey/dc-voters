@@ -6,6 +6,7 @@ const bodyParser = require('body-parser');
 const compression = require('compression');
 const morgan = require('morgan');
 const errorHandler = require('errorhandler');
+const createError = require('http-errors');
 const path = require('path');
 const db = require('./lib/db');
 const env = process.env.NODE_ENV || 'development';
@@ -71,10 +72,7 @@ function setProject(req, res, next) {
                 req.url = req.url.replace('/' + projectCode, '');
                 return next();
             }
-            return res.sendStatus(404);
+            throw createError(404, 'No such project');
         })
-        .catch(function (err) {
-            console.log(err);
-            res.sendStatus(500);
-        });
+        .catch(next);
 }

@@ -12,20 +12,17 @@ module.exports = function (/* app */) {
 
     return {
 
-        search(req, res) {
+        search(req, res, next) {
             const options = req.query;
             db.searchForVoter(options)
                 .then(function (results) {
                     res.set('Cache-Control', 'max-age=600'); // cache for 10 min
                     res.json(results);
                 })
-                .catch(function (err) {
-                    console.error(err);
-                    res.sendStatus(500);
-                });
+                .catch(next);
         },
 
-        status(req, res) {
+        status(req, res, next) {
             const project = req.project || (req.user ? req.user.projects[0] : null);
             const status = {
                 user: req.user || {},
@@ -43,19 +40,13 @@ module.exports = function (/* app */) {
                     Object.assign(status, partialStatus);
                     return res.json(status);
                 })
-                .catch(function (err) {
-                    console.error(err);
-                    res.sendStatus(500);
-                });
+                .catch(next);
         },
 
-        getTotals(req, res) {
+        getTotals(req, res, next) {
             db.getTotals(req.project.id, +req.query.circulator)
                 .then(results => res.json(results))
-                .catch(function (err) {
-                    console.error(err);
-                    res.sendStatus(500);
-                });
+                .catch(next);
         },
 
         challenge,

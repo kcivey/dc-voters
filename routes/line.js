@@ -1,5 +1,6 @@
-const db = require('../lib/db');
+const createError = require('http-errors');
 const moment = require('moment');
+const db = require('../lib/db');
 
 module.exports = {
 
@@ -77,27 +78,22 @@ module.exports = {
         });
     },
 
-    getLine(req, res) {
+    getLine(req, res, next) {
         const projectId = [req.project.id];
         const id = +req.params.id;
         const page = +req.params.page;
         const line = +req.params.line;
         db.getLine({projectId, id, page, line})
             .then(function (line) {
-                if (line) {
-                    res.json(line);
+                if (!line) {
+                    throw createError(404, 'Nuch such line');
                 }
-                else {
-                    res.sendStatus(404);
-                }
+                res.json(line);
             })
-            .catch(function (err) {
-                console.log(err);
-                res.sendStatus(500);
-            });
+            .catch(next);
     },
 
-    markLineBlank(req, res) {
+    markLineBlank(req, res, next) {
         const projectId = req.project.id;
         const page = +req.params.page;
         const line = req.params.line;
@@ -108,13 +104,10 @@ module.exports = {
         };
         db.updateLineOrRange({projectId, page, line, updates})
             .then(lineData => res.json(lineData))
-            .catch(function (err) {
-                console.log(err);
-                res.sendStatus(500);
-            });
+            .catch(next);
     },
 
-    updateLine(req, res) {
+    updateLine(req, res, next) {
         const projectId = req.project.id;
         const id = +req.params.id;
         const updates = req.body;
@@ -133,10 +126,7 @@ module.exports = {
                 }
                 return res.json(line);
             })
-            .catch(function (err) {
-                console.log(err);
-                res.sendStatus(500);
-            });
+            .catch(next);
     },
 
 };

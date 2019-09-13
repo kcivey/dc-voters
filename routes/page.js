@@ -1,57 +1,43 @@
+const createError = require('http-errors');
 const db = require('../lib/db');
 
 module.exports = {
 
-    assignPages(req, res) {
+    assignPages(req, res, next) {
         const pages = req.body;
         if (!Array.isArray(pages) || pages.filter(v => !/^\d+$/.test(v)).length) {
-            res.sendStatus(400);
-            return;
+            throw createError(400, 'Invalid pages');
         }
         db.assignPages(req.project.id, req.params.username, pages)
             .then(() => res.sendStatus(204))
-            .catch(function (err) {
-                console.error(err);
-                res.sendStatus(500);
-            });
+            .catch(next);
     },
 
-    createOrUpdatePage(req, res) {
+    createOrUpdatePage(req, res, next) {
         const projectId = req.project.id;
         const data = req.body;
         const number = +req.params.number;
         const id = data.id;
         db.createOrUpdatePage({projectId, data, number, id})
             .then(page => res.json(page))
-            .catch(function (err) {
-                console.error(err);
-                res.sendStatus(500);
-            });
+            .catch(next);
     },
 
-    getPage(req, res) {
+    getPage(req, res, next) {
         db.getPage(req.project.id, +req.params.number)
             .then(function (page) {
-                if (page) {
-                    res.json(page);
+                if (!page) {
+                    throw createError(404, 'No such page');
                 }
-                else {
-                    res.sendStatus(404);
-                }
+                res.json(page);
             })
-            .catch(function (err) {
-                console.error(err);
-                res.sendStatus(500);
-            });
+            .catch(next);
     },
 
-    getPages(req, res) {
+    getPages(req, res, next) {
         db.getPages(req.project.id)
             .then(rows => res.json(rows))
-            .catch(function (err) {
-                console.error(err);
-                res.sendStatus(500);
-            });
+            .catch(next);
     },
 
 };

@@ -41,10 +41,7 @@ function setUser(req, res, next) {
                 req.user = user;
                 next();
             })
-            .catch(function (err) {
-                console.error(err);
-                res.sendStatus(500);
-            });
+            .catch(next);
     }
     return next();
 }

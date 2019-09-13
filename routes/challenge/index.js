@@ -1,5 +1,6 @@
 const fs = require('fs');
 const _ = require('underscore');
+const createError = require('http-errors');
 const config = require('../../public/config.json');
 const db = require('../../lib/db');
 const regulations = {
@@ -22,19 +23,16 @@ const challengeTemplate = _.template(
         .replace(/^\s+/gm, '')
 );
 
-function challenge(req, res) {
+function challenge(req, res, next) {
     if (!req.project) {
-        return res.sendStatus(404);
+        throw createError(404, 'No project set');
     }
-    return db.getChallengeLines(req.project.id)
+    db.getChallengeLines(req.project.id)
         .then(function (rows) {
             const challengeInfo = getChallengeInfo(rows);
             res.send(challengeTemplate(challengeInfo));
         })
-        .catch(function (err) {
-            console.error(err);
-            res.sendStatus(500);
-        });
+        .catch(next);
 }
 
 function getChallengeInfo(rows) {

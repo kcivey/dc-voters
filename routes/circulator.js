@@ -1,3 +1,4 @@
+const createError = require('http-errors');
 const db = require('../lib/db');
 const NumberList = require('number-list');
 
@@ -19,8 +20,7 @@ module.exports = {
         }
         else {
             if (!data.name) {
-                res.sendStatus(400);
-                return;
+                throw createError(400, 'Missing name');
             }
             sql = 'INSERT INTO ' + table + ' SET ?';
         }
@@ -34,8 +34,7 @@ module.exports = {
                 id = result.insertId;
             }
             if (!id) {
-                res.sendStatus(500);
-                return;
+                throw createError(500, 'No insert ID');
             }
             db.query(
                 'SELECT * FROM ' + table + ' WHERE id = ?',
@@ -63,9 +62,8 @@ module.exports = {
                     res.sendStatus(500);
                     return;
                 }
-                if (result[0] === 0) {
-                    res.sendStatus(409); // can't delete circulator if they have pages
-                    return;
+                if (result[0] > 0) {
+                    throw createError(409, 'Circulator has pages assigned');
                 }
                 db.query(
                     'DELETE FROM ' + table + ' WHERE id = ?',
@@ -95,7 +93,7 @@ module.exports = {
                 res.json(rows[0]);
             }
             else {
-                res.sendStatus(404);
+                throw createError(404, 'No such circulator');
             }
         });
     },

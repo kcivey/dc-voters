@@ -20,7 +20,7 @@ function transformRow(row) {
 
 module.exports = {
 
-    completedTsv(req, res) {
+    completedTsv(req, res, next) {
         db.getCompletedLines(req.project.id, config.party)
             .then(function (rows) {
                 const m = req.path.match(/([^/]+)$/);
@@ -31,10 +31,7 @@ module.exports = {
                 res.set('Content-Type', 'text/tab-separated-values; charset=utf-8');
                 res.send(tsv);
             })
-            .catch(function (err) {
-                console.log(err);
-                res.sendStatus(500);
-            });
+            .catch(next);
     },
 
 };
