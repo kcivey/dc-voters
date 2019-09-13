@@ -5,77 +5,42 @@ const db = require('../lib/db');
 module.exports = {
 
     // Return line data in DataTables format
-    dtLine(req, res) {
+    async dtLine(req, res, next) {
+        const projectId = req.project.id;
         const start = +req.query.start || 0;
         const length = +req.query.length || 100;
         const output = {draw: +req.query.draw || 1};
         const search = req.query.search && req.query.search.value;
         const columns = req.query.columns || [];
-        const order = req.query.order || [];
+        const orderFromDataTables = req.query.order || [];
         const checker = req.query.checker || req.params.checker;
         const filterColumn = req.query.filterColumn || '';
         const filterValue = req.query.filterValue;
-        const table = 'petition_lines';
-        let sql = 'SELECT COUNT(*) AS `count` FROM ' + table;
-        let where = " WHERE finding <> ''";
-        const orderSql = [];
-        const values = [];
-        db.query(sql, function (err, rows) {
-            if (err) {
-                console.error(err);
-                res.sendStatus(500);
-                return;
+        const criteria = {};
+        const order = [];
+        if (checker) {
+            criteria.checker = checker;
+        }
+        if (/^\w+$/.test(filterColumn)) {
+            criteria[filterColumn] = filterValue;
+        }
+        for (const o of orderFromDataTables) {
+            const index = +o.column || 0;
+            const column = columns[index] ? columns[index].data : '';
+            if (/^\w+$/.test(column) && column !== 'function') {
+                order.push(column + (o.dir === 'desc' ? ' DESC' : ''));
             }
-            output.recordsTotal = +rows[0].count;
-            if (checker) {
-                where += ' AND checker = ?';
-                values.push(checker);
-            }
-            if (/^\w+$/.test(filterColumn)) {
-                where += ' AND `' + filterColumn + '` = ?';
-                values.push(filterValue);
-            }
-            sql += where;
-            db.query(sql, values, function (err, rows) {
-                if (err) {
-                    console.error(err);
-                    res.sendStatus(500);
-                    return;
-                }
-                output.recordsFiltered = +rows[0].count;
-                sql = 'SELECT * FROM ' + table + where;
-                if (search) {
-                    sql += ' AND (';
-                    ['voter_name', 'address', 'checker'].forEach(function (column, i) {
-                        if (i > 0) {
-                            sql += ' OR ';
-                        }
-                        sql += column + ' LIKE ?';
-                        values.push('%' + search + '%');
-                    });
-                    sql += ')';
-                }
-                order.forEach(function (o) {
-                    const index = +o.column || 0;
-                    const column = columns[index] ? columns[index].data : '';
-                    if (/^\w+$/.test(column) && column !== 'function') {
-                        orderSql.push(column + (o.dir === 'desc' ? ' DESC' : ''));
-                    }
-                });
-                orderSql.push('check_time DESC', 'id DESC'); // sort newest first if nothing else
-                sql += ' ORDER BY ' + orderSql.join(', ') +
-                    ' LIMIT ' + start + ',' + length;
-                db.query(sql, values, function (err, rows) {
-                    if (err) {
-                        console.error(err);
-                        res.sendStatus(500);
-                        return;
-                    }
-                    output.data = rows;
-                    res.json(output);
-                });
-            });
-        });
+        }
+        try {
+            order.push('check_time DESC', 'id DESC'); // sort newest first if nothing else
+            output.recordsTotal = await db.getProcessedLineCount(projectId);
+            output.recordsFiltered = await db.getProcessedLineCount(projectId, criteria);
+            output.data = await db.getProcessedLines({projectId, criteria, search, start, length, order});
+            res.json(output);
+        }
+        catch (err) {
+            next(err); // eslint-disable-line callback-return
+        }
     },
 
     getLine(req, res, next) {
