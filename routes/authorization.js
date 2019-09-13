@@ -5,7 +5,6 @@ const session = require('express-session');
 const SessionMySqlStore = require('express-mysql-session')(session);
 const db = require('../../lib/db');
 const sendEmail = require('../../lib/send-email');
-const challengeRoute = require('./challenge');
 const sessionStore = new SessionMySqlStore({}, db.connection);
 const urlBase = process.env.URL_BASE;
 const senderEmail = process.env.SENDER_EMAIL;
@@ -77,6 +76,5 @@ module.exports = function (app, apiApp) {
     const redirectToFrontPage = (req, res) => res.redirect('/');
     app.get('/login', redirectToFrontPage);
     app.get('/logout', passwordless.logout(), redirectToFrontPage);
-    app.get('/challenge.html', passwordless.restricted(), challengeRoute);
     apiApp.use(passwordless.restricted());
 };

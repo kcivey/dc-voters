@@ -6,6 +6,7 @@ const lineRoutes = require('./line');
 const pageRoutes = require('./page');
 const tsvRoutes = require('./tsv');
 const userRoutes = require('./user');
+const challenge = require('./challenge');
 
 module.exports = function (/* app */) {
 
@@ -56,6 +57,8 @@ module.exports = function (/* app */) {
                     res.sendStatus(500);
                 });
         },
+
+        challenge,
 
         ...circulatorRoutes,
         ...lineRoutes,

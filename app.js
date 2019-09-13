@@ -52,6 +52,7 @@ apiApp.get('/users/:id', routes.getUser);
 apiApp.put('/users/:id', routes.createOrUpdateUser);
 apiApp.post('/users/:username/pages', routes.assignPages);
 apiApp.get('/totals', routes.getTotals);
+apiApp.get('/challenge.html', routes.challenge);
 
 app.listen(app.get('port'), function () {
     console.log('Express server listening on port ' + app.get('port'));
