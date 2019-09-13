@@ -78,100 +78,65 @@ module.exports = {
     },
 
     getLine(req, res) {
+        const projectId = [req.project.id];
         const id = +req.params.id;
         const page = +req.params.page;
         const line = +req.params.line;
-        let sql = 'SELECT * FROM petition_lines WHERE project_id = ? AND ';
-        const values = [req.project.id];
-        if (id) {
-            sql += 'id = ?';
-            values.push(id);
-        }
-        else {
-            sql += 'page = ? AND line = ?';
-            values.push(page, line);
-        }
-        sql += ' LIMIT 1';
-        db.query(sql, values, function (err, rows) {
-            if (err) {
-                console.error(err);
+        db.getLine({projectId, id, page, line})
+            .then(function (line) {
+                if (line) {
+                    res.json(line);
+                }
+                else {
+                    res.sendStatus(404);
+                }
+            })
+            .catch(function (err) {
+                console.log(err);
                 res.sendStatus(500);
-                return;
-            }
-            if (rows.length) {
-                res.json(rows[0]);
-            }
-            else {
-                res.sendStatus(404);
-            }
-        });
+            });
     },
 
     markLineBlank(req, res) {
+        const projectId = req.project.id;
         const page = +req.params.page;
         const line = req.params.line;
-        let sql = 'UPDATE petition_lines SET ? WHERE project_id = ? AND checker = ? AND page = ? AND line ';
-        const values = [
-            {finding: 'B', checker: req.user.username, check_time: new Date()},
-            req.project.id,
-            req.user.username,
-            page,
-        ];
-        const m = line.match(/^(\d+)-(\d+)$/);
-        if (m) {
-            sql += ' BETWEEN ? AND ?';
-            values.push(+m[1], +m[2]);
-        }
-        else {
-            sql += ' = ?';
-            values.push(+line);
-        }
-        db.query(sql, values, function (err, results) {
-            if (err) {
-                console.error(err);
+        const updates = {
+            finding: 'B',
+            checker: req.user.username,
+            check_time: new Date(),
+        };
+        db.updateLineOrRange({projectId, page, line, updates})
+            .then(lineData => res.json(lineData))
+            .catch(function (err) {
+                console.log(err);
                 res.sendStatus(500);
-                return;
-            }
-            res.json({results});
-        });
+            });
     },
 
     updateLine(req, res) {
+        const projectId = req.project.id;
         const id = +req.params.id;
-        const lineData = req.body;
-        delete lineData.id;
-        lineData.check_time = new Date();
-        if (lineData.date_signed) {
-            lineData.date_signed = lineData.date_signed
+        const updates = req.body;
+        delete updates.id;
+        updates.check_time = new Date();
+        if (updates.date_signed) {
+            updates.date_signed = updates.date_signed
                 .replace(/^(\d+)\/(\d+)\/(\d+)$/, '$3-$1-$2');
         }
-        db.query(
-            'UPDATE petition_lines SET ? WHERE id = ?',
-            [lineData, id],
-            function (err) {
-                if (err) {
-                    console.error(err);
-                    return res.sendStatus(500);
+        db.updateLineOrRange({projectId, id, updates})
+            .then(function (line) {
+                if (line.date_signed) {
+                    line.date_signed = moment(line.date_signed)
+                        .utc()
+                        .format('MM/DD/YYYY');
                 }
-                return db.query(
-                    'SELECT * FROM petition_lines WHERE id = ?',
-                    [id],
-                    function (err, rows) {
-                        if (err) {
-                            console.error(err);
-                            return res.sendStatus(500);
-                        }
-                        const lineData = rows[0];
-                        if (lineData.date_signed) {
-                            lineData.date_signed = moment(lineData.date_signed)
-                                .utc()
-                                .format('MM/DD/YYYY');
-                        }
-                        return res.json(lineData);
-                    }
-                );
-            }
-        );
+                return res.json(line);
+            })
+            .catch(function (err) {
+                console.log(err);
+                res.sendStatus(500);
+            });
     },
 
 };

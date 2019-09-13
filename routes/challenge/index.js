@@ -26,7 +26,7 @@ function challenge(req, res) {
     if (!req.project) {
         return res.sendStatus(404);
     }
-    return db.getChallengeRows(req.project.id)
+    return db.getChallengeLines(req.project.id)
         .then(function (rows) {
             const challengeInfo = getChallengeInfo(rows);
             res.send(challengeTemplate(challengeInfo));
