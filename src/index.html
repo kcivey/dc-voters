@@ -90,6 +90,22 @@
         border-color: transparent;
         padding: 0.2rem;
       }
+      #circulator-table > thead > tr > th:first-child,
+      #user-table > thead > tr > th:first-child {
+        width: 62px;
+      }
+      #page-table > thead > tr > th:first-child {
+        width: 33px;
+      }
+      #total-table > tbody > tr > td:first-child {
+        min-width: 16rem;
+      }
+      .table {
+        width: auto;
+      }
+      caption {
+        caption-side: top;
+      }
     </style>
   </head>
   <body>
@@ -250,8 +266,7 @@
           </table>
         </div>
       </div>
-      <div id="bottom-row" class="row" style="display: none;">
-      </div>
+      <div id="bottom-row" class="row" style="display: none;"></div>
     </div>
 
     <div id="bottom-nav" class="navbar fixed-bottom navbar-light">
@@ -584,209 +599,225 @@
       </div>
     </script>
     <script type="text/template" id="line-table-template">
-      <button type="button" class="btn btn-link back-button">Back to Checking</button>
-      <div class="col-12">
-        <table id="line-table" class="table table-sm table-striped table-hover w-100"></table>
+      <div class="col">
+        <button type="button" class="btn btn-link back-button">Back to Checking</button>
+        <div>
+          <table id="line-table" class="table table-sm table-striped table-hover w-100"></table>
+        </div>
       </div>
     </script>
     <script type="text/template" id="circulator-table-template">
-      <button type="button" class="btn btn-link back-button">Back to Checking</button>
-      <button type="button" class="btn btn-primary circulator-edit-button">
-        <i class="fas fa-plus"></i>
-        New Circulator
-      </button>
-      <table id="circulator-table" class="table table-sm table-striped table-hover">
-        <thead>
-          <tr>
-            <th></th>
-            <th class="number">ID</th>
-            <th>Name</th>
-            <th class="number">Page Count</th>
-            <th>Pages</th>
-            <th class="number">Processed Lines</th>
-            <th class="number">Valid Lines</th>
-            <th class="number">% Valid</th>
-            <% if (useCirculatorStatus) { %>
-              <th>Status</th>
-            <% } %>
-            <th>Notes</th>
-          </tr>
-        </thead>
-        <tbody>
-          <% _.each(circulators, function (c) { %>
-            <tr>
-              <td>
-                <div class="btn-group btn-group-sm">
-                  <button type="button" class="btn btn-outline-primary table-button circulator-edit-button" data-id="<%- c.id %>" title="Edit">
-                    <i class="fas fa-pencil-alt fa-fw"></i>
-                  </button>
-                  <% if (c.page_count) { %>
-                    <button type="button" class="btn btn-outline-success table-button circulator-totals-button" data-id="<%- c.id %>" data-name="<%- c.name %>" title="Totals">
-                      <i class="fas fa-table fa-fw"></i>
-                    </button>
-                  <% } else { %>
-                    <button type="button" class="btn btn-outline-danger table-button circulator-delete-button" data-id="<%- c.id %>" title="Delete">
-                      <i class="fas fa-trash fa-fw"></i>
-                    </button>
+      <div class="col">
+        <button type="button" class="btn btn-link back-button">Back to Checking</button>
+        <button type="button" class="btn btn-primary circulator-edit-button">
+          <i class="fas fa-plus"></i>
+          New Circulator
+        </button>
+        <div>
+          <table id="circulator-table" class="table table-sm table-striped table-hover">
+            <thead>
+              <tr>
+                <th></th>
+                <th class="number">ID</th>
+                <th>Name</th>
+                <th class="number">Page Count</th>
+                <th class="number">Processed Lines</th>
+                <th class="number">Valid Lines</th>
+                <th class="number">% Valid</th>
+                  <% if (useCirculatorStatus) { %>
+                    <th>Status</th>
                   <% } %>
-                </div>
-              </td>
-              <td class="number"><%- c.id %></td>
-              <td><%- c.name %></td>
-              <td class="number"><%- c.page_count %></td>
-              <td class="w-25">
-                <% if (c.pages) { %>
-                  <a href="/<%= project.code %>/challenge.html?p=<%= encodeURIComponent(c.pages) %>" target="_blank"
-                    title="Get list of petition defects">
-                    <%- c.pages %>
-                  </a>
-                <% } else { %>
-                  <%- c.pages %>
-                <% } %>
-              </td>
-              <td class="number"><%- c.processed_lines %></td>
-              <td class="number"><%- c.valid_lines %></td>
-              <td class="number">
-                <% if (c.processed_lines) { %>
-                  <%- Math.round(100 * c.valid_lines / c.processed_lines, 1) %>
-                <% } %>
-              </td>
-              <% if (useCirculatorStatus) { %>
-                <td><%- c.status %></td>
-              <% } %>
-              <td><%- c.notes %></td>
-            </tr>
-          <% }); %>
-        </tbody>
-      </table>
+                <th>Notes</th>
+                <th>Pages</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% _.each(circulators, function (c) { %>
+                <tr>
+                  <td>
+                    <div class="btn-group btn-group-sm">
+                      <button type="button" class="btn btn-outline-primary table-button circulator-edit-button" data-id="<%- c.id %>" title="Edit">
+                        <i class="fas fa-pencil-alt fa-fw"></i>
+                      </button>
+                      <% if (c.page_count) { %>
+                        <button type="button" class="btn btn-outline-success table-button circulator-totals-button" data-id="<%- c.id %>" data-name="<%- c.name %>" title="Totals">
+                          <i class="fas fa-table fa-fw"></i>
+                        </button>
+                      <% } else { %>
+                        <button type="button" class="btn btn-outline-danger table-button circulator-delete-button" data-id="<%- c.id %>" title="Delete">
+                          <i class="fas fa-trash fa-fw"></i>
+                        </button>
+                      <% } %>
+                    </div>
+                  </td>
+                  <td class="number"><%- c.id %></td>
+                  <td><%- c.name %></td>
+                  <td class="number"><%- c.page_count %></td>
+                  <td class="number"><%- c.processed_lines %></td>
+                  <td class="number"><%- c.valid_lines %></td>
+                  <td class="number">
+                    <% if (c.processed_lines) { %>
+                      <%- Math.round(100 * c.valid_lines / c.processed_lines, 1) %>
+                    <% } %>
+                  </td>
+                  <% if (useCirculatorStatus) { %>
+                    <td><%- c.status %></td>
+                  <% } %>
+                  <td><%- c.notes %></td>
+                  <td>
+                    <% if (c.pages) { %>
+                      <a href="/<%= project.code %>/challenge.html?p=<%= encodeURIComponent(c.pages) %>" target="_blank"
+                         title="Get list of petition defects">
+                        <%- c.pages %>
+                      </a>
+                    <% } else { %>
+                      <%- c.pages %>
+                    <% } %>
+                  </td>
+                </tr>
+              <% }); %>
+            </tbody>
+          </table>
+        </div>
+      </div>
     </script>
     <script type="text/template" id="page-table-template">
-      <button type="button" class="btn btn-link back-button">Back to Checking</button>
-      <button type="button" class="btn btn-primary page-edit-button">
-        <i class="fas fa-plus"></i>
-        New Page
-      </button>
-      <table id="page-table" class="table table-sm table-striped table-hover">
-        <thead>
-        <tr>
-          <th></th>
-          <th class="number">Page</th>
-          <th>Circulator</th>
-          <th>Date</th>
-          <th>Notes</th>
-          <th class="text-right">Processed</th>
-          <th>Checker</th>
-        </tr>
-        </thead>
-        <tbody>
-        <% _.each(pages, function (p) { %>
-        <tr>
-          <td>
-            <button type="button" class="btn btn-outline-primary table-button btn-sm page-edit-button" data-number="<%- p.number %>" title="Edit">
-              <i class="fas fa-pencil-alt"></i>
-            </button>
-          </td>
-          <td class="number"><%- p.number %></td>
-          <td><%- p.circulator_name %></td>
-          <td><%- p.date_signed ? p.date_signed.replace(/^(\d{4})-(\d\d)-(\d\d).*/, '$2/$3') : '' %></td>
-          <td><%- p.notes || '' %></td>
-          <td class="text-right"><%- p.processed_lines %></td>
-          <td><%- p.checker %></td>
-        </tr>
-        <% }); %>
-        </tbody>
-      </table>
+      <div class="col">
+        <button type="button" class="btn btn-link back-button">Back to Checking</button>
+        <button type="button" class="btn btn-primary page-edit-button">
+          <i class="fas fa-plus"></i>
+          New Page
+        </button>
+        <div>
+          <table id="page-table" class="table table-sm table-striped table-hover">
+            <thead>
+            <tr>
+              <th></th>
+              <th class="number">Page</th>
+              <th>Circulator</th>
+              <th>Date</th>
+              <th>Notes</th>
+              <th class="text-right">Processed</th>
+              <th>Checker</th>
+            </tr>
+            </thead>
+            <tbody>
+            <% _.each(pages, function (p) { %>
+              <tr>
+                <td>
+                  <button type="button" class="btn btn-outline-primary table-button btn-sm page-edit-button" data-number="<%- p.number %>" title="Edit">
+                    <i class="fas fa-pencil-alt"></i>
+                  </button>
+                </td>
+                <td class="number"><%- p.number %></td>
+                <td><%- p.circulator_name %></td>
+                <td><%- p.date_signed ? p.date_signed.replace(/^(\d{4})-(\d\d)-(\d\d).*/, '$2/$3') : '' %></td>
+                <td><%- p.notes || '' %></td>
+                <td class="text-right"><%- p.processed_lines %></td>
+                <td><%- p.checker %></td>
+              </tr>
+            <% }); %>
+            </tbody>
+          </table>
+        </div>
+      </div>
     </script>
     <script type="text/template" id="user-table-template">
+      <div class="col">
         <button type="button" class="btn btn-link back-button">Back to Checking</button>
         <button type="button" class="btn btn-primary user-edit-button">
           <i class="fas fa-plus"></i>
           New User
         </button>
-        <table id="user-table" class="table table-sm table-striped table-hover">
-          <thead>
-            <tr>
-              <th></th>
-              <th>Username</th>
-              <th>Name</th>
-              <th>Email</th>
-              <th class="text-center">Admin</th>
-              <th class="text-center">Blocked</th>
-              <th class="number">Page Count</th>
-              <th>Pages</th>
-            </tr>
-          </thead>
-          <tbody>
-            <% _.each(users, function (user) { %>
-              <tr data-id="<%- user.id %>">
-                <td>
-                  <div class="btn-group btn-group-sm">
-                    <button type="button" class="btn btn-outline-primary table-button user-edit-button" data-id="<%- user.id %>" title="Edit">
-                      <i class="fas fa-pencil-alt fa-fw"></i>
-                    </button>
-                    <button type="button" class="btn btn-outline-success table-button send-token-button" data-email="<%- user.email %>" title="Send Link">
-                      <i class="fas fa-envelope fa-fw"></i>
-                    </button>
-                    <button type="button" class="btn btn-outline-info table-button assign-modal-button" data-toggle="modal" data-target="#assign-pages-modal" data-backdrop="false" title="Assign Pages">
-                      <i class="fas fa-file-contract fa-fw"></i>
-                    </button>
-                  </div>
-                </td>
-                <td><%- user.username %></td>
-                <td><%- user.name %></td>
-                <td><%- user.email %></td>
-                <td class="text-center">
-                  <% if (user.admin) { %>
-                    <i class="fas fa-user-check"></i>
-                  <% } %>
-                </td>
-                <td class="text-center">
-                  <% if (user.blocked) { %>
-                    <i class="fas fa-ban"></i>
-                  <% } %>
-                </td>
-                <td class="number"><%- user.page_count %></td>
-                <td><%- user.pages %></td>
+        <div>
+          <table id="user-table" class="table table-sm table-striped table-hover">
+            <thead>
+              <tr>
+                <th></th>
+                <th>Username</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th class="text-center">Admin</th>
+                <th class="text-center">Blocked</th>
+                <th class="number">Page Count</th>
+                <th>Pages</th>
               </tr>
-            <% }); %>
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              <% _.each(users, function (user) { %>
+                <tr data-id="<%- user.id %>">
+                  <td>
+                    <div class="btn-group btn-group-sm">
+                      <button type="button" class="btn btn-outline-primary table-button user-edit-button" data-id="<%- user.id %>" title="Edit">
+                        <i class="fas fa-pencil-alt fa-fw"></i>
+                      </button>
+                      <button type="button" class="btn btn-outline-success table-button send-token-button" data-email="<%- user.email %>" title="Send Link">
+                        <i class="fas fa-envelope fa-fw"></i>
+                      </button>
+                      <button type="button" class="btn btn-outline-info table-button assign-modal-button" data-toggle="modal" data-target="#assign-pages-modal" data-backdrop="false" title="Assign Pages">
+                        <i class="fas fa-file-contract fa-fw"></i>
+                      </button>
+                    </div>
+                  </td>
+                  <td><%- user.username %></td>
+                  <td><%- user.name %></td>
+                  <td><%- user.email %></td>
+                  <td class="text-center">
+                    <% if (user.admin) { %>
+                      <i class="fas fa-user-check"></i>
+                    <% } %>
+                  </td>
+                  <td class="text-center">
+                    <% if (user.blocked) { %>
+                      <i class="fas fa-ban"></i>
+                    <% } %>
+                  </td>
+                  <td class="number"><%- user.page_count %></td>
+                  <td><%- user.pages %></td>
+                </tr>
+              <% }); %>
+            </tbody>
+          </table>
+        </div>
+      </div>
     </script>
     <script type="text/template" id="total-table-template">
-      <div class="col-lg-6 col-md-8">
+      <div class="col">
         <button type="button" class="btn btn-link back-button">Back to Checking</button>
-        <table id="total-table" class="table table-striped table-hover">
-          <caption>Totals<% if (circulatorName) { %> for <%- circulatorName %><% } %></caption>
-          <tbody>
-            <% _.each(totals, function (total, label) { %>
+        <div>
+          <table id="total-table" class="table table-striped table-hover">
+            <caption>Totals<% if (circulatorName) { %> for <%- circulatorName %><% } %></caption>
+            <tbody>
+              <% _.each(totals, function (total, label) { %>
+                <tr>
+                  <td colspan="2"><%- label %></td>
+                  <td class="text-right"><%- typeof total === 'number' ? total.toLocaleString() : total %></td>
+                </tr>
+              <% }); %>
               <tr>
-                <td><%- label %></td>
-                <td class="text-right"><%- typeof total === 'number' ? total.toLocaleString() : total %></td>
+                <td>Ward breakdown</td>
+                <td class="pr-0" colspan="2">
+                  <table class="table table-striped">
+                    <tbody>
+                      <% _.each(wardBreakdown, function (info, ward) { %>
+                        <tr>
+                          <td><% if (ward !== 'TOTAL') { %>Ward <% } %><%- ward %></td>
+                          <td class="text-right text-nowrap">
+                            <%- info.signers.toLocaleString() %>
+                            <% if (!circulatorName) { %>
+                              / <%- info.registered.toLocaleString() %>
+                              (<%- (100 * info.signers / info.registered).toFixed(2) %>%)
+                            <% } %>
+                          </td>
+                        </tr>
+                      <% }); %>
+                    </tbody>
+                  </table>
+                </td>
               </tr>
-            <% }); %>
-            <tr>
-              <td>Ward breakdown</td>
-              <td>
-                <table class="table table-striped">
-                  <tbody>
-                    <% _.each(wardBreakdown, function (info, ward) { %>
-                      <tr>
-                        <td><% if (ward !== 'TOTAL') { %>Ward <% } %><%- ward %></td>
-                        <td class="text-right">
-                          <%- info.signers.toLocaleString() %>
-                          <% if (!circulatorName) { %>
-                            / <%- info.registered.toLocaleString() %>
-                            (<%- (100 * info.signers / info.registered).toFixed(2) %>%)
-                          <% } %>
-                        </td>
-                      </tr>
-                    <% }); %>
-                  </tbody>
-                </table>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+            </tbody>
+          </table>
+        </div>
       </div>
     </script>
   </body>

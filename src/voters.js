@@ -652,9 +652,10 @@
                 },
                 columns: [
                     {
-                        defaultContent: '<button type="button" class="btn btn-outline-primary btn-sm edit-button table-button" ' +
-                            'title="Edit"><i class="fas fa-edit"></i></button>',
+                        defaultContent: '<button type="button" class="btn btn-outline-primary btn-sm edit-button ' +
+                            'table-button" title="Edit"><i class="fas fa-edit"></i></button>',
                         title: '',
+                        width: 33,
                         searchable: false,
                         orderable: false,
                     },
@@ -677,12 +678,15 @@
                     {
                         data: 'checker',
                         title: 'Checker',
+                        width: 60,
                         searchable: false,
                         orderable: false,
                     },
                     {
                         data: 'check_time',
                         title: 'Check Time',
+                        width: 164,
+                        className: 'text-nowrap',
                         searchable: false,
                         orderable: false,
                         createdCell(cell, cellData) {
@@ -695,18 +699,21 @@
                         data: 'finding',
                         title: 'Finding',
                         className: 'text-center',
+                        width: 30,
                         searchable: false,
                         orderable: false,
                     },
                     {
                         data: 'voter_name',
                         title: 'Name',
+                        className: 'text-nowrap',
                         searchable: true,
                         orderable: false,
                     },
                     {
                         data: 'address',
                         title: 'Address',
+                        className: 'text-nowrap',
                         searchable: true,
                         orderable: false,
                     },
@@ -714,6 +721,7 @@
                         data: 'ward',
                         className: 'text-right',
                         title: 'Ward',
+                        width: 30,
                         searchable: true,
                         orderable: false,
                     },
@@ -724,6 +732,7 @@
                                 : '';
                         },
                         title: 'Date',
+                        width: 60,
                         searchable: true,
                         orderable: false,
                     },
