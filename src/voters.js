@@ -294,11 +294,6 @@
             return '/api/' + (project ? project.code + '/' : '') + path;
         }
 
-        function addProjectCode(url) {
-            const project = status.project;
-            return project ? url.replace(/^(\/(:api\/)?)/, (match, p1) => p1 + project.code + '/') : url;
-        }
-
         function start() {
             getStatus(function (err, status) {
                 if (err) {
@@ -395,7 +390,7 @@
 
         $('#top-nav').on('click', '.project-link', function (evt) {
             evt.preventDefault();
-            window.open(addProjectCode($(this).attr('href')));
+            window.open(apiUrl($(this).attr('href')));
         });
 
         $('#main-container').on('click', '.user-edit-button', editUser);
