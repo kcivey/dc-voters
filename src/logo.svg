@@ -1,0 +1,16 @@
+<svg  xmlns="http://www.w3.org/2000/svg" height="100" width="100" viewBox="-10 -5 120 120">
+  <style>
+    .stroked { stroke: #000; stroke-width: 2; }
+  </style>
+  <g id="diamond">
+    <polygon id="diamond-fill" points="0,50, 50,0 100,50 50,100" fill="#fff"/>
+    <path id="dc" d="M 21,29 L 50,0 L 100,50 L 54,96 A 75,75,0,0,0,21,29" fill="#bf0000"/>
+    <polygon id="diamond-border" points="0,50, 50,0 100,50 50,100" fill="none" class="stroked"/>
+    <line id="anacostia" x1="38" y1="88" x2="88" y2="38" class="stroked" stroke-dasharray="2 2"/>
+  </g>
+  <g id="potomac">
+    <circle cx="52" cy="108" r="2" fill="#000" class="stroked"/>
+    <path d="M 52,108 A 75,75,0,0,0,10,23" fill="none" class="stroked"/>
+    <path d="M 10,29 L 10,23 L 16,23" class="stroked" fill="none" transform="rotate(-20 10 23)"/>
+  </g>
+</svg>

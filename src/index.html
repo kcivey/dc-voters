@@ -4,7 +4,7 @@
     <title>Petition Validation</title>
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
-    <meta name="author" content="Keith C. Ivey (keith at iveys dot org)"/>
+    <meta name="author" content="Keith C. Ivey (keith@iveys.org)"/>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.9.0/css/fontawesome.min.css"
       integrity="sha256-AaQqnjfGDRZd/lUp0Dvy7URGOyRsh8g9JdWUkyYxNfI=" crossorigin="anonymous" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.9.0/css/solid.min.css"
@@ -106,6 +106,10 @@
       caption {
         caption-side: top;
       }
+      .nav-brand img {
+        height: 2.5rem;
+        padding-right: 0.5rem;
+      }
     </style>
   </head>
   <body>
@@ -113,7 +117,7 @@
     <div id="send-token-card" class="card bg-light">
       <div class="card-body">
         <h4 class="card-title">Get Login Link</h4>
-        <form action="/send-token" method="post" id="send-token-form">
+        <form action="/send-toke40pxn" method="post" id="send-token-form">
           <div class="form-group row">
             <label class="col-form-label col-sm-3" for="send-token-email">Email</label>
             <div class="col-sm-9">
@@ -270,8 +274,13 @@
     </div>
 
     <div id="bottom-nav" class="navbar fixed-bottom navbar-light">
-      <div class="navbar-item navbar-text">Copyright <a href="https://dcgeekery.com">Keith C. Ivey</a>, 2012–2019.
-        Send corrections and comments to keith@iveys.org.</div>
+      <div class="navbar-nav">
+        <a href="https://dcgeekery.com" class="nav-brand">
+          <img src="logo.svg" alt="DC Geekery">
+        </a>
+      </div>
+      <div class="navbar-item navbar-text">© <a href="https://dcgeekery.com">Keith C. Ivey</a> 2012–2019.
+        Send corrections and comments to <a href="mailto:keith@iveys.org">keith@iveys.org</a>.</div>
       <div class="navbar-item navbar-text ml-auto version"></div>
     </div>
 
