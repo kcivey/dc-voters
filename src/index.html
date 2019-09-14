@@ -86,6 +86,10 @@
       .navbar-light .navbar-nav .nav-link, .navbar-light .navbar-text {
         color: #333333;
       }
+      .table-button, .btn-group > .table-button {
+        border-color: transparent;
+        padding: 0.2rem;
+      }
     </style>
   </head>
   <body>
@@ -613,15 +617,15 @@
             <tr>
               <td>
                 <div class="btn-group btn-group-sm">
-                  <button type="button" class="btn btn-outline-primary circulator-edit-button" data-id="<%- c.id %>" title="Edit">
-                    <i class="fas fa-edit fa-fw"></i>
+                  <button type="button" class="btn btn-outline-primary table-button circulator-edit-button" data-id="<%- c.id %>" title="Edit">
+                    <i class="fas fa-pencil-alt fa-fw"></i>
                   </button>
                   <% if (c.page_count) { %>
-                    <button type="button" class="btn btn-outline-success circulator-totals-button" data-id="<%- c.id %>" data-name="<%- c.name %>" title="Totals">
+                    <button type="button" class="btn btn-outline-success table-button circulator-totals-button" data-id="<%- c.id %>" data-name="<%- c.name %>" title="Totals">
                       <i class="fas fa-table fa-fw"></i>
                     </button>
                   <% } else { %>
-                    <button type="button" class="btn btn-outline-danger circulator-delete-button" data-id="<%- c.id %>" title="Delete">
+                    <button type="button" class="btn btn-outline-danger table-button circulator-delete-button" data-id="<%- c.id %>" title="Delete">
                       <i class="fas fa-trash fa-fw"></i>
                     </button>
                   <% } %>
@@ -678,8 +682,8 @@
         <% _.each(pages, function (p) { %>
         <tr>
           <td>
-            <button type="button" class="btn btn-outline-primary btn-sm page-edit-button" data-number="<%- p.number %>" title="Edit">
-              <i class="fas fa-edit"></i>
+            <button type="button" class="btn btn-outline-primary table-button btn-sm page-edit-button" data-number="<%- p.number %>" title="Edit">
+              <i class="fas fa-pencil-alt"></i>
             </button>
           </td>
           <td class="number"><%- p.number %></td>
@@ -717,13 +721,13 @@
               <tr data-id="<%- user.id %>">
                 <td>
                   <div class="btn-group btn-group-sm">
-                    <button type="button" class="btn btn-outline-primary user-edit-button" data-id="<%- user.id %>" title="Edit">
-                      <i class="fas fa-edit fa-fw"></i>
+                    <button type="button" class="btn btn-outline-primary table-button user-edit-button" data-id="<%- user.id %>" title="Edit">
+                      <i class="fas fa-pencil-alt fa-fw"></i>
                     </button>
-                    <button type="button" class="btn btn-outline-success send-token-button" data-email="<%- user.email %>" title="Send Link">
+                    <button type="button" class="btn btn-outline-success table-button send-token-button" data-email="<%- user.email %>" title="Send Link">
                       <i class="fas fa-envelope fa-fw"></i>
                     </button>
-                    <button type="button" class="btn btn-outline-info assign-modal-button" data-toggle="modal" data-target="#assign-pages-modal" data-backdrop="false" title="Assign Pages">
+                    <button type="button" class="btn btn-outline-info table-button assign-modal-button" data-toggle="modal" data-target="#assign-pages-modal" data-backdrop="false" title="Assign Pages">
                       <i class="fas fa-file-contract fa-fw"></i>
                     </button>
                   </div>

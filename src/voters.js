@@ -652,7 +652,7 @@
                 },
                 columns: [
                     {
-                        defaultContent: '<button type="button" class="btn btn-outline-primary btn-sm edit-button" ' +
+                        defaultContent: '<button type="button" class="btn btn-outline-primary btn-sm edit-button table-button" ' +
                             'title="Edit"><i class="fas fa-edit"></i></button>',
                         title: '',
                         searchable: false,
