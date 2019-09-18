@@ -1,88 +1,64 @@
 #!/usr/bin/env node
 
-const passwordHash = require('password-hash');
-const _ = require('underscore');
-const async = require('async');
-const argv = require('minimist')(process.argv.slice(2), {boolean: ['admin']});
+const assert = require('assert');
+const NumberList = require('number-list');
+const argv = require('yargs')
+    .options({
+        admin: {
+            type: 'boolean',
+            describe: 'make the user an admin',
+            default: false,
+        },
+        email: {
+            type: 'string',
+            describe: 'user\'s email',
+            required: true,
+            requiresArg: true,
+        },
+        name: {
+            type: 'string',
+            describe: 'user\'s name',
+            requiresArg: true,
+            defaultDescription: 'username',
+        },
+        pages: {
+            type: 'string',
+            describe: 'page range to assign to user',
+            requiresArg: true,
+            default: '',
+            defaultDescription: 'none',
+        },
+        project: {
+            type: 'string',
+            describe: 'code for project',
+            required: true,
+        },
+    })
+    .check(function (argv) {
+        assert.strictEqual(argv._.length, 1, 'Username required and no other arguments');
+        assert(/^\w+$/.test(argv._[0]), 'Username must contain only letters, numbers, and underscores');
+        return true;
+    })
+    .strict(true)
+    .argv;
 const db = require('../lib/db');
-const table = 'users';
-const admin = argv.admin;
-const email = argv.email || '';
-let username = argv._[0];
-let password = argv._[1];
-let pageRange = argv.pages;
-let startPage;
-let endPage;
 
-if (!username) {
-    throw new Error('Missing username');
-}
-if (!/^\w+$/.test(username)) {
-    throw new Error('Username must contain only letters, numbers, and underscores');
-}
-username = username.toLowerCase();
+main()
+    .then(() => console.log('Added'))
+    .catch(console.trace)
+    .finally(() => db.close());
 
-if (/^\d+-\d+$/.test(password)) {
-    pageRange = password;
-    password = null;
-}
-
-if (!password) {
-    password = _.range(4)
-        .map(() => _.range(10)[Math.floor(Math.random() * 10)].toString())
-        .join('');
-}
-
-let m;
-if (pageRange && (m = pageRange.match(/^(\d+)-(\d+)$/))) {
-    startPage = +m[1];
-    endPage = +m[2];
-}
-
-function insertUser(callback) {
-    db.query(
-        `INSERT INTO ${table} (username, password, admin, email) VALUES (?, ?, ?, ?)`,
-        [username, passwordHash.generate(password), admin ? 1 : 0, email],
-        function (err, result) {
-            if (err) {
-                if (err.code === 'ER_DUP_ENTRY') {
-                    console.log('User ' + username + ' already exists');
-                }
-                else {
-                    return callback(err);
-                }
-            }
-            else {
-                console.log(result.affectedRows + ' user record created');
-                console.log('Username ' + username + ', password ' + password);
-            }
-            return callback(null, result);
-        }
-    );
-}
-
-function assignPages(callback) {
-    db.query(
-        "UPDATE petition_lines SET checker = ? WHERE finding = '' AND page BETWEEN ? AND ?",
-        [username, startPage, endPage],
-        function (err, result) {
-            if (err) {
-                return callback(err);
-            }
-            console.log(result.affectedRows + ' lines assigned');
-            return callback(null, result);
-        }
-    );
-}
-
-const todo = [insertUser];
-if (pageRange) {
-    todo.push(assignPages);
-}
-
-async.series(todo, function (err) {
-    if (err) {
-        throw err;
+async function main() {
+    const email = argv.email;
+    const admin = argv.admin;
+    const pages = NumberList.parse(argv.pages);
+    const username = argv._[0].toLowerCase();
+    const name = argv.name || username;
+    const project = await db.getProjectByCode(argv.project);
+    assert(project, `No such project "${project}"`);
+    await db.createOrUpdateUser(project.id, {username, email, admin, name});
+    if (pages.length) {
+        const pagesAssigned = await db.assignPages(username, pages);
+        console.warn('%d pages assigned', pagesAssigned);
     }
-    process.exit();
-});
+}

@@ -1,57 +1,69 @@
 #!/usr/bin/env node
-require('dotenv');
 
-const stringifier = require('csv-stringify')({header: true});
-const argv = require('minimist')(process.argv.slice(2));
+const stringify = require('csv-stringify/lib/sync');
+const argv = require('yargs')
+    .options({
+        'anc': {
+            type: 'string',
+            describe: 'get voters in specified ANC (if 2 characters) or SMD',
+            requiredArg: true,
+        },
+        'party': {
+            type: 'string',
+            describe: 'get voters in specified party',
+            requiredArg: true,
+        },
+        'precinct': {
+            type: 'string',
+            describe: 'get voters in specified precinct',
+            requiredArg: true,
+        },
+        'ward': {
+            type: 'number',
+            describe: 'get voters in specified ward',
+            requiredArg: true,
+        },
+        'with-apt': {
+            type: 'boolean',
+            describe: 'get voters with apartment numbers',
+        },
+    })
+    .strict(true)
+    .argv;
 const db = require('../lib/db');
-let sql = 'SELECT * FROM voters WHERE 1';
-const values = [];
 
-stringifier
-    .on('readable', function () {
-        let data;
-        while ((data = stringifier.read())) {
-            process.stdout.write(data);
+getVoters()
+    .catch(console.trace)
+    .finally(() => db.close());
+
+async function getVoters() {
+    const criteria = getCriteria();
+    const length = 10000;
+    let offset = 0;
+    while (true) {
+        const voterRecords = await db.getVoters(criteria, offset, length);
+        const csv = stringify(voterRecords, {headers: true});
+        process.stdout.write(csv);
+        if (voterRecords.length < length) {
+            break;
         }
-    })
-    .on('error', function (err) {
-        throw err;
-    })
-    .on('finish', function () {
-        process.exit();
-    });
-
-if (argv.precinct) {
-    sql += ' AND precinct = ?';
-    values.push(+argv.precinct);
-}
-if (argv.party) {
-    sql += ' AND party = ?';
-    values.push(argv.party);
-}
-if (argv['with-apt']) {
-    sql += " AND res_apt <> ''";
-}
-if (argv.anc) {
-    sql += ' AND ' + (/^[1-8][A-H]$/i.test(argv.anc) ? 'anc' : 'smd') + ' = ?';
-    values.push(argv.anc.toUpperCase());
-}
-if (argv.ward) {
-    sql += ' AND ward = ?';
-    values.push(argv.ward);
-}
-
-sql += ' ORDER BY lastname, firstname, middle';
-
-db.query(sql, values, function (err, rows) {
-    if (err) {
-        throw err;
+        offset += length;
     }
-    rows.forEach(function (row) {
-        if (!argv['include-id']) {
-            delete row.voter_id;
+}
+
+function getCriteria() {
+    const criteria = {};
+    for (const column of ['precinct', 'party', 'ward']) {
+        if (argv.hasOwnProperty(column)) {
+            criteria[column] = argv[column];
         }
-        stringifier.write(row);
-    });
-    stringifier.end();
-});
+    }
+    if (argv['with-apt']) {
+        criteria.res_apt = ['<>', ''];
+    }
+    if (argv.anc) {
+        const column = argv.anc.length === 2 ? 'anc' : 'smd';
+        criteria[column] = argv.anc;
+    }
+    return criteria;
+}

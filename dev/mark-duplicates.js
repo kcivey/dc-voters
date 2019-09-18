@@ -1,46 +1,51 @@
 #!/usr/bin/env node
 
-const async = require('async');
+const assert = require('assert');
 const db = require('../lib/db');
-const argv = require('minimist')(process.argv.slice(2), {boolean: ['dry-run']});
-const sql = 'SELECT l1.page AS original_page, l1.line AS original_line, l1.finding AS original_finding, ' +
-    'l2.page AS duplicate_page, l2.line AS duplicate_line, l2.finding AS duplicate_finding, ' +
-    'l2.notes AS duplicate_notes ' +
-    'FROM petition_lines l1 INNER JOIN petition_lines l2 ON l1.voter_id = l2.voter_id ' +
-    "WHERE l1.voter_id <> '' AND l1.id < l2.id AND l1.finding <> 'D' AND l2.finding <> 'D' AND " +
-    "(l1.notes NOT LIKE '%Duplicate%' OR l1.notes IS NULL) AND " +
-    "(l2.notes NOT LIKE '%Duplicate%' OR l2.notes IS NULL) AND " +
-    'l1.id = (SELECT MIN(l3.id) FROM petition_lines l3 WHERE l3.voter_id = l1.voter_id) ' +
-    'ORDER BY l1.page, l1.line';
+const argv = require('yargs')
+    .options({
+        'dry-run': {
+            type: 'boolean',
+            describe: 'don\'t actually mark, ust say how many would be marked',
+            default: false,
+        },
+        project: {
+            type: 'string',
+            describe: 'code for project',
+            required: true,
+        },
+    })
+    .strict(true)
+    .argv;
 
-db.query(sql, function (err, rows) {
-    const updates = [];
-    if (err) {
-        throw err;
+main()
+    .then(() => console.log('Marked'))
+    .catch(console.trace)
+    .finally(() => db.close());
+
+async function main() {
+    const project = await db.getProjectByCode(argv.project);
+    assert(project, `No such project "${project}"`);
+    const projectId = project.id;
+    const rows = await db.getDuplicateLines(projectId);
+    console.warn('%d duplicates found', rows.length);
+    if (argv['dry-run']) {
+        console.warn('Skipping updates because this is a dry run');
+        return;
     }
-    rows.forEach(function (row) {
+    for (const row of rows) {
         let notes = row.duplicate_notes || '';
         let finding = row.duplicate_finding;
-        const sql = 'UPDATE petition_lines SET finding = ?, notes = ? WHERE page = ? AND line = ?';
         if (notes) {
             notes += '; ';
         }
-        notes += 'Duplicate of page ' + row.original_page + ', line ' + row.original_line;
+        notes += `Duplicate of page ${row.original_page}, line ${row.original_line}`;
         if (finding === 'OK') {
             finding = 'D';
         }
-        const values = [finding, notes, row.duplicate_page, row.duplicate_line];
-        updates.push(next => db.query(sql, values, next));
-    });
-    console.log(`Marking ${updates.length} duplicates`);
-    if (argv['dry-run']) {
-        console.log('Skipping updates because this is a dry run');
-        process.exit();
+        const updates = {finding, notes};
+        const page = row.duplicate_page;
+        const line = row.duplicate_line;
+        await db.updateLineOrRange({projectId, page, line, updates});
     }
-    async.series(updates, function (err) {
-        if (err) {
-            throw err;
-        }
-        process.exit();
-    });
-});
+}
