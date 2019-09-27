@@ -6,9 +6,9 @@
     "start": "node app"
   },
   "dependencies": {
-    "@babel/cli": "^7.6.0",
-    "@babel/core": "^7.6.0",
-    "@babel/preset-env": "^7.6.0",
+    "@babel/cli": "^7.6.2",
+    "@babel/core": "^7.6.2",
+    "@babel/preset-env": "^7.6.2",
     "body-parser": "^1.19.0",
     "browserify": "^16.5.0",
     "compression": "^1.7.4",
@@ -29,11 +29,11 @@
     "passwordless": "^1.1.3",
     "passwordless-mysql": "github:kcivey/passwordless-mysql",
     "request": "^2.88.0",
-    "terser": "^4.3.1",
+    "terser": "^4.3.3",
     "underscore": "^1.9.1",
     "yargs": "^14.0.0"
   },
   "devDependencies": {
-    "eslint": "^6.3.0"
+    "eslint": "^6.4.0"
   }
 }
