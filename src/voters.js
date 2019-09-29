@@ -682,7 +682,7 @@
             });
         });
 
-        $('#review-links').on('click', 'a', function (evt) {
+        $('#review-links').on('click', 'button', function (evt) {
             evt.preventDefault();
             const linkText = $(this).text();
             if (/^Back/.test(linkText)) {
@@ -858,7 +858,6 @@
                         .on('click', '.back-button', backToChecking);
                 }
             );
-            return false;
         }
 
         $('#bottom-row')
@@ -945,7 +944,6 @@
                         .on('click', '.back-button', backToChecking);
                 }
             );
-            return false;
         }
 
         function getTemplate(name) {

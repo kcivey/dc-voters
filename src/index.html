@@ -147,35 +147,50 @@
       </button>
       <div id="nav-dropdowns" class="navbar-nav justify-content-end collapse navbar-collapse">
         <div class="nav-item dropdown">
-          <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">
+          <button class="btn btn-link nav-link dropdown-toggle" type="button" data-toggle="dropdown">
             Downloads
-          </a>
+          </button>
           <div class="dropdown-menu">
             <a href="completed.tsv" class="dropdown-item project-link">All completed lines</a>
             <a href="challenge.html" class="dropdown-item project-link">Challenge report</a>
           </div>
         </div>
         <div class="nav-item dropdown">
-          <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">
+          <button class="nav-link dropdown-toggle btn btn-link" type="button" data-toggle="dropdown">
             Review Your Work
-          </a>
+          </button>
           <div class="dropdown-menu" id="review-links">
-            <a href="#" class="dropdown-item">All</a>
-            <a href="#" class="dropdown-item" data-value="S">Skipped Lines</a>
-            <a href="#" class="dropdown-item" data-value="I">Illegible Lines</a>
-            <a href="#" class="dropdown-item" data-value="NR">Not Registered</a>
-            <a href="#" id="go-back" class="dropdown-item">Back to Checking</a>
+            <button class="dropdown-item btn btn-link" type="button">
+              All
+            </button>
+            <button class="dropdown-item btn btn-link" type="button" data-value="S">
+              Skipped Lines
+            </button>
+            <button class="dropdown-item btn btn-link" type="button" data-value="I">
+              Illegible Lines
+            </button>
+            <button class="dropdown-item btn btn-link" type="button" data-value="NR">
+              Not Registered
+            </button>
           </div>
         </div>
         <div class="nav-item dropdown admin-only">
-          <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">
+          <button class="nav-link dropdown-toggle btn btn-link" type="button" data-toggle="dropdown">
               Admin
-          </a>
+          </button>
           <div class="dropdown-menu">
-            <a class="dropdown-item table-link" data-name="circulators" href="#">Circulators</a>
-            <a class="dropdown-item table-link" data-name="pages" href="#">Pages</a>
-            <a class="dropdown-item table-link" data-name="users" href="#">Users</a>
-            <a id="totals-link" class="dropdown-item" href="#">Totals</a>
+            <button class="dropdown-item table-link btn btn-link" type="button" data-name="circulators">
+              Circulators
+            </button>
+            <button class="dropdown-item table-link btn btn-link" type="button" data-name="pages">
+              Pages
+            </button>
+            <button class="dropdown-item table-link btn btn-link" type="button" data-name="users">
+              Users
+            </button>
+            <button id="totals-link" class="dropdown-item btn btn-link" type="button">
+              Totals
+            </button>
           </div>
         </div>
         <div class="nav-item">
