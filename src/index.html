@@ -39,6 +39,11 @@
         right: 0;
         margin-left: 6px;
       }
+      #edit-line-form {
+        background-color: #f8f9fa;
+        border: 1px solid rgba(0,0,0,.125);
+        min-width: 14rem;
+      }
       #finding {
         padding-right: 84px;
       }
@@ -112,7 +117,7 @@
     <div id="send-token-card" class="card bg-light">
       <div class="card-body">
         <h4 class="card-title">Get Login Link</h4>
-        <form action="/send-toke40pxn" method="post" id="send-token-form">
+        <form action="/send-token" method="post" id="send-token-form">
           <div class="form-group row">
             <label class="col-form-label col-sm-3" for="send-token-email">Email</label>
             <div class="col-sm-9">
@@ -142,10 +147,49 @@
         </div>
       </div>
       <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#nav-dropdowns"
-              aria-controls="nav-dropdowns" aria-expanded="false" aria-label="Toggle navigation">
+        aria-controls="nav-dropdowns" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
       <div id="nav-dropdowns" class="navbar-nav justify-content-end collapse navbar-collapse">
+        <div class="nav-item dropdown admin-only">
+          <button id="admin-dropdown" class="nav-link dropdown-toggle btn btn-link" type="button" data-toggle="dropdown">
+            Admin
+          </button>
+          <div class="dropdown-menu">
+            <button class="dropdown-item table-link btn btn-link" type="button" data-name="circulators">
+              Circulators
+            </button>
+            <button class="dropdown-item table-link btn btn-link" type="button" data-name="pages">
+              Pages
+            </button>
+            <button class="dropdown-item table-link btn btn-link" type="button" data-name="users">
+              Users
+            </button>
+            <button id="totals-link" class="dropdown-item btn btn-link" type="button">
+              Totals
+            </button>
+            <button id="edit-line-link" class="dropdown-item btn btn-link" data-target="#edit-line-form">
+              Edit Specific Line
+            </button>
+            <form id="edit-line-form" class="dropdown-item collapse">
+              <div class="form-row">
+                <div class="form-group col">
+                  <label for="edit-line-form-page">Page</label>
+                  <input type="number" id="edit-line-form-page" class="form-control" name="page">
+                </div>
+                <div class="form-group col">
+                  <label for="edit-line-form-line">Line</label>
+                  <input type="number" id="edit-line-form-line" class="form-control" name="line">
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group col">
+                  <button type="button" class="btn btn-primary edit-button">Edit</button>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
         <div class="nav-item dropdown">
           <button class="btn btn-link nav-link dropdown-toggle" type="button" data-toggle="dropdown">
             Downloads
@@ -171,25 +215,6 @@
             </button>
             <button class="dropdown-item btn btn-link" type="button" data-value="NR">
               Not Registered
-            </button>
-          </div>
-        </div>
-        <div class="nav-item dropdown admin-only">
-          <button class="nav-link dropdown-toggle btn btn-link" type="button" data-toggle="dropdown">
-              Admin
-          </button>
-          <div class="dropdown-menu">
-            <button class="dropdown-item table-link btn btn-link" type="button" data-name="circulators">
-              Circulators
-            </button>
-            <button class="dropdown-item table-link btn btn-link" type="button" data-name="pages">
-              Pages
-            </button>
-            <button class="dropdown-item table-link btn btn-link" type="button" data-name="users">
-              Users
-            </button>
-            <button id="totals-link" class="dropdown-item btn btn-link" type="button">
-              Totals
             </button>
           </div>
         </div>
@@ -377,22 +402,6 @@
           <button type="button" class="btn btn-secondary" id="illegible-button">Illegible</button>
         <% } %>
       </p>
-      <% if (admin) { %>
-        <p>Or edit a specific page and line number:</p>
-        <div class="form-row">
-          <div class="form-group col-sm-4">
-            <label for="check-form-page">Page</label>
-            <input type="number" id="check-form-page" class="form-control" name="page"/>
-          </div>
-          <div class="form-group col-sm-4">
-            <label for="check-form-line">Line</label>
-            <input type="number" id="check-form-line" class="form-control" name="line"/>
-          </div>
-          <div class="form-group col-sm-4 d-flex align-items-end">
-            <button type="button" class="btn btn-primary edit-button">Edit</button>
-          </div>
-        </div>
-      <% } %>
     </script>
     <script type="text/template" id="voter-row-template">
       <tr>

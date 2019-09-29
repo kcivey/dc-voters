@@ -567,34 +567,6 @@
             .on('click', '#illegible-button', function () {
                 editLine({finding: 'I'});
             })
-            .on('click', '.edit-button', function () {
-                const form = $('#check-form');
-                const page = +$('[name=page]', form).val();
-                const line = +$('[name=line]', form).val();
-                $.ajax({
-                    url: apiUrl('line/' + page + '/' + line),
-                    cache: false,
-                    dataType: 'json',
-                }).then(
-                    function (lineRecord) {
-                        status.lineRecord = lineRecord;
-                        setStatus(status);
-                    },
-                    function (jqXhr, textStatus, errorThrown) {
-                        const message = textStatus + ' (' + errorThrown + ')';
-                        const alert = $(alertTemplate({successful: false, text: message}));
-                        const timeoutHandle = setTimeout(() => alert.alert('close'), 2500);
-                        // remove any earlier alerts
-                        while (form.next().hasClass('alert')) {
-                            form.next().remove();
-                        }
-                        alert.insertAfter(form)
-                            .on('closed', function () {
-                                clearTimeout(timeoutHandle);
-                            });
-                    }
-                );
-            })
             .on('change input', 'input[type=text]', function () {
                 if (searchTimeout) {
                     clearTimeout(searchTimeout);
@@ -860,34 +832,6 @@
             );
         }
 
-        $('#bottom-row')
-            .on('click', '.assign-send-button', function () {
-                const modal = $('#assign-pages-modal');
-                const username = $('.username', modal).text();
-                const pageString = $('[name=pages]', modal).val();
-                const pages = stringToList(pageString);
-                if (pages.length) {
-                    $.ajax({
-                        url: apiUrl('users/' + username + '/pages'),
-                        data: JSON.stringify(pages),
-                        dataType: 'json',
-                        contentType: 'application/json',
-                        type: 'POST',
-                    }).then(
-                        function () {
-                            $('#assign-pages-modal').modal('hide');
-                            showTable('users');
-                        }
-                    );
-                }
-            })
-            .on('click', '.assign-modal-button', function () {
-                const username = $(this).closest('tr')
-                    .find('td:first')
-                    .text();
-                $('#assign-pages-modal .username').text(username);
-            });
-
         $('#totals-link').on('click', () => showTotals());
 
         function showTotals(circulatorId, circulatorName) {
@@ -945,6 +889,71 @@
                 }
             );
         }
+
+        $('#edit-line-link').on('click', function () {
+            const selector = $(this).data('target');
+            $(selector).collapse('toggle');
+            return false;
+        });
+
+        $('#edit-line-form').on('click', '.edit-button', function () {
+            const form = $('#edit-line-form');
+            const page = +$('[name=page]', form).val();
+            const line = +$('[name=line]', form).val();
+            $.ajax({
+                url: apiUrl('line/' + page + '/' + line),
+                cache: false,
+                dataType: 'json',
+            }).then(
+                function (lineRecord) {
+                    status.lineRecord = lineRecord;
+                    $('#edit-line-form').collapse('hide');
+                    $('#admin-dropdown').dropdown('hide');
+                    setStatus(status);
+                },
+                function (jqXhr, textStatus, errorThrown) {
+                    const message = textStatus + ' (' + errorThrown + ')';
+                    const alert = $(alertTemplate({successful: false, text: message}));
+                    const timeoutHandle = setTimeout(() => alert.alert('close'), 2500);
+                    // remove any earlier alerts
+                    while (form.next().hasClass('alert')) {
+                        form.next().remove();
+                    }
+                    alert.insertAfter(form)
+                        .on('closed', function () {
+                            clearTimeout(timeoutHandle);
+                        });
+                }
+            );
+        });
+
+        $('#bottom-row')
+            .on('click', '.assign-send-button', function () {
+                const modal = $('#assign-pages-modal');
+                const username = $('.username', modal).text();
+                const pageString = $('[name=pages]', modal).val();
+                const pages = stringToList(pageString);
+                if (pages.length) {
+                    $.ajax({
+                        url: apiUrl('users/' + username + '/pages'),
+                        data: JSON.stringify(pages),
+                        dataType: 'json',
+                        contentType: 'application/json',
+                        type: 'POST',
+                    }).then(
+                        function () {
+                            $('#assign-pages-modal').modal('hide');
+                            showTable('users');
+                        }
+                    );
+                }
+            })
+            .on('click', '.assign-modal-button', function () {
+                const username = $(this).closest('tr')
+                    .find('td:first')
+                    .text();
+                $('#assign-pages-modal .username').text(username);
+            });
 
         function getTemplate(name) {
             if (!templateCache[name]) {
