@@ -26,9 +26,8 @@ describe(
             'Search',
             async function () {
                 const page = testing.page;
-                await page.waitFor('#check-button', {visible: true});
-                await page.click('#check-button');
-                await page.type('#search-form-name', 'ivey,k');
+                await page.waitFor('#search-button', {visible: true});
+                await page.type('#check-form-name', 'ivey,k');
                 await page.waitFor('#voter-table tbody td', {visible: true});
                 const foundName = await page.$eval('#voter-table tbody td:first-of-type', el => el.textContent);
                 expect(foundName).to.equal('IVEY, KEITH C');

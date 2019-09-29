@@ -15,7 +15,7 @@
       integrity="sha256-F+DaKAClQut87heMIC6oThARMuWne8+WzxIDT7jXuPA=" crossorigin="anonymous" />
     <style>
       body {
-        padding-top: 76px; /* to make the container go all the way to the bottom of the topbar */
+        padding-top: 76px; /* to make it scroll all the way to the bottom of the topbar */
         padding-bottom: 60px;
       }
       #send-token-card {
@@ -30,19 +30,14 @@
       #result-div {
         min-height: 300px;
       }
-      #search-form .control-label {
-        width: 80px;
-      }
-      #search-form .controls {
-        margin-left: 100px;
-      }
       #line-form {
         position: relative;
       }
       #line-form .save {
         position: absolute;
         top: 6px;
-        right: 6px;
+        right: 0;
+        margin-left: 6px;
       }
       #finding {
         padding-right: 84px;
@@ -199,20 +194,20 @@
           <div id="check-card" class="card bg-light">
             <div class="card-body">
               <h2 id="page-line" class="card-title"></h2>
-              <form action="/" id="check-form"></form>
-              <form action="/" id="search-form" style="display: none;">
-                <p>Now use one or both of these fields to search for the voter (does a prefix search for
+              <form action="/" id="check-form">
+                <div id="check-form-intro"></div>
+                <p>Use one or both of these fields to search for the voter (does a prefix search for
                   names, so <code>richards</code> will match "Richardson" and
                   <code>connect</code> will match "Connecticut Ave").</p>
                 <div class="form-group">
-                  <label for="search-form-name">Name</label>
-                  <input type="text" class="form-control" name="name" id="search-form-name"/>
+                  <label for="check-form-name">Name</label>
+                  <input type="text" class="form-control" name="name" id="check-form-name"/>
                   <p class="form-text text-muted"><i class="text-info">Last name</i> or
                     <i class="text-info">last, first</i> or <i class="text-info">, first</i></p>
                 </div>
                 <div class="form-group">
-                  <label for="search-form-address">Address</label>
-                  <input type="text" class="form-control" name="address" id="search-form-address"/>
+                  <label for="check-form-address">Address</label>
+                  <input type="text" class="form-control" name="address" id="check-form-address"/>
                   <p class="form-text text-muted"><i class="text-info">House number</i> (optional) followed by
                     <i class="text-info">street name</i></p>
                 </div>
@@ -347,21 +342,20 @@
     <script src="/voters.js"></script>
     <script type="text/template" id="check-form-template">
       <% if (line) { %>
-        <p>Click "Check" if you want to check a name, "Blank" if the line has no name,
+        <p>
+          Search if you want to check a name. Or click "Blank" if the line has no name,
           "Rest Blank" if the rest of the page is blank, or "Illegible" if you can't even
           figure out what to search for.
         </p>
       <% } else { %>
         <% if (complete) { %>
-          <p>You have completed your assigned pages.</p>
-          <p>Congratulations! And thanks!</p>
+          <p>You have completed your assigned pages. Congratulations! And thanks!
         <% } else { %>
-          <p>No pages have been assigned to you yet.</p>
+          <p>No pages have been assigned to you yet.
         <% } %>
-        <p>You can still search, if you'd like.</p>
+        You can still search, if you'd like.</p>
       <% } %>
       <p>
-        <button type="button" class="btn btn-primary" id="check-button">Check</button>
         <% if (line) { %>
           <button type="button" class="btn btn-secondary" id="blank-button">Blank</button>
           <button type="button" class="btn btn-secondary" id="rest-blank-button">Rest Blank</button>
@@ -369,20 +363,20 @@
         <% } %>
       </p>
       <% if (admin) { %>
-      <p>Or edit a specific page and line number:</p>
-          <div class="form-row">
-            <div class="form-group col-sm-4">
-              <label for="check-form-page">Page</label>
-              <input type="number" id="check-form-page" class="form-control" name="page"/>
-            </div>
-            <div class="form-group col-sm-4">
-              <label for="check-form-line">Line</label>
-              <input type="number" id="check-form-line" class="form-control" name="line"/>
-            </div>
-            <div class="form-group col-sm-4 d-flex align-items-end">
-              <button type="button" class="btn btn-primary edit-button">Edit</button>
-            </div>
+        <p>Or edit a specific page and line number:</p>
+        <div class="form-row">
+          <div class="form-group col-sm-4">
+            <label for="check-form-page">Page</label>
+            <input type="number" id="check-form-page" class="form-control" name="page"/>
           </div>
+          <div class="form-group col-sm-4">
+            <label for="check-form-line">Line</label>
+            <input type="number" id="check-form-line" class="form-control" name="line"/>
+          </div>
+          <div class="form-group col-sm-4 d-flex align-items-end">
+            <button type="button" class="btn btn-primary edit-button">Edit</button>
+          </div>
+        </div>
       <% } %>
     </script>
     <script type="text/template" id="voter-row-template">

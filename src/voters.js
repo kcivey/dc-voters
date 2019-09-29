@@ -304,7 +304,8 @@
                     $('#send-token-card').show();
                 }
                 else {
-                    $('#top-nav,#main-container').show();
+                    $('#top-nav,#main-container,#check-form').show();
+                    $('#check-form-name').focus();
                     $('#send-token-card').hide();
                     if (!status.user.admin) {
                         $('.admin-only').remove();
@@ -334,14 +335,14 @@
                 $('#page-line').hide();
             }
             if (rec.finding) {
-                $('#check-form').hide();
-                $('#search-form').show();
+                $('#check-form').show();
+                $('#check-form-name').focus();
                 showImageRow(rec.page, rec.line);
                 editLine(rec);
             }
             else {
                 const checkFormTemplate = getTemplate('check-form');
-                $('#check-form')
+                $('#check-form-intro')
                     .html(
                         checkFormTemplate({
                             page: rec.page,
@@ -349,10 +350,10 @@
                             complete: status.complete,
                             admin: status.user.admin,
                         })
-                    )
-                    .show();
-                $('#result-div .alert').insertAfter($('#check-form'));
-                $('#search-form, #result-div > *').hide();
+                    );
+                $('#check-form').show()
+                    .after($('#result-div .alert'));
+                $('#result-div > *').hide();
                 hideImageRow();
             }
         }
@@ -541,16 +542,15 @@
             .on('click', '.not-found', () => editLine({finding: 'NR'}));
 
         $('#check-form')
-            .on('click', '#check-button', function () {
-                $('#check-form, #check-results, #line-form').hide();
+            .on('click', '#more-button', function () {
+                $('#line-form').hide();
                 $('#check-form').next('.alert')
                     .remove(); // remove leftover alert if there
-                $('#search-form').show();
                 const rec = status.lineRecord || {};
                 showImageRow(rec.page, rec.line);
-                $('#reset-button').click(); // clear search form
-                $('#name').focus();
+                doSearch();
             })
+            .on('click', '#search-button', doSearch)
             .on('click', '#blank-button, #rest-blank-button', function () {
                 const rest = this.id.match(/^rest/);
                 const rec = status.lineRecord;
@@ -594,7 +594,82 @@
                             });
                     }
                 );
+            })
+            .on('change input', 'input[type=text]', function () {
+                if (searchTimeout) {
+                    clearTimeout(searchTimeout);
+                    searchTimeout = null;
+                }
+                searchTimeout = setTimeout(doSearch, 200);
             });
+
+        function doSearch() {
+            const searchData = {};
+            $.each(['q', 'name', 'address'], function (i, name) {
+                const value = $.trim($('#check-form-' + name).val());
+                if (value) {
+                    searchData[name] = value;
+                }
+            });
+            if ($.isEmptyObject(searchData)) {
+                return; // don't search if no search terms
+            }
+            const button = $('#search-button');
+            button.text('Please Wait').prop('disabled', true);
+            $('#result-div > *').hide();
+            const resetButton = () => button.text('Search').prop('disabled', false);
+            // Use a timeout because JSONP calls don't always raise error
+            // events when there's a problem.
+            const timeoutHandle = setTimeout(
+                function () {
+                    alert('Something unexpected went wrong with the search request. Trying again might work.');
+                    resetButton();
+                },
+                10000
+            );
+            const more = this.id && this.id === 'more-button';
+            if (more) {
+                searchData.limit = 50;
+            }
+            $.ajax({
+                url: apiUrl('search'),
+                data: searchData,
+                dataType: 'json',
+            })
+                .then(handleResults)
+                .always(
+                    function () {
+                        clearTimeout(timeoutHandle);
+                        resetButton();
+                    }
+                );
+        }
+
+        function handleResults(data) {
+            $('#result-div > *').hide();
+            $('#party-column-head').toggle(!!config.party);
+            $('#voter-table').show();
+            const results = data.results;
+            const voterRowTemplate = getTemplate('voter-row');
+            const tbody = $('#voter-table tbody').empty();
+            $.each(results, function (i, v) {
+                v.name = makeName(v, true); // reversed
+                v.address = makeAddress(v);
+                v.partyDisplay = v.party ? v.party.substr(0, 3) : '';
+                v.wantedParty = config.party;
+                v.wantedWard = config.ward;
+                const tr = $(voterRowTemplate(v)).data('voterData', v);
+                tbody.append(tr);
+            });
+            if (!results.length) {
+                tbody.append(
+                    '<tr><td colspan="7"><i>No matching voter records found.</i></td></tr>'
+                );
+            }
+            $('#voter-table tfoot').toggle(results.length === 10); // show "More" only if there are exactly 10 results
+            const explanation = $('#explanation').empty();
+            explanation.append(data.explanation).show();
+        }
 
         $('#log-out').on('click', function (evt) {
             evt.preventDefault();
@@ -757,83 +832,6 @@
             $('#bottom-row').hide()
                 .empty();
             start();
-        }
-
-        $('#search-button,#more-button').on('click', doSearch);
-        $('#search-form input').on('change input', function () {
-            if (searchTimeout) {
-                clearTimeout(searchTimeout);
-                searchTimeout = null;
-            }
-            searchTimeout = setTimeout(doSearch, 200);
-        });
-
-        function doSearch() {
-            const searchData = {};
-            $.each(['q', 'name', 'address'], function (i, name) {
-                const value = $.trim($('#search-form-' + name).val());
-                if (value) {
-                    searchData[name] = value;
-                }
-            });
-            if ($.isEmptyObject(searchData)) {
-                return; // don't search if no search terms
-            }
-            const button = $('#search-button');
-            button.text('Please Wait').prop('disabled', true);
-            $('#result-div > *').hide();
-            const resetButton = () => button.text('Search').prop('disabled', false);
-            // Use a timeout because JSONP calls don't always raise error
-            // events when there's a problem.
-            const timeoutHandle = setTimeout(
-                function () {
-                    alert('Something unexpected went wrong with the search request. Trying again might work.');
-                    resetButton();
-                },
-                10000
-            );
-            const more = this.id && this.id === 'more-button';
-            if (more) {
-                searchData.limit = 50;
-            }
-            $.ajax({
-                url: apiUrl('search'),
-                data: searchData,
-                dataType: 'json',
-            })
-                .then(handleResults)
-                .always(
-                    function () {
-                        clearTimeout(timeoutHandle);
-                        resetButton();
-                    }
-                );
-        }
-
-        function handleResults(data) {
-            $('#result-div > *').hide();
-            $('#party-column-head').toggle(!!config.party);
-            $('#voter-table').show();
-            const results = data.results;
-            const voterRowTemplate = getTemplate('voter-row');
-            const tbody = $('#voter-table tbody').empty();
-            $.each(results, function (i, v) {
-                v.name = makeName(v, true); // reversed
-                v.address = makeAddress(v);
-                v.partyDisplay = v.party ? v.party.substr(0, 3) : '';
-                v.wantedParty = config.party;
-                v.wantedWard = config.ward;
-                const tr = $(voterRowTemplate(v)).data('voterData', v);
-                tbody.append(tr);
-            });
-            if (!results.length) {
-                tbody.append(
-                    '<tr><td colspan="7"><i>No matching voter records found.</i></td></tr>'
-                );
-            }
-            $('#voter-table tfoot').toggle(results.length === 10); // show "More" only if there are exactly 10 results
-            const explanation = $('#explanation').empty();
-            explanation.append(data.explanation).show();
         }
 
         $('.table-link').on('click', showTable);
