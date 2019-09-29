@@ -63,7 +63,6 @@ before(
             .then(async function () {
                 browser = await puppeteer.launch();
                 page = await browser.newPage();
-                await page.setViewport({width: 1200, height: 800});
                 page.on('pageerror', function (err) {
                     throw err;
                 });
@@ -122,7 +121,6 @@ describe(
                 await page.click('.not-found');
                 await page.waitFor('#line-form');
                 await page.waitFor(2000);
-                await page.screenshot({path: 'example.png'});
                 const radio = await page.$('#line-finding-NR:checked');
                 expect(radio).not.to.equal(null);
             }
