@@ -1,6 +1,6 @@
 const stringify = require('csv-stringify/lib/sync');
 const moment = require('moment');
-const config = require('../public/config.json');
+const createError = require('http-errors');
 const db = require('../lib/db');
 
 function transformRow(row) {
@@ -21,7 +21,10 @@ function transformRow(row) {
 module.exports = {
 
     completedTsv(req, res, next) {
-        db.getCompletedLines(req.project.id, config.party)
+        if (!req.project) {
+            throw createError(404, 'No project set');
+        }
+        db.getCompletedLines(req.project.id, req.project.config.party)
             .then(function (rows) {
                 const m = req.path.match(/([^/]+)$/);
                 const filename = m ? m[1] : 'data.tsv';

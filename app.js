@@ -29,6 +29,7 @@ routes.authentication(app, apiApp);
 app.use(apiUrlBase, apiApp);
 app.use(setProject);
 apiApp.use(setProject);
+apiApp.get('/project', routes.getProject);
 apiApp.get('/search', routes.search);
 apiApp.get('/line/:page/:line', routes.getLine);
 apiApp.get('/line/:id', routes.getLine);

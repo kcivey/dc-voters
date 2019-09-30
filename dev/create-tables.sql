@@ -64,6 +64,7 @@ CREATE TABLE IF NOT EXISTS projects (
   `id` SMALLINT UNSIGNED NOT NULL AUTO_INCREMENT,
   `code` VARCHAR(16),
   `name` VARCHAR(64),
+  `config` TEXT,
   PRIMARY KEY (`id`),
   UNIQUE KEY (`code`)
 );

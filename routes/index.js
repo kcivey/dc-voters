@@ -49,6 +49,10 @@ module.exports = function (/* app */) {
                 .catch(next);
         },
 
+        getProject(req, res) {
+            res.json(req.project);
+        },
+
         challenge,
 
         ...circulatorRoutes,

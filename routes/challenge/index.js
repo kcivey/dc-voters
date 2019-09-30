@@ -1,7 +1,6 @@
 const fs = require('fs');
 const _ = require('underscore');
 const createError = require('http-errors');
-const config = require('../../public/config.json');
 const db = require('../../lib/db');
 const regulations = {
     A: '1607.1(b) not registered at address',
@@ -27,15 +26,16 @@ function challenge(req, res, next) {
     if (!req.project) {
         throw createError(404, 'No project set');
     }
+    const config = req.project.config;
     db.getChallengeLines(req.project.id)
         .then(function (rows) {
-            const challengeInfo = getChallengeInfo(rows);
+            const challengeInfo = getChallengeInfo(rows, config);
             res.send(challengeTemplate(challengeInfo));
         })
         .catch(next);
 }
 
-function getChallengeInfo(rows) {
+function getChallengeInfo(rows, config) {
     const circulators = {};
     const data = {};
     rows.forEach(function (row) {
@@ -47,8 +47,7 @@ function getChallengeInfo(rows) {
         let circulatorExplanation = '';
         if (!circulators[row.page]) {
             if (row.circulator_status) {
-                circulatorExplanation =
-                    config.circulatorStatuses[row.circulator_status] || row.circulator_status;
+                circulatorExplanation = config.circulatorStatuses[row.circulator_status] || row.circulator_status;
             }
             if (row.circulator_notes) {
                 if (circulatorExplanation) {

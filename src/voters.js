@@ -7,9 +7,11 @@
 /* eslint-disable no-restricted-properties */
 (function ($) {
 
-    $.getJSON('/config.json', init);
+    $.getJSON('/user', init);
 
-    function init(config) {
+    function init(user) {
+        const project = user && user.projects[0];
+        const config = project && project.config;
         const templateCache = {};
         const alertTemplate = getTemplate('alert');
         let status = {};
@@ -295,13 +297,14 @@
         }
 
         function start() {
+            if (!user) {
+                $('#top-nav,#main-container').hide();
+                $('#send-token-card').show();
+                return;
+            }
             getStatus(function (err, status) {
                 if (err) {
                     alert(err);
-                }
-                if (!status.user) {
-                    $('#top-nav,#main-container').hide();
-                    $('#send-token-card').show();
                 }
                 else {
                     $('#top-nav,#main-container,#check-form').show();

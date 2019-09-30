@@ -80,6 +80,7 @@ module.exports = function (app, apiApp) {
             res.json({sent: true});
         },
     );
+    app.get('/user', (req, res) => res.json(req.user || null)); // get logged-in user
     const redirectToFrontPage = (req, res) => res.redirect('/');
     app.get('/login', redirectToFrontPage);
     app.get('/logout', passwordless.logout(), redirectToFrontPage);
