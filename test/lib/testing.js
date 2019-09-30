@@ -36,6 +36,7 @@ class Testing {
                             EMAIL_PORT: 1025,
                             EMAIL_SSL: false,
                             EMAIL_TLS: false,
+                            NODE_ENV: 'testing',
                         },
                         detached: true,
                     }
