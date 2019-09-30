@@ -6,9 +6,9 @@ const SessionMySqlStore = require('express-mysql-session')(session);
 const db = require('../lib/db');
 const sendEmail = require('../lib/send-email');
 const sessionStore = new SessionMySqlStore({}, db.connection);
-const urlBase = process.env.URL_BASE;
 const senderEmail = process.env.SENDER_EMAIL;
 const secret = process.env.SECRET;
+let urlBase;
 
 passwordless.init(new PasswordlessMysqlStore(db.connectionString));
 passwordless.addDelivery(
@@ -53,6 +53,16 @@ module.exports = function (app, apiApp) {
     app.use(setUser);
     app.post(
         '/send-token',
+        function (req, res, next) {
+            // Somewhat klugy way to make a URL that omits unnecessary ports
+            const url = new URL('http://localhost');
+            url.protocol = req.protocol;
+            url.hostname = req.hostname;
+            url.port = app.get('port');
+            // Set the URL base (no need to have an environment variable for it, which could be wrong)
+            urlBase = url.toString();
+            next();
+        },
         passwordless.requestToken(
             function (email, delivery, callback) {
                 db.getUser({email})

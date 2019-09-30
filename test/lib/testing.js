@@ -17,11 +17,11 @@ class Testing {
     setUp() {
         const that = this;
         const serverStart = new Promise(function (resolve, reject) {
+            let port = 3000;
             let started = false;
             startServer();
 
             function startServer() {
-                let port = 3000;
                 const serverProcess = spawn(
                     'npm',
                     ['start'],
