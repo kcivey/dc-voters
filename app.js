@@ -14,6 +14,7 @@ const apiUrlBase = '/api';
 
 const app = express();
 app.set('port', process.env.PORT || 3000);
+app.set('trust proxy', 'loopback');
 app.use(morgan('combined'));
 app.use(express.static(path.join(__dirname, staticDir), {maxAge: '15m'}));
 app.use(bodyParser.json());
