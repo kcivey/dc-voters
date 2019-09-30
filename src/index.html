@@ -279,7 +279,7 @@
                 <th>Name</th>
                 <th>Address</th>
                 <th id="party-column-head">Party</th>
-                <th>Ward</th>
+                <th class="text-center">Ward</th>
                 <th>Date</th>
                 <th>Status</th>
                 <th></th>
@@ -412,7 +412,7 @@
         <td><%- name %></td>
         <td><%- address %></td>
         <% if (wantedParty) { %><td><%- partyDisplay %></td><% } else { %><td style="display: none;"></td><% } %>
-        <td><%- ward %></td>
+        <td class="text-center"><%- ward %></td>
         <td><%- registered %></td>
         <td><%- status %></td>
         <td>
