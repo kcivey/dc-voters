@@ -394,25 +394,14 @@
             window.open(apiUrl($(this).attr('href')));
         });
 
-        $('#main-container').on('click', '.user-edit-button', editUser);
-        function editUser() {
-            const id = $(this).data('id');
-            if (id) {
-                $.ajax({
-                    url: apiUrl('users' + '/' + id),
-                    dataType: 'json',
-                }).then(showForm);
-            }
-            else {
-                showForm();
-            }
-            function showForm(data) {
-                const view = new UserView({model: new User(data)});
-                openModal('User', view.$el);
-            }
-        }
+        $('#main-container')
+            .on('click', '.send-token-button', sendToken)
+            .on('click', '.user-edit-button', editUser)
+            .on('click', '.circulator-edit-button', editCirculator)
+            .on('click', '.circulator-delete-button', deleteCirculator)
+            .on('click', '.circulator-totals-button', showCirculatorTotals)
+            .on('click', '.page-edit-button', editPage);
 
-        $('#main-container').on('click', '.send-token-button', sendToken);
         function sendToken() {
             const button = $(this);
             const email = button.data('email');
@@ -436,7 +425,23 @@
             }
         }
 
-        $('#main-container').on('click', '.circulator-edit-button', editCirculator);
+        function editUser() {
+            const id = $(this).data('id');
+            if (id) {
+                $.ajax({
+                    url: apiUrl('users' + '/' + id),
+                    dataType: 'json',
+                }).then(showForm);
+            }
+            else {
+                showForm();
+            }
+            function showForm(data) {
+                const view = new UserView({model: new User(data)});
+                openModal('User', view.$el);
+            }
+        }
+
         function editCirculator() {
             const id = $(this).data('id');
             if (id) {
@@ -454,7 +459,7 @@
             }
         }
 
-        $('#main-container').on('click', '.circulator-delete-button', function () {
+        function deleteCirculator() {
             const id = $(this).data('id');
             if (id) {
                 $.ajax({
@@ -463,15 +468,14 @@
                     type: 'DELETE',
                 }).then(() => showTable('circulators'));
             }
-        });
+        }
 
-        $('#main-container').on('click', '.circulator-totals-button', function () {
+        function showCirculatorTotals() {
             const id = $(this).data('id');
             const name = $(this).data('name');
             showTotals(id, name);
-        });
+        }
 
-        $('#main-container').on('click', '.page-edit-button', editPage);
         function editPage() {
             const number = $(this).data('number');
             if (number) {
@@ -656,11 +660,6 @@
 
         $('#review-links').on('click', 'button', function (evt) {
             evt.preventDefault();
-            const linkText = $(this).text();
-            if (/^Back/.test(linkText)) {
-                backToChecking();
-                return;
-            }
             $('#top-row').hide();
             hideImageRow();
             const lineTableTemplate = getTemplate('line-table');
@@ -826,8 +825,7 @@
                     hideImageRow();
                     const template = getTemplate(name.replace(/s$/, '') + '-table');
                     $('#bottom-row').html(template(values))
-                        .show()
-                        .on('click', '.back-button', backToChecking);
+                        .show();
                 }
             );
         }
@@ -884,8 +882,7 @@
                             wardBreakdown: data.wardBreakdown,
                             circulatorName,
                         }))
-                        .show()
-                        .on('click', '.back-button', backToChecking);
+                        .show();
                 }
             );
         }
@@ -953,7 +950,9 @@
                     .find('td:first')
                     .text();
                 $('#assign-pages-modal .username').text(username);
-            });
+            })
+            .on('click', '.back-button', backToChecking);
+
 
         function getTemplate(name) {
             if (!templateCache[name]) {
