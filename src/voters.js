@@ -247,10 +247,7 @@
             if (typeof name !== 'string') {
                 name = $(this).data('name');
             }
-            $.ajax({
-                url: apiUrl(name),
-                dataType: 'json',
-            }).then(
+            $.getJSON(apiUrl(name)).then(
                 function (data) {
                     const values = {
                         useCirculatorStatus: !!Object.keys(config.circulatorStatuses).length,
@@ -398,7 +395,7 @@
                 url: '/send-token',
                 data: {user: email},
                 dataType: 'json',
-                type: 'post',
+                type: 'POST',
             });
         }
 
@@ -490,7 +487,7 @@
                 }
                 $.ajax({
                     url,
-                    type: 'post',
+                    type: 'POST',
                     dataType: 'json',
                 }).then(start);
             }
@@ -523,11 +520,7 @@
                 if (more) {
                     searchData.limit = 50;
                 }
-                $.ajax({
-                    url: apiUrl('search'),
-                    data: searchData,
-                    dataType: 'json',
-                })
+                $.getJSON(apiUrl('search'), searchData)
                     .then(handleResults)
                     .always(
                         function () {
@@ -974,10 +967,7 @@
             function editUser() {
                 const id = $(this).data('id');
                 if (id) {
-                    $.ajax({
-                        url: apiUrl('users' + '/' + id),
-                        dataType: 'json',
-                    }).then(showForm);
+                    $.getJSON(apiUrl('users' + '/' + id)).then(showForm);
                 }
                 else {
                     showForm();
@@ -991,10 +981,7 @@
             function editCirculator() {
                 const id = $(this).data('id');
                 if (id) {
-                    $.ajax({
-                        url: apiUrl('circulators' + '/' + id),
-                        dataType: 'json',
-                    }).then(showForm);
+                    $.getJSON(apiUrl('circulators' + '/' + id)).then(showForm);
                 }
                 else {
                     showForm();
@@ -1019,10 +1006,7 @@
             function editPage() {
                 const number = $(this).data('number');
                 if (number) {
-                    $.ajax({
-                        url: apiUrl('pages' + '/' + number),
-                        dataType: 'json',
-                    }).then(showForm);
+                    $.getJSON(apiUrl('pages' + '/' + number)).then(showForm);
                 }
                 else {
                     showForm(status.defaultPage);
