@@ -104,7 +104,7 @@
                     $('#top-nav,#main-container,#check-form').show();
                     $('#check-form-name').focus();
                     $('#send-token-card').hide();
-                    if (!status.user.admin) {
+                    if (!user.admin) {
                         $('.admin-only').remove();
                     }
                     setStatus(status);
@@ -161,8 +161,8 @@
                         window.location.reload();
                     }
                     status = data;
-                    $('.navbar-brand').text(status.project.name);
-                    $('title').text(status.project.name);
+                    $('.navbar-brand').text(project.name);
+                    $('title').text(project.name);
                     $('.version').text('v' + status.version);
                     callback(null, status); // null for no error
                 },
@@ -176,13 +176,12 @@
         }
 
         function apiUrl(path) {
-            const project = status.project;
             return '/api/' + (project ? project.code + '/' : '') + path;
         }
 
         function setStatus(status) {
             const statusDiv = $('#status');
-            $('#username', statusDiv).text(status.user.username || '(anonymous)');
+            $('#username', statusDiv).text(user.username || '(anonymous)');
             $('.complete', statusDiv).text(commify(status.complete));
             const total = status.incomplete + status.complete;
             $('.total', statusDiv).text(commify(total));
@@ -209,7 +208,7 @@
                         page: rec.page,
                         line: rec.line,
                         complete: status.complete,
-                        admin: status.user.admin,
+                        admin: user.admin,
                     })
                 );
             $('#check-form').show()
@@ -230,7 +229,7 @@
             }
             lineData = $.extend(
                 status.lineRecord,
-                {checker: status.user.username},
+                {checker: user.username},
                 lineData
             );
             if (lineData.date_signed) {
@@ -262,7 +261,7 @@
                 function (data) {
                     const values = {
                         useCirculatorStatus: !!Object.keys(config.circulatorStatuses).length,
-                        project: status.project,
+                        project,
                     };
                     values[name] = data;
                     $('#top-row').hide();
@@ -591,8 +590,8 @@
                 $('#bottom-row').html(lineTableTemplate({}))
                     .show();
                 let url = apiUrl('dt-line');
-                if (!status.user.admin) {
-                    url += '/' + status.user.username;
+                if (!user.admin) {
+                    url += '/' + user.username;
                 }
                 const value = $(this).data('value');
                 if (value) {
@@ -759,7 +758,7 @@
 
             function logout(evt) {
                 evt.preventDefault();
-                status.user = null;
+                user = null;
                 $.ajax({
                     url: '/logout',
                     cache: false,

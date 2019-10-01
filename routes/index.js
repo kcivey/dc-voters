@@ -23,14 +23,12 @@ module.exports = function (/* app */) {
         },
 
         status(req, res, next) {
-            const project = req.project || (req.user ? req.user.projects[0] : null);
             const status = {
-                user: req.user || {},
-                project,
                 complete: 0,
                 incomplete: 0,
                 version: pkg.version,
             };
+            const project = req.project || (req.user ? req.user.projects[0] : null);
             if (!project) {
                 res.json(status);
                 return;
