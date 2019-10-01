@@ -310,140 +310,110 @@
                 .resizable({handles: 's'});
         }
 
-        function setUpHandlers() {
-            const Circulator = Backbone.Model.extend({
-                urlRoot: () => apiUrl('circulators'),
-            });
-
-            const CirculatorView = Backbone.View.extend({
-                template: getTemplate('circulator-form'),
-                tableName: 'circulators',
-                initialize() {
-                    this.modelBinder = new Backbone.ModelBinder();
-                    this.render();
-                },
-                events: {
-                    'click .save': 'save',
-                },
-                render() {
-                    this.$el.html(this.template({circulatorStatuses: config.circulatorStatuses}));
-                    this.modelBinder.bind(this.model, this.el);
-                    return this;
-                },
-                showAlert(successful, text = '') {
-                    const alert = $(alertTemplate({successful, text}));
-                    // remove any earlier alerts
-                    while (this.$el.prev().hasClass('alert')) {
-                        this.$el.prev().remove();
-                    }
-                    return alert.insertBefore(this.$el);
-                },
-                save() {
-                    const error = this.check();
-                    const that = this; // save to use in inner functions
-                    const isNew = !that.model.get('id');
-                    let jqXhr;
-                    if (!error && (jqXhr = this.model.save())) {
-                        jqXhr
-                            .done(function (data) {
-                                const message = 'Record saved';
-                                const alert = that.showAlert(true, message);
-                                const timeoutHandle = setTimeout(() => alert.alert('close'), 1000);
-                                alert.on('closed', function () {
-                                    clearTimeout(timeoutHandle);
-                                    alert.closest('.modal').modal('hide');
-                                });
-                                if (that.tableName === 'pages' && isNew) {
-                                    // default to same values on next page
-                                    status.defaultPage = {
-                                        number: data.number,
-                                        circulator_id: data.circulator_id,
-                                        date_signed: data.date_signed,
-                                    };
-                                    status.defaultPage.number++;
-                                }
-                                showTable(that.tableName);
-                            })
-                            .fail(function (err) {
-                                console.log(err);
-                                that.showAlert(false);
-                            });
-                    }
-                    else {
-                        this.showAlert(false, error);
-                    }
-                },
-                check() {
-                    // @todo Add some checks
-                    // const circulator = this.model;
-                    return null;
-                },
-            });
-
-            const Page = Backbone.Model.extend({
-                idAttribute: 'number',
-                urlRoot: () => apiUrl('pages'),
-            });
-
-            const PageView = CirculatorView.extend({
-                template: getTemplate('page-form'),
-                tableName: 'pages',
-                events: {
-                    'click .save': 'save',
-                    'change [name=date_signed]': 'checkDateSigned',
-                },
-                checkDateSigned,
-                render() {
-                    $.getJSON(apiUrl('circulators')).then(function (circulators) {
-                        this.$el.html(this.template({circulators}));
-                        if (this.model.get('id')) {
-                            this.$('[name=number]').prop('readonly', true) // to prevent changing page number
-                                .removeClass('form-control')
-                                .addClass('form-control-plaintext');
+        function showTotals(circulatorId, circulatorName) {
+            const ajaxParams = {
+                url: apiUrl('totals'),
+                dataType: 'json',
+            };
+            if (circulatorId) {
+                ajaxParams.data = {circulator: circulatorId};
+            }
+            $.ajax(ajaxParams).then(
+                function (data) {
+                    const rawTotals = data.totals;
+                    const totals = {'Unprocessed': rawTotals[''] || 0};
+                    const seen = {};
+                    let processedLines = 0;
+                    $.each(config.circulatorStatuses, function (code, label) {
+                        const count = rawTotals[code] || 0;
+                        label += ' [' + code + ']';
+                        totals[label] = count;
+                        seen[code] = true;
+                    });
+                    $.each(config.findingCodes, function (code, label) {
+                        const count = rawTotals[code] || 0;
+                        label += ' [' + code + ']';
+                        totals[label] = count;
+                        if (code !== '' && code !== 'S') {
+                            processedLines += count;
                         }
-                        this.modelBinder.bind(this.model, this.el);
-                    }.bind(this));
-                    return this;
-                },
-            });
+                        seen[code] = true;
+                    });
+                    $.each(rawTotals, function (code, count) {
+                        if (code !== '' && !seen[code]) {
+                            totals[code] = count;
+                            processedLines += count;
+                        }
+                    });
+                    totals['Total lines processed'] = processedLines;
+                    const nonBlank = processedLines - (rawTotals['B'] || 0);
+                    totals['Nonblank lines processed'] = nonBlank;
+                    if (nonBlank) {
+                        totals['Valid percentage'] = (100 * rawTotals['OK'] / nonBlank).toFixed(1) + '%';
+                    }
+                    $('#top-row').hide();
+                    hideImageRow();
+                    const totalTableTemplate = getTemplate('total-table');
+                    $('#bottom-row')
+                        .html(totalTableTemplate({
+                            totals,
+                            wardBreakdown: data.wardBreakdown,
+                            circulatorName,
+                        }))
+                        .show();
+                }
+            );
+        }
 
-            const User = Backbone.Model.extend({
-                urlRoot: () => apiUrl('users'),
-            });
+        function makeName(v, reversed) {
+            let name = v.firstname;
+            if (v.middle) {
+                name += ' ' + v.middle;
+            }
+            if (reversed) {
+                name = v.lastname + ', ' + name;
+            }
+            else {
+                name += ' ' + v.lastname;
+            }
+            if (v.suffix) {
+                if (reversed) {
+                    name += ',';
+                }
+                name += ' ' + v.suffix;
+            }
+            return name;
+        }
 
-            const UserView = CirculatorView.extend({
-                template: getTemplate('user-form'),
-                tableName: 'users',
-                events: {
-                    'click .save': 'save',
-                },
-                render() {
-                    this.$el.html(this.template());
-                    this.modelBinder.bind(this.model, this.el);
-                    return this;
-                },
-            });
+        function makeAddress(v) {
+            let address = v.res_house + v.res_frac + ' ' + v.res_street;
+            if (v.res_apt) {
+                address += ' #' + v.res_apt;
+            }
+            return address;
+        }
 
-            $('#top-nav')
-                .on('click', '.project-link', function (evt) {
-                    evt.preventDefault();
-                    window.open(apiUrl($(this).attr('href')));
-                })
-                .on('click', '.table-link', showTable);
-            $('#main-container')
-                .on('click', '.send-token-button', sendTokenFromUserTable)
-                .on('click', '.user-edit-button', editUser)
-                .on('click', '.circulator-edit-button', editCirculator)
-                .on('click', '.circulator-delete-button', deleteCirculator)
-                .on('click', '.circulator-totals-button', showCirculatorTotals)
-                .on('click', '.page-edit-button', editPage);
-            $('#totals-link')
-                .on('click', () => showTotals());
-            $('#send-token-form')
-                .on('submit', sendTokenFromForm);
+        function sendToken(email) {
+            return $.ajax({
+                url: '/send-token',
+                data: {user: email},
+                dataType: 'json',
+                type: 'post',
+            });
+        }
+
+        function setUpHandlers() {
+            setUpNavHandlers();
+            setUpTopRowHandlers();
+            setUpBottomRowHandlers();
+        }
+
+        function setUpTopRowHandlers() {
             $('#voter-table')
                 .on('click', '.match', handleMatch)
                 .on('click', '.not-found', () => editLine({finding: 'NR'}));
+            $('#send-token-form')
+                .on('submit', sendTokenFromForm);
             $('#check-form')
                 .on('click', '#more-button', function () {
                     $('#line-form').hide();
@@ -463,81 +433,6 @@
                     }
                     searchTimeout = setTimeout(doSearch, 200);
                 });
-            $('#log-out').on('click', logout);
-            $('#review-links').on('click', 'button', displayReviewTable);
-            $('#edit-line-link').on('click', function () {
-                const selector = $(this).data('target');
-                $(selector).collapse('toggle');
-                return false;
-            });
-            $('#edit-line-form').on('click', '.edit-button', handleAdminLineEdit);
-            $('#bottom-row')
-                .on('click', '.assign-send-button', function () {
-                    const modal = $('#assign-pages-modal');
-                    const username = $('.username', modal).text();
-                    const pageString = $('[name=pages]', modal).val();
-                    const pages = stringToList(pageString);
-                    if (pages.length) {
-                        $.ajax({
-                            url: apiUrl('users/' + username + '/pages'),
-                            data: JSON.stringify(pages),
-                            dataType: 'json',
-                            contentType: 'application/json',
-                            type: 'POST',
-                        }).then(
-                            function () {
-                                $('#assign-pages-modal').modal('hide');
-                                showTable('users');
-                            }
-                        );
-                    }
-
-                    function stringToList(s) {
-                        const numbers = [];
-                        let m;
-                        while ((m = s.match(/^\s*([1-9]\d*)(?:\s*-\s*([1-9]\d*))?(?:,\s*|\s+|$)/))) {
-                            s = s.substr(m[0].length);
-                            let n = +m[1];
-                            const end = m[2] == null ? n : +m[2];
-                            if (n > end) {
-                                throw new Error('Invalid range "' + n + '-' + end + '"');
-                            }
-                            while (n <= end) {
-                                numbers.push(n);
-                                n++;
-                            }
-                        }
-                        if (s) {
-                            throw new Error('Invalid number list "' + s + '"');
-                        }
-                        return numbers.sort((a, b) => a - b);
-                    }
-                })
-                .on('click', '.assign-modal-button', function () {
-                    const username = $(this).closest('tr')
-                        .find('td:first')
-                        .text();
-                    $('#assign-pages-modal .username').text(username);
-                })
-                .on('click', '.back-button', backToChecking);
-
-            function sendTokenFromUserTable() {
-                const button = $(this);
-                const email = button.data('email');
-                sendToken(email).then(
-                    function () {
-                        button.text('Sent').addClass('btn-success');
-                        setTimeout(restoreButton, 1000);
-                    },
-                    function () {
-                        button.text('Error').addClass('btn-danger');
-                        setTimeout(restoreButton, 1000);
-                    }
-                );
-                function restoreButton() {
-                    button.text('Send Link').removeClass('btn-success btn-danger');
-                }
-            }
 
             function sendTokenFromForm(evt) {
                 const form = $(this);
@@ -566,12 +461,136 @@
                 }
             }
 
-            function sendToken(email) {
-                return $.ajax({
-                    url: '/send-token',
-                    data: {user: email},
-                    dataType: 'json',
+            function handleMatch() {
+                const voterData = $(this).closest('tr')
+                    .data('voterData');
+                const formData = {
+                    voter_id: voterData.voter_id,
+                    voter_name: makeName(voterData),
+                    address: makeAddress(voterData),
+                    ward: voterData.ward,
+                };
+                if (config.party && voterData.party !== config.party) {
+                    formData.finding = 'WP';
+                    formData.notes = voterData.party;
+                }
+                else if (config.ward && voterData.ward !== config.ward) {
+                    formData.finding = 'WW';
+                    formData.notes = 'Ward ' + voterData.ward;
+                }
+                editLine(formData);
+            }
+
+            function markBlankLines() {
+                const rest = this.id.match(/^rest/);
+                const rec = status.lineRecord;
+                let url = apiUrl('mark-blank/' + rec.page + '/' + rec.line);
+                if (rest) {
+                    url += '-' + 20;
+                }
+                $.ajax({
+                    url,
                     type: 'post',
+                    dataType: 'json',
+                }).then(start);
+            }
+
+            function doSearch() {
+                const searchData = {};
+                $.each(['q', 'name', 'address'], function (i, name) {
+                    const value = $.trim($('#check-form-' + name).val());
+                    if (value) {
+                        searchData[name] = value;
+                    }
+                });
+                if ($.isEmptyObject(searchData)) {
+                    return; // don't search if no search terms
+                }
+                const button = $('#search-button');
+                button.text('Please Wait').prop('disabled', true);
+                $('#result-div > *').hide();
+                const resetButton = () => button.text('Search').prop('disabled', false);
+                // Use a timeout because JSONP calls don't always raise error
+                // events when there's a problem.
+                const timeoutHandle = setTimeout(
+                    function () {
+                        alert('Something unexpected went wrong with the search request. Trying again might work.');
+                        resetButton();
+                    },
+                    10000
+                );
+                const more = this.id && this.id === 'more-button';
+                if (more) {
+                    searchData.limit = 50;
+                }
+                $.ajax({
+                    url: apiUrl('search'),
+                    data: searchData,
+                    dataType: 'json',
+                })
+                    .then(handleResults)
+                    .always(
+                        function () {
+                            clearTimeout(timeoutHandle);
+                            resetButton();
+                        }
+                    );
+
+                function handleResults(data) {
+                    $('#result-div > *').hide();
+                    $('#party-column-head').toggle(!!config.party);
+                    $('#voter-table').show();
+                    const results = data.results;
+                    const voterRowTemplate = getTemplate('voter-row');
+                    const tbody = $('#voter-table tbody').empty();
+                    $.each(results, function (i, v) {
+                        v.name = makeName(v, true); // reversed
+                        v.address = makeAddress(v);
+                        v.partyDisplay = v.party ? v.party.substr(0, 3) : '';
+                        v.wantedParty = config.party;
+                        v.wantedWard = config.ward;
+                        const tr = $(voterRowTemplate(v)).data('voterData', v);
+                        tbody.append(tr);
+                    });
+                    if (!results.length) {
+                        tbody.append(
+                            '<tr><td colspan="7"><i>No matching voter records found.</i></td></tr>'
+                        );
+                    }
+                    // show "More" only if there are exactly 10 results
+                    $('#voter-table tfoot').toggle(results.length === 10);
+                    const explanation = $('#explanation').empty();
+                    explanation.append(data.explanation).show();
+                }
+            }
+        }
+
+        function setUpNavHandlers() {
+            $('#top-nav')
+                .on('click', '.project-link', function (evt) {
+                    evt.preventDefault();
+                    window.open(apiUrl($(this).attr('href')));
+                })
+                .on('click', '.table-link', showTable);
+            $('#totals-link')
+                .on('click', () => showTotals());
+            $('#log-out').on('click', logout);
+            $('#review-links').on('click', 'button', displayReviewTable);
+            $('#edit-line-link').on('click', function () {
+                const selector = $(this).data('target');
+                $(selector).collapse('toggle');
+                return false;
+            });
+            $('#edit-line-form').on('click', '.edit-button', handleAdminLineEdit);
+
+            function logout(evt) {
+                evt.preventDefault();
+                user = null;
+                $.ajax({
+                    url: '/logout',
+                    cache: false,
+                }).then(function () {
+                    window.location.href = '/';
                 });
             }
 
@@ -715,51 +734,6 @@
                 });
             }
 
-            function handleMatch() {
-                const voterData = $(this).closest('tr')
-                    .data('voterData');
-                const formData = {
-                    voter_id: voterData.voter_id,
-                    voter_name: makeName(voterData),
-                    address: makeAddress(voterData),
-                    ward: voterData.ward,
-                };
-                if (config.party && voterData.party !== config.party) {
-                    formData.finding = 'WP';
-                    formData.notes = voterData.party;
-                }
-                else if (config.ward && voterData.ward !== config.ward) {
-                    formData.finding = 'WW';
-                    formData.notes = 'Ward ' + voterData.ward;
-                }
-                editLine(formData);
-            }
-
-            function markBlankLines() {
-                const rest = this.id.match(/^rest/);
-                const rec = status.lineRecord;
-                let url = apiUrl('mark-blank/' + rec.page + '/' + rec.line);
-                if (rest) {
-                    url += '-' + 20;
-                }
-                $.ajax({
-                    url,
-                    type: 'post',
-                    dataType: 'json',
-                }).then(start);
-            }
-
-            function logout(evt) {
-                evt.preventDefault();
-                user = null;
-                $.ajax({
-                    url: '/logout',
-                    cache: false,
-                }).then(function () {
-                    window.location.href = '/';
-                });
-            }
-
             function handleAdminLineEdit() {
                 const form = $(this);
                 const page = +$('[name=page]', form).val();
@@ -790,6 +764,188 @@
                     }
                 );
             }
+        }
+
+        function setUpBottomRowHandlers() {
+            const Circulator = Backbone.Model.extend({
+                urlRoot: () => apiUrl('circulators'),
+            });
+
+            const CirculatorView = Backbone.View.extend({
+                template: getTemplate('circulator-form'),
+                tableName: 'circulators',
+                initialize() {
+                    this.modelBinder = new Backbone.ModelBinder();
+                    this.render();
+                },
+                events: {
+                    'click .save': 'save',
+                },
+                render() {
+                    this.$el.html(this.template({circulatorStatuses: config.circulatorStatuses}));
+                    this.modelBinder.bind(this.model, this.el);
+                    return this;
+                },
+                showAlert(successful, text = '') {
+                    const alert = $(alertTemplate({successful, text}));
+                    // remove any earlier alerts
+                    while (this.$el.prev().hasClass('alert')) {
+                        this.$el.prev().remove();
+                    }
+                    return alert.insertBefore(this.$el);
+                },
+                save() {
+                    const error = this.check();
+                    const that = this; // save to use in inner functions
+                    const isNew = !that.model.get('id');
+                    let jqXhr;
+                    if (!error && (jqXhr = this.model.save())) {
+                        jqXhr
+                            .done(function (data) {
+                                const message = 'Record saved';
+                                const alert = that.showAlert(true, message);
+                                const timeoutHandle = setTimeout(() => alert.alert('close'), 1000);
+                                alert.on('closed', function () {
+                                    clearTimeout(timeoutHandle);
+                                    alert.closest('.modal').modal('hide');
+                                });
+                                if (that.tableName === 'pages' && isNew) {
+                                    // default to same values on next page
+                                    status.defaultPage = {
+                                        number: data.number,
+                                        circulator_id: data.circulator_id,
+                                        date_signed: data.date_signed,
+                                    };
+                                    status.defaultPage.number++;
+                                }
+                                showTable(that.tableName);
+                            })
+                            .fail(function (err) {
+                                console.log(err);
+                                that.showAlert(false);
+                            });
+                    }
+                    else {
+                        this.showAlert(false, error);
+                    }
+                },
+                check() {
+                    // @todo Add some checks
+                    // const circulator = this.model;
+                    return null;
+                },
+            });
+
+            const Page = Backbone.Model.extend({
+                idAttribute: 'number',
+                urlRoot: () => apiUrl('pages'),
+            });
+
+            const PageView = CirculatorView.extend({
+                template: getTemplate('page-form'),
+                tableName: 'pages',
+                events: {
+                    'click .save': 'save',
+                    'change [name=date_signed]': 'checkDateSigned',
+                },
+                checkDateSigned,
+                render() {
+                    $.getJSON(apiUrl('circulators')).then(function (circulators) {
+                        this.$el.html(this.template({circulators}));
+                        if (this.model.get('id')) {
+                            this.$('[name=number]').prop('readonly', true) // to prevent changing page number
+                                .removeClass('form-control')
+                                .addClass('form-control-plaintext');
+                        }
+                        this.modelBinder.bind(this.model, this.el);
+                    }.bind(this));
+                    return this;
+                },
+            });
+
+            const User = Backbone.Model.extend({
+                urlRoot: () => apiUrl('users'),
+            });
+
+            const UserView = CirculatorView.extend({
+                template: getTemplate('user-form'),
+                tableName: 'users',
+                events: {
+                    'click .save': 'save',
+                },
+                render() {
+                    this.$el.html(this.template());
+                    this.modelBinder.bind(this.model, this.el);
+                    return this;
+                },
+            });
+
+            $('#bottom-row')
+                .on('click', '.assign-send-button', assignPages)
+                .on('click', '.assign-modal-button', addUsernameToModal)
+                .on('click', '.back-button', backToChecking)
+                .on('click', '.send-token-button', sendTokenFromUserTable)
+                .on('click', '.user-edit-button', editUser)
+                .on('click', '.circulator-edit-button', editCirculator)
+                .on('click', '.circulator-delete-button', deleteCirculator)
+                .on('click', '.circulator-totals-button', showCirculatorTotals)
+                .on('click', '.page-edit-button', editPage);
+
+            function assignPages() {
+                const modal = $('#assign-pages-modal');
+                const username = $('.username', modal).text();
+                const pageString = $('[name=pages]', modal).val();
+                const pages = stringToList(pageString);
+                if (pages.length) {
+                    $.ajax({
+                        url: apiUrl('users/' + username + '/pages'),
+                        data: JSON.stringify(pages),
+                        dataType: 'json',
+                        contentType: 'application/json',
+                        type: 'POST',
+                    }).then(
+                        function () {
+                            $('#assign-pages-modal').modal('hide');
+                            showTable('users');
+                        }
+                    );
+                }
+
+                function stringToList(s) {
+                    const numbers = [];
+                    let m;
+                    while ((m = s.match(/^\s*([1-9]\d*)(?:\s*-\s*([1-9]\d*))?(?:,\s*|\s+|$)/))) {
+                        s = s.substr(m[0].length);
+                        let n = +m[1];
+                        const end = m[2] == null ? n : +m[2];
+                        if (n > end) {
+                            throw new Error('Invalid range "' + n + '-' + end + '"');
+                        }
+                        while (n <= end) {
+                            numbers.push(n);
+                            n++;
+                        }
+                    }
+                    if (s) {
+                        throw new Error('Invalid number list "' + s + '"');
+                    }
+                    return numbers.sort((a, b) => a - b);
+                }
+            }
+
+            function addUsernameToModal() {
+                const username = $(this).closest('tr')
+                    .find('td:first')
+                    .text();
+                $('#assign-pages-modal .username').text(username);
+            }
+
+            function backToChecking() {
+                $('#top-row').show();
+                $('#bottom-row').hide()
+                    .empty();
+                start();
+            }
 
             function showCirculatorTotals() {
                 const id = $(this).data('id');
@@ -797,59 +953,22 @@
                 showTotals(id, name);
             }
 
-            function showTotals(circulatorId, circulatorName) {
-                const ajaxParams = {
-                    url: apiUrl('totals'),
-                    dataType: 'json',
-                };
-                if (circulatorId) {
-                    ajaxParams.data = {circulator: circulatorId};
-                }
-                $.ajax(ajaxParams).then(
-                    function (data) {
-                        const rawTotals = data.totals;
-                        const totals = {'Unprocessed': rawTotals[''] || 0};
-                        const seen = {};
-                        let processedLines = 0;
-                        $.each(config.circulatorStatuses, function (code, label) {
-                            const count = rawTotals[code] || 0;
-                            label += ' [' + code + ']';
-                            totals[label] = count;
-                            seen[code] = true;
-                        });
-                        $.each(config.findingCodes, function (code, label) {
-                            const count = rawTotals[code] || 0;
-                            label += ' [' + code + ']';
-                            totals[label] = count;
-                            if (code !== '' && code !== 'S') {
-                                processedLines += count;
-                            }
-                            seen[code] = true;
-                        });
-                        $.each(rawTotals, function (code, count) {
-                            if (code !== '' && !seen[code]) {
-                                totals[code] = count;
-                                processedLines += count;
-                            }
-                        });
-                        totals['Total lines processed'] = processedLines;
-                        const nonBlank = processedLines - (rawTotals['B'] || 0);
-                        totals['Nonblank lines processed'] = nonBlank;
-                        if (nonBlank) {
-                            totals['Valid percentage'] = (100 * rawTotals['OK'] / nonBlank).toFixed(1) + '%';
-                        }
-                        $('#top-row').hide();
-                        hideImageRow();
-                        const totalTableTemplate = getTemplate('total-table');
-                        $('#bottom-row')
-                            .html(totalTableTemplate({
-                                totals,
-                                wardBreakdown: data.wardBreakdown,
-                                circulatorName,
-                            }))
-                            .show();
+            function sendTokenFromUserTable() {
+                const button = $(this);
+                const email = button.data('email');
+                sendToken(email).then(
+                    function () {
+                        button.text('Sent').addClass('btn-success');
+                        setTimeout(restoreButton, 1000);
+                    },
+                    function () {
+                        button.text('Error').addClass('btn-danger');
+                        setTimeout(restoreButton, 1000);
                     }
                 );
+                function restoreButton() {
+                    button.text('Send Link').removeClass('btn-success btn-danger');
+                }
             }
 
             function editUser() {
@@ -914,119 +1033,13 @@
                 }
             }
 
-            function doSearch() {
-                const searchData = {};
-                $.each(['q', 'name', 'address'], function (i, name) {
-                    const value = $.trim($('#check-form-' + name).val());
-                    if (value) {
-                        searchData[name] = value;
-                    }
-                });
-                if ($.isEmptyObject(searchData)) {
-                    return; // don't search if no search terms
-                }
-                const button = $('#search-button');
-                button.text('Please Wait').prop('disabled', true);
-                $('#result-div > *').hide();
-                const resetButton = () => button.text('Search').prop('disabled', false);
-                // Use a timeout because JSONP calls don't always raise error
-                // events when there's a problem.
-                const timeoutHandle = setTimeout(
-                    function () {
-                        alert('Something unexpected went wrong with the search request. Trying again might work.');
-                        resetButton();
-                    },
-                    10000
-                );
-                const more = this.id && this.id === 'more-button';
-                if (more) {
-                    searchData.limit = 50;
-                }
-                $.ajax({
-                    url: apiUrl('search'),
-                    data: searchData,
-                    dataType: 'json',
-                })
-                    .then(handleResults)
-                    .always(
-                        function () {
-                            clearTimeout(timeoutHandle);
-                            resetButton();
-                        }
-                    );
-
-                function handleResults(data) {
-                    $('#result-div > *').hide();
-                    $('#party-column-head').toggle(!!config.party);
-                    $('#voter-table').show();
-                    const results = data.results;
-                    const voterRowTemplate = getTemplate('voter-row');
-                    const tbody = $('#voter-table tbody').empty();
-                    $.each(results, function (i, v) {
-                        v.name = makeName(v, true); // reversed
-                        v.address = makeAddress(v);
-                        v.partyDisplay = v.party ? v.party.substr(0, 3) : '';
-                        v.wantedParty = config.party;
-                        v.wantedWard = config.ward;
-                        const tr = $(voterRowTemplate(v)).data('voterData', v);
-                        tbody.append(tr);
-                    });
-                    if (!results.length) {
-                        tbody.append(
-                            '<tr><td colspan="7"><i>No matching voter records found.</i></td></tr>'
-                        );
-                    }
-                    // show "More" only if there are exactly 10 results
-                    $('#voter-table tfoot').toggle(results.length === 10);
-                    const explanation = $('#explanation').empty();
-                    explanation.append(data.explanation).show();
-                }
-            }
-
-            function backToChecking() {
-                $('#top-row').show();
-                $('#bottom-row').hide()
-                    .empty();
-                start();
-            }
-
             function openModal(title, body) {
                 const $modal = $('#global-modal');
                 $('.modal-title', $modal).text(title);
                 $('.modal-body', $modal).html(body);
                 $modal.modal();
             }
-
-            function makeName(v, reversed) {
-                let name = v.firstname;
-                if (v.middle) {
-                    name += ' ' + v.middle;
-                }
-                if (reversed) {
-                    name = v.lastname + ', ' + name;
-                }
-                else {
-                    name += ' ' + v.lastname;
-                }
-                if (v.suffix) {
-                    if (reversed) {
-                        name += ',';
-                    }
-                    name += ' ' + v.suffix;
-                }
-                return name;
-            }
-
-            function makeAddress(v) {
-                let address = v.res_house + v.res_frac + ' ' + v.res_street;
-                if (v.res_apt) {
-                    address += ' #' + v.res_apt;
-                }
-                return address;
-            }
-
         }
-
     }
 
 })(jQuery);
