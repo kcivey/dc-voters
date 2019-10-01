@@ -203,14 +203,7 @@
             }
             const checkFormTemplate = getTemplate('check-form');
             $('#check-form-intro')
-                .html(
-                    checkFormTemplate({
-                        page: rec.page,
-                        line: rec.line,
-                        complete: status.complete,
-                        admin: user.admin,
-                    })
-                );
+                .html(checkFormTemplate({line: rec.line, complete: status.complete}));
             $('#check-form').show()
                 .after($('#result-div .alert'));
             $('#result-div > *').hide();
