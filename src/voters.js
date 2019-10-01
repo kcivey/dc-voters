@@ -87,118 +87,30 @@
             },
         });
 
-        const Circulator = Backbone.Model.extend({
-            urlRoot: () => apiUrl('circulators'),
-        });
+        setUpHandlers();
+        start();
 
-        const CirculatorView = Backbone.View.extend({
-            template: getTemplate('circulator-form'),
-            tableName: 'circulators',
-            initialize() {
-                this.modelBinder = new Backbone.ModelBinder();
-                this.render();
-            },
-            events: {
-                'click .save': 'save',
-            },
-            render() {
-                this.$el.html(this.template({circulatorStatuses: config.circulatorStatuses}));
-                this.modelBinder.bind(this.model, this.el);
-                return this;
-            },
-            showAlert(successful, text = '') {
-                const alert = $(alertTemplate({successful, text}));
-                // remove any earlier alerts
-                while (this.$el.prev().hasClass('alert')) {
-                    this.$el.prev().remove();
-                }
-                return alert.insertBefore(this.$el);
-            },
-            save() {
-                const error = this.check();
-                const that = this; // save to use in inner functions
-                const isNew = !that.model.get('id');
-                let jqXhr;
-                if (!error && (jqXhr = this.model.save())) {
-                    jqXhr
-                        .done(function (data) {
-                            const message = 'Record saved';
-                            const alert = that.showAlert(true, message);
-                            const timeoutHandle = setTimeout(() => alert.alert('close'), 1000);
-                            alert.on('closed', function () {
-                                clearTimeout(timeoutHandle);
-                                alert.closest('.modal').modal('hide');
-                            });
-                            if (that.tableName === 'pages' && isNew) {
-                                // default to same values on next page
-                                status.defaultPage = {
-                                    number: data.number,
-                                    circulator_id: data.circulator_id,
-                                    date_signed: data.date_signed,
-                                };
-                                status.defaultPage.number++;
-                            }
-                            showTable(that.tableName);
-                        })
-                        .fail(function (err) {
-                            console.log(err);
-                            that.showAlert(false);
-                        });
+        function start() {
+            if (!user) {
+                $('#top-nav,#main-container').hide();
+                $('#send-token-card').show();
+                return;
+            }
+            getStatus(function (err, status) {
+                if (err) {
+                    alert(err);
                 }
                 else {
-                    this.showAlert(false, error);
-                }
-            },
-            check() {
-                // @todo Add some checks
-                // const circulator = this.model;
-                return null;
-            },
-        });
-
-        const Page = Backbone.Model.extend({
-            idAttribute: 'number',
-            urlRoot: () => apiUrl('pages'),
-        });
-
-        const PageView = CirculatorView.extend({
-            template: getTemplate('page-form'),
-            tableName: 'pages',
-            events: {
-                'click .save': 'save',
-                'change [name=date_signed]': 'checkDateSigned',
-            },
-            checkDateSigned,
-            render() {
-                $.getJSON(apiUrl('circulators')).then(function (circulators) {
-                    this.$el.html(this.template({circulators}));
-                    if (this.model.get('id')) {
-                        this.$('[name=number]').prop('readonly', true) // to prevent changing page number
-                            .removeClass('form-control')
-                            .addClass('form-control-plaintext');
+                    $('#top-nav,#main-container,#check-form').show();
+                    $('#check-form-name').focus();
+                    $('#send-token-card').hide();
+                    if (!status.user.admin) {
+                        $('.admin-only').remove();
                     }
-                    this.modelBinder.bind(this.model, this.el);
-                }.bind(this));
-                return this;
-            },
-        });
-
-        const User = Backbone.Model.extend({
-            urlRoot: () => apiUrl('users'),
-        });
-
-        const UserView = CirculatorView.extend({
-            template: getTemplate('user-form'),
-            tableName: 'users',
-            events: {
-                'click .save': 'save',
-            },
-            render() {
-                this.$el.html(this.template());
-                this.modelBinder.bind(this.model, this.el);
-                return this;
-            },
-        });
+                    setStatus(status);
+                }
+            });
+        }
 
         function checkDateSigned() {
             // This is a mess. Need proper date functions.
@@ -228,34 +140,6 @@
                 }
             }
             input.focus();
-        }
-
-        function makeName(v, reversed) {
-            let name = v.firstname;
-            if (v.middle) {
-                name += ' ' + v.middle;
-            }
-            if (reversed) {
-                name = v.lastname + ', ' + name;
-            }
-            else {
-                name += ' ' + v.lastname;
-            }
-            if (v.suffix) {
-                if (reversed) {
-                    name += ',';
-                }
-                name += ' ' + v.suffix;
-            }
-            return name;
-        }
-
-        function makeAddress(v) {
-            let address = v.res_house + v.res_frac + ' ' + v.res_street;
-            if (v.res_apt) {
-                address += ' #' + v.res_apt;
-            }
-            return address;
         }
 
         function getStatus(callback) {
@@ -296,32 +180,6 @@
             return '/api/' + (project ? project.code + '/' : '') + path;
         }
 
-        function start() {
-            if (!user) {
-                $('#top-nav,#main-container').hide();
-                $('#send-token-card').show();
-                return;
-            }
-            getStatus(function (err, status) {
-                if (err) {
-                    alert(err);
-                }
-                else {
-                    $('#top-nav,#main-container,#check-form').show();
-                    $('#check-form-name').focus();
-                    $('#send-token-card').hide();
-                    if (!status.user.admin) {
-                        $('.admin-only').remove();
-                    }
-                    setStatus(status);
-                }
-            });
-        }
-
-        function commify(n) {
-            return n.toString().replace(/(\d)(?=\d{3}$)/, '$1,');
-        }
-
         function setStatus(status) {
             const statusDiv = $('#status');
             $('#username', statusDiv).text(status.user.username || '(anonymous)');
@@ -342,26 +200,27 @@
                 $('#check-form-name').focus();
                 showImageRow(rec.page, rec.line);
                 editLine(rec);
+                return;
             }
-            else {
-                const checkFormTemplate = getTemplate('check-form');
-                $('#check-form-intro')
-                    .html(
-                        checkFormTemplate({
-                            page: rec.page,
-                            line: rec.line,
-                            complete: status.complete,
-                            admin: status.user.admin,
-                        })
-                    );
-                $('#check-form').show()
-                    .after($('#result-div .alert'));
-                $('#result-div > *').hide();
-                hideImageRow();
+            const checkFormTemplate = getTemplate('check-form');
+            $('#check-form-intro')
+                .html(
+                    checkFormTemplate({
+                        page: rec.page,
+                        line: rec.line,
+                        complete: status.complete,
+                        admin: status.user.admin,
+                    })
+                );
+            $('#check-form').show()
+                .after($('#result-div .alert'));
+            $('#result-div > *').hide();
+            hideImageRow();
+
+            function commify(n) {
+                return n.toString().replace(/(\d)(?=\d{3}$)/, '$1,');
             }
         }
-
-        start();
 
         function editLine(lineData) {
             const lineForm = $('#line-form');
@@ -392,424 +251,6 @@
             lineForm.show();
         }
 
-        $('#top-nav').on('click', '.project-link', function (evt) {
-            evt.preventDefault();
-            window.open(apiUrl($(this).attr('href')));
-        });
-
-        $('#main-container')
-            .on('click', '.send-token-button', sendToken)
-            .on('click', '.user-edit-button', editUser)
-            .on('click', '.circulator-edit-button', editCirculator)
-            .on('click', '.circulator-delete-button', deleteCirculator)
-            .on('click', '.circulator-totals-button', showCirculatorTotals)
-            .on('click', '.page-edit-button', editPage);
-
-        function sendToken() {
-            const button = $(this);
-            const email = button.data('email');
-            $.ajax({
-                url: '/send-token',
-                data: {user: email},
-                dataType: 'json',
-                type: 'post',
-            }).then(
-                function () {
-                    button.text('Sent').addClass('btn-success');
-                    setTimeout(restoreButton, 500);
-                },
-                function () {
-                    button.text('Error').addClass('btn-danger');
-                    setTimeout(restoreButton, 500);
-                }
-            );
-            function restoreButton() {
-                button.text('Send Link').removeClass('btn-success btn-danger');
-            }
-        }
-
-        function editUser() {
-            const id = $(this).data('id');
-            if (id) {
-                $.ajax({
-                    url: apiUrl('users' + '/' + id),
-                    dataType: 'json',
-                }).then(showForm);
-            }
-            else {
-                showForm();
-            }
-            function showForm(data) {
-                const view = new UserView({model: new User(data)});
-                openModal('User', view.$el);
-            }
-        }
-
-        function editCirculator() {
-            const id = $(this).data('id');
-            if (id) {
-                $.ajax({
-                    url: apiUrl('circulators' + '/' + id),
-                    dataType: 'json',
-                }).then(showForm);
-            }
-            else {
-                showForm();
-            }
-            function showForm(data) {
-                const view = new CirculatorView({model: new Circulator(data)});
-                openModal('Circulator', view.$el);
-            }
-        }
-
-        function deleteCirculator() {
-            const id = $(this).data('id');
-            if (id) {
-                $.ajax({
-                    url: apiUrl('circulators' + '/' + id),
-                    dataType: 'json',
-                    type: 'DELETE',
-                }).then(() => showTable('circulators'));
-            }
-        }
-
-        function showCirculatorTotals() {
-            const id = $(this).data('id');
-            const name = $(this).data('name');
-            showTotals(id, name);
-        }
-
-        function editPage() {
-            const number = $(this).data('number');
-            if (number) {
-                $.ajax({
-                    url: apiUrl('pages' + '/' + number),
-                    dataType: 'json',
-                }).then(showForm);
-            }
-            else {
-                showForm(status.defaultPage);
-            }
-            function showForm(data) {
-                const view = new PageView({model: new Page(data)});
-                openModal('Page', view.$el);
-            }
-        }
-
-        $('#send-token-form').on('submit', function (evt) {
-            const email = $('#send-token-email').val();
-            evt.preventDefault();
-            if (email) {
-                $.ajax({
-                    url: '/send-token',
-                    data: {user: email},
-                    dataType: 'json',
-                    type: 'post',
-                }).then(
-                    function () {
-                        showAlert(true, 'Check your email for a login link.');
-                        start();
-                    },
-                    function () {
-                        showAlert(false, 'Problem sending link. Is this email address registered?');
-                    }
-                );
-            }
-
-            function showAlert(successful, text = '') {
-                const form = $('#send-token-form');
-                // remove any earlier alerts
-                while (form.next().hasClass('alert')) {
-                    form.next().remove();
-                }
-                const alert = $(alertTemplate({successful, text}));
-                alert.insertAfter(form);
-            }
-        });
-        $('#voter-table')
-            .on('click', '.match', function () {
-                const voterData = $(this).closest('tr')
-                    .data('voterData');
-                const formData = {
-                    voter_id: voterData.voter_id,
-                    voter_name: makeName(voterData),
-                    address: makeAddress(voterData),
-                    ward: voterData.ward,
-                };
-                if (config.party && voterData.party !== config.party) {
-                    formData.finding = 'WP';
-                    formData.notes = voterData.party;
-                }
-                else if (config.ward && voterData.ward !== config.ward) {
-                    formData.finding = 'WW';
-                    formData.notes = 'Ward ' + voterData.ward;
-                }
-                editLine(formData);
-            })
-            .on('click', '.not-found', () => editLine({finding: 'NR'}));
-
-        $('#check-form')
-            .on('click', '#more-button', function () {
-                $('#line-form').hide();
-                $('#check-form').next('.alert')
-                    .remove(); // remove leftover alert if there
-                const rec = status.lineRecord || {};
-                showImageRow(rec.page, rec.line);
-                doSearch();
-            })
-            .on('click', '#search-button', doSearch)
-            .on('click', '#blank-button, #rest-blank-button', function () {
-                const rest = this.id.match(/^rest/);
-                const rec = status.lineRecord;
-                let url = apiUrl('mark-blank/' + rec.page + '/' + rec.line);
-                if (rest) {
-                    url += '-' + 20;
-                }
-                $.ajax({
-                    url,
-                    type: 'post',
-                    dataType: 'json',
-                }).then(start);
-            })
-            .on('click', '#illegible-button', function () {
-                editLine({finding: 'I'});
-            })
-            .on('change input', 'input[type=text]', function () {
-                if (searchTimeout) {
-                    clearTimeout(searchTimeout);
-                    searchTimeout = null;
-                }
-                searchTimeout = setTimeout(doSearch, 200);
-            });
-
-        function doSearch() {
-            const searchData = {};
-            $.each(['q', 'name', 'address'], function (i, name) {
-                const value = $.trim($('#check-form-' + name).val());
-                if (value) {
-                    searchData[name] = value;
-                }
-            });
-            if ($.isEmptyObject(searchData)) {
-                return; // don't search if no search terms
-            }
-            const button = $('#search-button');
-            button.text('Please Wait').prop('disabled', true);
-            $('#result-div > *').hide();
-            const resetButton = () => button.text('Search').prop('disabled', false);
-            // Use a timeout because JSONP calls don't always raise error
-            // events when there's a problem.
-            const timeoutHandle = setTimeout(
-                function () {
-                    alert('Something unexpected went wrong with the search request. Trying again might work.');
-                    resetButton();
-                },
-                10000
-            );
-            const more = this.id && this.id === 'more-button';
-            if (more) {
-                searchData.limit = 50;
-            }
-            $.ajax({
-                url: apiUrl('search'),
-                data: searchData,
-                dataType: 'json',
-            })
-                .then(handleResults)
-                .always(
-                    function () {
-                        clearTimeout(timeoutHandle);
-                        resetButton();
-                    }
-                );
-        }
-
-        function handleResults(data) {
-            $('#result-div > *').hide();
-            $('#party-column-head').toggle(!!config.party);
-            $('#voter-table').show();
-            const results = data.results;
-            const voterRowTemplate = getTemplate('voter-row');
-            const tbody = $('#voter-table tbody').empty();
-            $.each(results, function (i, v) {
-                v.name = makeName(v, true); // reversed
-                v.address = makeAddress(v);
-                v.partyDisplay = v.party ? v.party.substr(0, 3) : '';
-                v.wantedParty = config.party;
-                v.wantedWard = config.ward;
-                const tr = $(voterRowTemplate(v)).data('voterData', v);
-                tbody.append(tr);
-            });
-            if (!results.length) {
-                tbody.append(
-                    '<tr><td colspan="7"><i>No matching voter records found.</i></td></tr>'
-                );
-            }
-            $('#voter-table tfoot').toggle(results.length === 10); // show "More" only if there are exactly 10 results
-            const explanation = $('#explanation').empty();
-            explanation.append(data.explanation).show();
-        }
-
-        $('#log-out').on('click', function (evt) {
-            evt.preventDefault();
-            status.user = null;
-            $.ajax({
-                url: '/logout',
-                cache: false,
-            }).then(function () {
-                location.href = '/';
-            });
-        });
-
-        $('#review-links').on('click', 'button', function (evt) {
-            evt.preventDefault();
-            $('#top-row').hide();
-            hideImageRow();
-            const lineTableTemplate = getTemplate('line-table');
-            $('#bottom-row').html(lineTableTemplate({}))
-                .show();
-            let url = apiUrl('dt-line');
-            if (!status.user.admin) {
-                url += '/' + status.user.username;
-            }
-            const value = $(this).data('value');
-            if (value) {
-                url += '?filterColumn=finding&filterValue=' + value;
-            }
-            const dataTable = $('#line-table').dataTable({
-                ajax: url,
-                processing: true,
-                serverSide: true,
-                destroy: true,
-                pageLength: 25,
-                orderClasses: false,
-                order: [], // no sorting by default
-                deferRender: true,
-                initComplete() { // @todo Fix this for Bootstrap 4
-                    const button = $('<button type="button"/>')
-                        .text('Back to Checking')
-                        .addClass('btn btn-link')
-                        .click(function () {
-                            $('#go-back').click(); // kluge
-                        });
-                    $('.dt-top-left').html(button);
-                },
-                columns: [
-                    {
-                        defaultContent: '<button type="button" class="btn btn-outline-primary btn-sm edit-button ' +
-                            'table-button" title="Edit"><i class="fas fa-edit"></i></button>',
-                        title: '',
-                        width: 33,
-                        searchable: false,
-                        orderable: false,
-                    },
-                    {
-                        data: 'page',
-                        title: 'Page',
-                        className: 'number',
-                        orderData: [0, 1],
-                        searchable: false,
-                        orderable: false,
-                    },
-                    {
-                        data: 'line',
-                        title: 'Line',
-                        className: 'number',
-                        orderData: [0, 1],
-                        searchable: false,
-                        orderable: false,
-                    },
-                    {
-                        data: 'checker',
-                        title: 'Checker',
-                        width: 60,
-                        searchable: false,
-                        orderable: false,
-                    },
-                    {
-                        data: 'check_time',
-                        title: 'Check Time',
-                        width: 164,
-                        className: 'text-nowrap',
-                        searchable: false,
-                        orderable: false,
-                        createdCell(cell, cellData) {
-                            $(cell).wrapInner('<time datetime="' + cellData + 'Z"></time>')
-                                .find('time')
-                                .timeago();
-                        },
-                    },
-                    {
-                        data: 'finding',
-                        title: 'Finding',
-                        className: 'text-center',
-                        width: 30,
-                        searchable: false,
-                        orderable: false,
-                    },
-                    {
-                        data: 'voter_name',
-                        title: 'Name',
-                        className: 'text-nowrap',
-                        searchable: true,
-                        orderable: false,
-                    },
-                    {
-                        data: 'address',
-                        title: 'Address',
-                        className: 'text-nowrap',
-                        searchable: true,
-                        orderable: false,
-                    },
-                    {
-                        data: 'ward',
-                        className: 'text-right',
-                        title: 'Ward',
-                        width: 30,
-                        searchable: true,
-                        orderable: false,
-                    },
-                    {
-                        data(row) {
-                            return row.date_signed
-                                ? row.date_signed.replace(/^(\d{4})-(\d\d)-(\d\d).*/, '$2/$3')
-                                : '';
-                        },
-                        title: 'Date',
-                        width: 60,
-                        searchable: true,
-                        orderable: false,
-                    },
-                    {
-                        data: 'notes',
-                        title: 'Notes',
-                        searchable: true,
-                        orderable: false,
-                    },
-                ],
-            });
-            $('#line-table').on('click', '.edit-button', function () {
-                const row = $(this).closest('tr');
-                const lineData = dataTable.api().row(row[0])
-                    .data();
-                status.lineRecord = lineData;
-                $('#top-row').show();
-                $('#bottom-row').hide()
-                    .empty();
-                setStatus(status);
-                editLine(lineData);
-            });
-        });
-
-        function backToChecking() {
-            $('#top-row').show();
-            $('#bottom-row').hide()
-                .empty();
-            start();
-        }
-
-        $('.table-link').on('click', showTable);
-
         function showTable(name) {
             if (typeof name !== 'string') {
                 name = $(this).data('name');
@@ -833,142 +274,11 @@
             );
         }
 
-        $('#totals-link').on('click', () => showTotals());
-
-        function showTotals(circulatorId, circulatorName) {
-            const ajaxParams = {
-                url: apiUrl('totals'),
-                dataType: 'json',
-            };
-            if (circulatorId) {
-                ajaxParams.data = {circulator: circulatorId};
-            }
-            $.ajax(ajaxParams).then(
-                function (data) {
-                    const rawTotals = data.totals;
-                    const totals = {'Unprocessed': rawTotals[''] || 0};
-                    const seen = {};
-                    let processedLines = 0;
-                    $.each(config.circulatorStatuses, function (code, label) {
-                        const count = rawTotals[code] || 0;
-                        label += ' [' + code + ']';
-                        totals[label] = count;
-                        seen[code] = true;
-                    });
-                    $.each(config.findingCodes, function (code, label) {
-                        const count = rawTotals[code] || 0;
-                        label += ' [' + code + ']';
-                        totals[label] = count;
-                        if (code !== '' && code !== 'S') {
-                            processedLines += count;
-                        }
-                        seen[code] = true;
-                    });
-                    $.each(rawTotals, function (code, count) {
-                        if (code !== '' && !seen[code]) {
-                            totals[code] = count;
-                            processedLines += count;
-                        }
-                    });
-                    totals['Total lines processed'] = processedLines;
-                    const nonBlank = processedLines - (rawTotals['B'] || 0);
-                    totals['Nonblank lines processed'] = nonBlank;
-                    if (nonBlank) {
-                        totals['Valid percentage'] = (100 * rawTotals['OK'] / nonBlank).toFixed(1) + '%';
-                    }
-                    $('#top-row').hide();
-                    hideImageRow();
-                    const totalTableTemplate = getTemplate('total-table');
-                    $('#bottom-row')
-                        .html(totalTableTemplate({
-                            totals,
-                            wardBreakdown: data.wardBreakdown,
-                            circulatorName,
-                        }))
-                        .show();
-                }
-            );
-        }
-
-        $('#edit-line-link').on('click', function () {
-            const selector = $(this).data('target');
-            $(selector).collapse('toggle');
-            return false;
-        });
-
-        $('#edit-line-form').on('click', '.edit-button', function () {
-            const form = $('#edit-line-form');
-            const page = +$('[name=page]', form).val();
-            const line = +$('[name=line]', form).val();
-            $.ajax({
-                url: apiUrl('line/' + page + '/' + line),
-                cache: false,
-                dataType: 'json',
-            }).then(
-                function (lineRecord) {
-                    status.lineRecord = lineRecord;
-                    $('#edit-line-form').collapse('hide');
-                    $('#admin-dropdown').dropdown('hide');
-                    setStatus(status);
-                },
-                function (jqXhr, textStatus, errorThrown) {
-                    const message = textStatus + ' (' + errorThrown + ')';
-                    const alert = $(alertTemplate({successful: false, text: message}));
-                    const timeoutHandle = setTimeout(() => alert.alert('close'), 2500);
-                    // remove any earlier alerts
-                    while (form.next().hasClass('alert')) {
-                        form.next().remove();
-                    }
-                    alert.insertAfter(form)
-                        .on('closed', function () {
-                            clearTimeout(timeoutHandle);
-                        });
-                }
-            );
-        });
-
-        $('#bottom-row')
-            .on('click', '.assign-send-button', function () {
-                const modal = $('#assign-pages-modal');
-                const username = $('.username', modal).text();
-                const pageString = $('[name=pages]', modal).val();
-                const pages = stringToList(pageString);
-                if (pages.length) {
-                    $.ajax({
-                        url: apiUrl('users/' + username + '/pages'),
-                        data: JSON.stringify(pages),
-                        dataType: 'json',
-                        contentType: 'application/json',
-                        type: 'POST',
-                    }).then(
-                        function () {
-                            $('#assign-pages-modal').modal('hide');
-                            showTable('users');
-                        }
-                    );
-                }
-            })
-            .on('click', '.assign-modal-button', function () {
-                const username = $(this).closest('tr')
-                    .find('td:first')
-                    .text();
-                $('#assign-pages-modal .username').text(username);
-            })
-            .on('click', '.back-button', backToChecking);
-
-
         function getTemplate(name) {
             if (!templateCache[name]) {
                 templateCache[name] = _.template($('#' + name + '-template').html());
             }
             return templateCache[name];
-        }
-
-        function openModal(title, body) {
-            const $modal = $('#global-modal');
-            $('.modal-title', $modal).text(title);
-            $('.modal-body', $modal).html(body);
-            $modal.modal();
         }
 
         function hideImageRow() {
@@ -1008,29 +318,723 @@
                 .resizable({handles: 's'});
         }
 
-        function stringToList(s) {
-            const numbers = [];
-            let m;
-            while ((m = s.match(/^\s*([1-9]\d*)(?:\s*-\s*([1-9]\d*))?(?:,\s*|\s+|$)/))) {
-                s = s.substr(m[0].length);
-                let n = +m[1];
-                const end = m[2] == null ? n : +m[2];
-                if (n > end) {
-                    throw new Error('Invalid range "' + n + '-' + end + '"');
-                }
-                while (n <= end) {
-                    numbers.push(n);
-                    n++;
+        function setUpHandlers() {
+            const Circulator = Backbone.Model.extend({
+                urlRoot: () => apiUrl('circulators'),
+            });
+
+            const CirculatorView = Backbone.View.extend({
+                template: getTemplate('circulator-form'),
+                tableName: 'circulators',
+                initialize() {
+                    this.modelBinder = new Backbone.ModelBinder();
+                    this.render();
+                },
+                events: {
+                    'click .save': 'save',
+                },
+                render() {
+                    this.$el.html(this.template({circulatorStatuses: config.circulatorStatuses}));
+                    this.modelBinder.bind(this.model, this.el);
+                    return this;
+                },
+                showAlert(successful, text = '') {
+                    const alert = $(alertTemplate({successful, text}));
+                    // remove any earlier alerts
+                    while (this.$el.prev().hasClass('alert')) {
+                        this.$el.prev().remove();
+                    }
+                    return alert.insertBefore(this.$el);
+                },
+                save() {
+                    const error = this.check();
+                    const that = this; // save to use in inner functions
+                    const isNew = !that.model.get('id');
+                    let jqXhr;
+                    if (!error && (jqXhr = this.model.save())) {
+                        jqXhr
+                            .done(function (data) {
+                                const message = 'Record saved';
+                                const alert = that.showAlert(true, message);
+                                const timeoutHandle = setTimeout(() => alert.alert('close'), 1000);
+                                alert.on('closed', function () {
+                                    clearTimeout(timeoutHandle);
+                                    alert.closest('.modal').modal('hide');
+                                });
+                                if (that.tableName === 'pages' && isNew) {
+                                    // default to same values on next page
+                                    status.defaultPage = {
+                                        number: data.number,
+                                        circulator_id: data.circulator_id,
+                                        date_signed: data.date_signed,
+                                    };
+                                    status.defaultPage.number++;
+                                }
+                                showTable(that.tableName);
+                            })
+                            .fail(function (err) {
+                                console.log(err);
+                                that.showAlert(false);
+                            });
+                    }
+                    else {
+                        this.showAlert(false, error);
+                    }
+                },
+                check() {
+                    // @todo Add some checks
+                    // const circulator = this.model;
+                    return null;
+                },
+            });
+
+            const Page = Backbone.Model.extend({
+                idAttribute: 'number',
+                urlRoot: () => apiUrl('pages'),
+            });
+
+            const PageView = CirculatorView.extend({
+                template: getTemplate('page-form'),
+                tableName: 'pages',
+                events: {
+                    'click .save': 'save',
+                    'change [name=date_signed]': 'checkDateSigned',
+                },
+                checkDateSigned,
+                render() {
+                    $.getJSON(apiUrl('circulators')).then(function (circulators) {
+                        this.$el.html(this.template({circulators}));
+                        if (this.model.get('id')) {
+                            this.$('[name=number]').prop('readonly', true) // to prevent changing page number
+                                .removeClass('form-control')
+                                .addClass('form-control-plaintext');
+                        }
+                        this.modelBinder.bind(this.model, this.el);
+                    }.bind(this));
+                    return this;
+                },
+            });
+
+            const User = Backbone.Model.extend({
+                urlRoot: () => apiUrl('users'),
+            });
+
+            const UserView = CirculatorView.extend({
+                template: getTemplate('user-form'),
+                tableName: 'users',
+                events: {
+                    'click .save': 'save',
+                },
+                render() {
+                    this.$el.html(this.template());
+                    this.modelBinder.bind(this.model, this.el);
+                    return this;
+                },
+            });
+
+            $('#top-nav')
+                .on('click', '.project-link', function (evt) {
+                    evt.preventDefault();
+                    window.open(apiUrl($(this).attr('href')));
+                })
+                .on('click', '.table-link', showTable);
+            $('#main-container')
+                .on('click', '.send-token-button', sendTokenFromUserTable)
+                .on('click', '.user-edit-button', editUser)
+                .on('click', '.circulator-edit-button', editCirculator)
+                .on('click', '.circulator-delete-button', deleteCirculator)
+                .on('click', '.circulator-totals-button', showCirculatorTotals)
+                .on('click', '.page-edit-button', editPage);
+            $('#totals-link')
+                .on('click', () => showTotals());
+            $('#send-token-form')
+                .on('submit', sendTokenFromForm);
+            $('#voter-table')
+                .on('click', '.match', handleMatch)
+                .on('click', '.not-found', () => editLine({finding: 'NR'}));
+            $('#check-form')
+                .on('click', '#more-button', function () {
+                    $('#line-form').hide();
+                    $('#check-form').next('.alert')
+                        .remove(); // remove leftover alert if there
+                    const rec = status.lineRecord || {};
+                    showImageRow(rec.page, rec.line);
+                    doSearch();
+                })
+                .on('click', '#search-button', doSearch)
+                .on('click', '#blank-button, #rest-blank-button', markBlankLines)
+                .on('click', '#illegible-button', () => editLine({finding: 'I'}))
+                .on('change input', 'input[type=text]', function () {
+                    if (searchTimeout) {
+                        clearTimeout(searchTimeout);
+                        searchTimeout = null;
+                    }
+                    searchTimeout = setTimeout(doSearch, 200);
+                });
+            $('#log-out').on('click', logout);
+            $('#review-links').on('click', 'button', displayReviewTable);
+            $('#edit-line-link').on('click', function () {
+                const selector = $(this).data('target');
+                $(selector).collapse('toggle');
+                return false;
+            });
+            $('#edit-line-form').on('click', '.edit-button', handleAdminLineEdit);
+            $('#bottom-row')
+                .on('click', '.assign-send-button', function () {
+                    const modal = $('#assign-pages-modal');
+                    const username = $('.username', modal).text();
+                    const pageString = $('[name=pages]', modal).val();
+                    const pages = stringToList(pageString);
+                    if (pages.length) {
+                        $.ajax({
+                            url: apiUrl('users/' + username + '/pages'),
+                            data: JSON.stringify(pages),
+                            dataType: 'json',
+                            contentType: 'application/json',
+                            type: 'POST',
+                        }).then(
+                            function () {
+                                $('#assign-pages-modal').modal('hide');
+                                showTable('users');
+                            }
+                        );
+                    }
+
+                    function stringToList(s) {
+                        const numbers = [];
+                        let m;
+                        while ((m = s.match(/^\s*([1-9]\d*)(?:\s*-\s*([1-9]\d*))?(?:,\s*|\s+|$)/))) {
+                            s = s.substr(m[0].length);
+                            let n = +m[1];
+                            const end = m[2] == null ? n : +m[2];
+                            if (n > end) {
+                                throw new Error('Invalid range "' + n + '-' + end + '"');
+                            }
+                            while (n <= end) {
+                                numbers.push(n);
+                                n++;
+                            }
+                        }
+                        if (s) {
+                            throw new Error('Invalid number list "' + s + '"');
+                        }
+                        return numbers.sort((a, b) => a - b);
+                    }
+                })
+                .on('click', '.assign-modal-button', function () {
+                    const username = $(this).closest('tr')
+                        .find('td:first')
+                        .text();
+                    $('#assign-pages-modal .username').text(username);
+                })
+                .on('click', '.back-button', backToChecking);
+
+            function sendTokenFromUserTable() {
+                const button = $(this);
+                const email = button.data('email');
+                sendToken(email).then(
+                    function () {
+                        button.text('Sent').addClass('btn-success');
+                        setTimeout(restoreButton, 1000);
+                    },
+                    function () {
+                        button.text('Error').addClass('btn-danger');
+                        setTimeout(restoreButton, 1000);
+                    }
+                );
+                function restoreButton() {
+                    button.text('Send Link').removeClass('btn-success btn-danger');
                 }
             }
-            if (s) {
-                throw new Error('Invalid number list "' + s + '"');
+
+            function sendTokenFromForm(evt) {
+                const form = $(this);
+                const email = $('#send-token-email').val();
+                evt.preventDefault();
+                if (!email) {
+                    return;
+                }
+                sendToken(email).then(
+                    function () {
+                        showAlert(true, 'Check your email for a login link.');
+                        start();
+                    },
+                    function () {
+                        showAlert(false, 'Problem sending link. Is this email address registered?');
+                    }
+                );
+
+                function showAlert(successful, text = '') {
+                    // remove any earlier alerts
+                    while (form.next().hasClass('alert')) {
+                        form.next().remove();
+                    }
+                    const alert = $(alertTemplate({successful, text}));
+                    alert.insertAfter(form);
+                }
             }
-            return numbers.sort(sortNumber);
+
+            function sendToken(email) {
+                return $.ajax({
+                    url: '/send-token',
+                    data: {user: email},
+                    dataType: 'json',
+                    type: 'post',
+                });
+            }
+
+            function displayReviewTable(evt) {
+                evt.preventDefault();
+                $('#top-row').hide();
+                hideImageRow();
+                const lineTableTemplate = getTemplate('line-table');
+                $('#bottom-row').html(lineTableTemplate({}))
+                    .show();
+                let url = apiUrl('dt-line');
+                if (!status.user.admin) {
+                    url += '/' + status.user.username;
+                }
+                const value = $(this).data('value');
+                if (value) {
+                    url += '?filterColumn=finding&filterValue=' + value;
+                }
+                const dataTable = $('#line-table').dataTable({
+                    ajax: url,
+                    processing: true,
+                    serverSide: true,
+                    destroy: true,
+                    pageLength: 25,
+                    orderClasses: false,
+                    order: [], // no sorting by default
+                    deferRender: true,
+                    initComplete() { // @todo Fix this for Bootstrap 4
+                        const button = $('<button type="button"/>')
+                            .text('Back to Checking')
+                            .addClass('btn btn-link')
+                            .click(function () {
+                                $('#go-back').click(); // kluge
+                            });
+                        $('.dt-top-left').html(button);
+                    },
+                    columns: [
+                        {
+                            defaultContent: '<button type="button" class="btn btn-outline-primary btn-sm edit-button ' +
+                                'table-button" title="Edit"><i class="fas fa-edit"></i></button>',
+                            title: '',
+                            width: 33,
+                            searchable: false,
+                            orderable: false,
+                        },
+                        {
+                            data: 'page',
+                            title: 'Page',
+                            className: 'number',
+                            orderData: [0, 1],
+                            searchable: false,
+                            orderable: false,
+                        },
+                        {
+                            data: 'line',
+                            title: 'Line',
+                            className: 'number',
+                            orderData: [0, 1],
+                            searchable: false,
+                            orderable: false,
+                        },
+                        {
+                            data: 'checker',
+                            title: 'Checker',
+                            width: 60,
+                            searchable: false,
+                            orderable: false,
+                        },
+                        {
+                            data: 'check_time',
+                            title: 'Check Time',
+                            width: 164,
+                            className: 'text-nowrap',
+                            searchable: false,
+                            orderable: false,
+                            createdCell(cell, cellData) {
+                                $(cell).wrapInner('<time datetime="' + cellData + 'Z"></time>')
+                                    .find('time')
+                                    .timeago();
+                            },
+                        },
+                        {
+                            data: 'finding',
+                            title: 'Finding',
+                            className: 'text-center',
+                            width: 30,
+                            searchable: false,
+                            orderable: false,
+                        },
+                        {
+                            data: 'voter_name',
+                            title: 'Name',
+                            className: 'text-nowrap',
+                            searchable: true,
+                            orderable: false,
+                        },
+                        {
+                            data: 'address',
+                            title: 'Address',
+                            className: 'text-nowrap',
+                            searchable: true,
+                            orderable: false,
+                        },
+                        {
+                            data: 'ward',
+                            className: 'text-right',
+                            title: 'Ward',
+                            width: 30,
+                            searchable: true,
+                            orderable: false,
+                        },
+                        {
+                            data(row) {
+                                return row.date_signed
+                                    ? row.date_signed.replace(/^(\d{4})-(\d\d)-(\d\d).*/, '$2/$3')
+                                    : '';
+                            },
+                            title: 'Date',
+                            width: 60,
+                            searchable: true,
+                            orderable: false,
+                        },
+                        {
+                            data: 'notes',
+                            title: 'Notes',
+                            searchable: true,
+                            orderable: false,
+                        },
+                    ],
+                });
+                $('#line-table').on('click', '.edit-button', function () {
+                    const row = $(this).closest('tr');
+                    const lineData = dataTable.api().row(row[0])
+                        .data();
+                    status.lineRecord = lineData;
+                    $('#top-row').show();
+                    $('#bottom-row').hide()
+                        .empty();
+                    setStatus(status);
+                    editLine(lineData);
+                });
+            }
+
+            function handleMatch() {
+                const voterData = $(this).closest('tr')
+                    .data('voterData');
+                const formData = {
+                    voter_id: voterData.voter_id,
+                    voter_name: makeName(voterData),
+                    address: makeAddress(voterData),
+                    ward: voterData.ward,
+                };
+                if (config.party && voterData.party !== config.party) {
+                    formData.finding = 'WP';
+                    formData.notes = voterData.party;
+                }
+                else if (config.ward && voterData.ward !== config.ward) {
+                    formData.finding = 'WW';
+                    formData.notes = 'Ward ' + voterData.ward;
+                }
+                editLine(formData);
+            }
+
+            function markBlankLines() {
+                const rest = this.id.match(/^rest/);
+                const rec = status.lineRecord;
+                let url = apiUrl('mark-blank/' + rec.page + '/' + rec.line);
+                if (rest) {
+                    url += '-' + 20;
+                }
+                $.ajax({
+                    url,
+                    type: 'post',
+                    dataType: 'json',
+                }).then(start);
+            }
+
+            function logout(evt) {
+                evt.preventDefault();
+                status.user = null;
+                $.ajax({
+                    url: '/logout',
+                    cache: false,
+                }).then(function () {
+                    window.location.href = '/';
+                });
+            }
+
+            function handleAdminLineEdit() {
+                const form = $(this);
+                const page = +$('[name=page]', form).val();
+                const line = +$('[name=line]', form).val();
+                $.ajax({
+                    url: apiUrl('line/' + page + '/' + line),
+                    cache: false,
+                    dataType: 'json',
+                }).then(
+                    function (lineRecord) {
+                        status.lineRecord = lineRecord;
+                        $('#edit-line-form').collapse('hide');
+                        $('#admin-dropdown').dropdown('hide');
+                        setStatus(status);
+                    },
+                    function (jqXhr, textStatus, errorThrown) {
+                        const message = textStatus + ' (' + errorThrown + ')';
+                        const alert = $(alertTemplate({successful: false, text: message}));
+                        const timeoutHandle = setTimeout(() => alert.alert('close'), 2500);
+                        // remove any earlier alerts
+                        while (form.next().hasClass('alert')) {
+                            form.next().remove();
+                        }
+                        alert.insertAfter(form)
+                            .on('closed', function () {
+                                clearTimeout(timeoutHandle);
+                            });
+                    }
+                );
+            }
+
+            function showCirculatorTotals() {
+                const id = $(this).data('id');
+                const name = $(this).data('name');
+                showTotals(id, name);
+            }
+
+            function showTotals(circulatorId, circulatorName) {
+                const ajaxParams = {
+                    url: apiUrl('totals'),
+                    dataType: 'json',
+                };
+                if (circulatorId) {
+                    ajaxParams.data = {circulator: circulatorId};
+                }
+                $.ajax(ajaxParams).then(
+                    function (data) {
+                        const rawTotals = data.totals;
+                        const totals = {'Unprocessed': rawTotals[''] || 0};
+                        const seen = {};
+                        let processedLines = 0;
+                        $.each(config.circulatorStatuses, function (code, label) {
+                            const count = rawTotals[code] || 0;
+                            label += ' [' + code + ']';
+                            totals[label] = count;
+                            seen[code] = true;
+                        });
+                        $.each(config.findingCodes, function (code, label) {
+                            const count = rawTotals[code] || 0;
+                            label += ' [' + code + ']';
+                            totals[label] = count;
+                            if (code !== '' && code !== 'S') {
+                                processedLines += count;
+                            }
+                            seen[code] = true;
+                        });
+                        $.each(rawTotals, function (code, count) {
+                            if (code !== '' && !seen[code]) {
+                                totals[code] = count;
+                                processedLines += count;
+                            }
+                        });
+                        totals['Total lines processed'] = processedLines;
+                        const nonBlank = processedLines - (rawTotals['B'] || 0);
+                        totals['Nonblank lines processed'] = nonBlank;
+                        if (nonBlank) {
+                            totals['Valid percentage'] = (100 * rawTotals['OK'] / nonBlank).toFixed(1) + '%';
+                        }
+                        $('#top-row').hide();
+                        hideImageRow();
+                        const totalTableTemplate = getTemplate('total-table');
+                        $('#bottom-row')
+                            .html(totalTableTemplate({
+                                totals,
+                                wardBreakdown: data.wardBreakdown,
+                                circulatorName,
+                            }))
+                            .show();
+                    }
+                );
+            }
+
+            function editUser() {
+                const id = $(this).data('id');
+                if (id) {
+                    $.ajax({
+                        url: apiUrl('users' + '/' + id),
+                        dataType: 'json',
+                    }).then(showForm);
+                }
+                else {
+                    showForm();
+                }
+                function showForm(data) {
+                    const view = new UserView({model: new User(data)});
+                    openModal('User', view.$el);
+                }
+            }
+
+            function editCirculator() {
+                const id = $(this).data('id');
+                if (id) {
+                    $.ajax({
+                        url: apiUrl('circulators' + '/' + id),
+                        dataType: 'json',
+                    }).then(showForm);
+                }
+                else {
+                    showForm();
+                }
+                function showForm(data) {
+                    const view = new CirculatorView({model: new Circulator(data)});
+                    openModal('Circulator', view.$el);
+                }
+            }
+
+            function deleteCirculator() {
+                const id = $(this).data('id');
+                if (id) {
+                    $.ajax({
+                        url: apiUrl('circulators' + '/' + id),
+                        dataType: 'json',
+                        type: 'DELETE',
+                    }).then(() => showTable('circulators'));
+                }
+            }
+
+            function editPage() {
+                const number = $(this).data('number');
+                if (number) {
+                    $.ajax({
+                        url: apiUrl('pages' + '/' + number),
+                        dataType: 'json',
+                    }).then(showForm);
+                }
+                else {
+                    showForm(status.defaultPage);
+                }
+                function showForm(data) {
+                    const view = new PageView({model: new Page(data)});
+                    openModal('Page', view.$el);
+                }
+            }
+
+            function doSearch() {
+                const searchData = {};
+                $.each(['q', 'name', 'address'], function (i, name) {
+                    const value = $.trim($('#check-form-' + name).val());
+                    if (value) {
+                        searchData[name] = value;
+                    }
+                });
+                if ($.isEmptyObject(searchData)) {
+                    return; // don't search if no search terms
+                }
+                const button = $('#search-button');
+                button.text('Please Wait').prop('disabled', true);
+                $('#result-div > *').hide();
+                const resetButton = () => button.text('Search').prop('disabled', false);
+                // Use a timeout because JSONP calls don't always raise error
+                // events when there's a problem.
+                const timeoutHandle = setTimeout(
+                    function () {
+                        alert('Something unexpected went wrong with the search request. Trying again might work.');
+                        resetButton();
+                    },
+                    10000
+                );
+                const more = this.id && this.id === 'more-button';
+                if (more) {
+                    searchData.limit = 50;
+                }
+                $.ajax({
+                    url: apiUrl('search'),
+                    data: searchData,
+                    dataType: 'json',
+                })
+                    .then(handleResults)
+                    .always(
+                        function () {
+                            clearTimeout(timeoutHandle);
+                            resetButton();
+                        }
+                    );
+
+                function handleResults(data) {
+                    $('#result-div > *').hide();
+                    $('#party-column-head').toggle(!!config.party);
+                    $('#voter-table').show();
+                    const results = data.results;
+                    const voterRowTemplate = getTemplate('voter-row');
+                    const tbody = $('#voter-table tbody').empty();
+                    $.each(results, function (i, v) {
+                        v.name = makeName(v, true); // reversed
+                        v.address = makeAddress(v);
+                        v.partyDisplay = v.party ? v.party.substr(0, 3) : '';
+                        v.wantedParty = config.party;
+                        v.wantedWard = config.ward;
+                        const tr = $(voterRowTemplate(v)).data('voterData', v);
+                        tbody.append(tr);
+                    });
+                    if (!results.length) {
+                        tbody.append(
+                            '<tr><td colspan="7"><i>No matching voter records found.</i></td></tr>'
+                        );
+                    }
+                    // show "More" only if there are exactly 10 results
+                    $('#voter-table tfoot').toggle(results.length === 10);
+                    const explanation = $('#explanation').empty();
+                    explanation.append(data.explanation).show();
+                }
+            }
+
+            function backToChecking() {
+                $('#top-row').show();
+                $('#bottom-row').hide()
+                    .empty();
+                start();
+            }
+
+            function openModal(title, body) {
+                const $modal = $('#global-modal');
+                $('.modal-title', $modal).text(title);
+                $('.modal-body', $modal).html(body);
+                $modal.modal();
+            }
+
+            function makeName(v, reversed) {
+                let name = v.firstname;
+                if (v.middle) {
+                    name += ' ' + v.middle;
+                }
+                if (reversed) {
+                    name = v.lastname + ', ' + name;
+                }
+                else {
+                    name += ' ' + v.lastname;
+                }
+                if (v.suffix) {
+                    if (reversed) {
+                        name += ',';
+                    }
+                    name += ' ' + v.suffix;
+                }
+                return name;
+            }
+
+            function makeAddress(v) {
+                let address = v.res_house + v.res_frac + ' ' + v.res_street;
+                if (v.res_apt) {
+                    address += ' #' + v.res_apt;
+                }
+                return address;
+            }
+
         }
 
-        function sortNumber(a, b) {
-            return a - b;
-        }
     }
+
 })(jQuery);
