@@ -21,6 +21,7 @@
     "express-mysql-session": "^2.1.0",
     "express-session": "^1.16.2",
     "find-config": "^1.0.0",
+    "generate-password": "^1.4.2",
     "http-errors": "^1.7.3",
     "moment": "^2.24.0",
     "morgan": "^1.9.1",
