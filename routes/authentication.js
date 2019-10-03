@@ -10,7 +10,7 @@ const senderEmail = process.env.SENDER_EMAIL;
 const secret = process.env.SECRET;
 let urlBase;
 
-passwordless.init(new PasswordlessMysqlStore(db.connectionString));
+passwordless.init(new PasswordlessMysqlStore(db.getConnectionString()));
 passwordless.addDelivery(
     function (tokenToSend, uidToSend, recipient, callback) { // eslint-disable-line max-params
         const host = (new URL(urlBase)).host;
