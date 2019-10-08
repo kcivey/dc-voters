@@ -1,3 +1,35 @@
+CREATE TABLE IF NOT EXISTS projects (
+  `id` SMALLINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `code` VARCHAR(16),
+  `name` VARCHAR(64),
+  `config` TEXT,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY (`code`)
+);
+
+CREATE TABLE IF NOT EXISTS circulators (
+  `id` MEDIUMINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `name` VARCHAR(255) NOT NULL,
+  `status` varchar(10) NOT NULL DEFAULT '',
+  `notes` TEXT,
+  UNIQUE KEY (`name`),
+  PRIMARY KEY (`id`)
+);
+
+CREATE TABLE IF NOT EXISTS pages (
+  `id` MEDIUMINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `project_id` SMALLINT UNSIGNED NOT NULL,
+  `number` SMALLINT UNSIGNED NOT NULL,
+  `circulator_id` MEDIUMINT UNSIGNED NOT NULL,
+  `date_signed` DATE DEFAULT NULL,
+  `notes` TEXT,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY (`project_id`, `number`),
+  KEY (`circulator_id`),
+  FOREIGN KEY (`project_id`) REFERENCES `projects` (`id`),
+  FOREIGN KEY (`circulator_id`) REFERENCES `circulators` (`id`)
+);
+
 CREATE TABLE petition_lines (
   `id` MEDIUMINT UNSIGNED NOT NULL AUTO_INCREMENT,
   `project_id` SMALLINT UNSIGNED NOT NULL,
@@ -24,29 +56,6 @@ CREATE TABLE petition_lines (
   FOREIGN KEY (`project_id`, `page`) REFERENCES pages (`project_id`, `number`)
 );
 
-CREATE TABLE IF NOT EXISTS pages (
-  `id` MEDIUMINT UNSIGNED NOT NULL AUTO_INCREMENT,
-  `project_id` SMALLINT UNSIGNED NOT NULL,
-  `number` SMALLINT UNSIGNED NOT NULL,
-  `circulator_id` MEDIUMINT UNSIGNED NOT NULL,
-  `date_signed` DATE DEFAULT NULL,
-  `notes` TEXT,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY (`project_id`, `number`),
-  KEY (`circulator_id`),
-  FOREIGN KEY (`project_id`) REFERENCES `projects` (`id`),
-  FOREIGN KEY (`circulator_id`) REFERENCES `circulators` (`id`)
-);
-
-CREATE TABLE IF NOT EXISTS circulators (
-  `id` MEDIUMINT UNSIGNED NOT NULL AUTO_INCREMENT,
-  `name` VARCHAR(255) NOT NULL,
-  `status` varchar(10) NOT NULL DEFAULT '',
-  `notes` TEXT,
-  UNIQUE KEY (`name`),
-  PRIMARY KEY (`id`)
-);
-
 CREATE TABLE IF NOT EXISTS users (
   `id` MEDIUMINT UNSIGNED NOT NULL AUTO_INCREMENT,
   `name` VARCHAR(255) NOT NULL,
@@ -58,15 +67,6 @@ CREATE TABLE IF NOT EXISTS users (
   PRIMARY KEY (`id`),
   UNIQUE KEY (`email`),
   UNIQUE KEY (`username`)
-);
-
-CREATE TABLE IF NOT EXISTS projects (
-  `id` SMALLINT UNSIGNED NOT NULL AUTO_INCREMENT,
-  `code` VARCHAR(16),
-  `name` VARCHAR(64),
-  `config` TEXT,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY (`code`)
 );
 
 CREATE TABLE IF NOT EXISTS project_users (

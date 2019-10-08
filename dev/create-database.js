@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 const assert = require('assert');
+const path = require('path');
 const readline = require('readline');
 const {Writable} = require('stream');
 const yargs = require('yargs');
@@ -8,16 +9,28 @@ const db = require('../lib/db/admin');
 const argv = getArgv();
 
 main()
-    .catch(console.error)
+    .catch(function (err) {
+        console.error(err);
+        process.exit(64);
+    })
     .finally(() => db.close());
 
 async function main() {
     const adminUser = argv['admin-user'];
     const adminPassword = argv['admin-password'] || await askPassword('Admin password: ');
     const {database, user, password} = argv;
-    db.establishConnection({database: '', user: adminUser, password: adminPassword});
+    await db.establishConnection({database: '', user: adminUser, password: adminPassword});
     const opts = await db.createDatabaseAndUser(database, user, password);
-    console.log(opts);
+    const vars = `
+        DATABASE_HOST=localhost
+        DATABASE_NAME=${opts.database}
+        DATABASE_USER=${opts.user}
+        DATABASE_PASSWORD='${opts.password}'
+    `;
+    console.log(vars.replace(/\n\s+/g, '\n'));
+    await db.createTables(database);
+    console.warn('Loading', argv['voter-file']);
+    await db.loadVoterFile(database, argv['voter-file']);
 }
 
 function askPassword(question) {
@@ -67,6 +80,12 @@ function getArgv() {
                 describe: 'password for MySQL account to create (generated randomly if not supplied)',
                 requiresArg: true,
             },
+            'voter-file': {
+                type: 'string',
+                describe: 'voter file (CSV) to load',
+                default: 'voters.csv',
+                requiresArg: true,
+            },
         })
         .usage('$0 <database>', 'create database', function (yargs) {
             yargs.positional('database', {
@@ -82,6 +101,7 @@ function getArgv() {
             if (!argv.user) {
                 argv.user = argv.database;
             }
+            argv['voter-file'] = path.resolve(argv['voter-file']);
             return true;
         })
         .strict(true)
