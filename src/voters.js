@@ -11,7 +11,6 @@
 
     function init(user) {
         const project = user && user.projects[0];
-        const config = project && project.config;
         const templateCache = {};
         const alertTemplate = getTemplate('alert');
         let status = {};
@@ -47,7 +46,7 @@
             },
             checkDateSigned,
             render() {
-                this.$el.html(this.template(config));
+                this.$el.html(this.template(project));
                 this.modelBinder.bind(this.model, this.el);
                 return this;
             },
@@ -250,7 +249,7 @@
             $.getJSON(apiUrl(name)).then(
                 function (data) {
                     const values = {
-                        useCirculatorStatus: !!Object.keys(config.circulatorStatuses).length,
+                        useCirculatorStatus: !!Object.keys(project.circulatorStatuses).length,
                         project,
                     };
                     values[name] = data;
@@ -277,7 +276,7 @@
         function showImageRow(page, line) {
             const $imageRow = $('#image-row');
             const $imageDiv = $('#image-div');
-            if (!page || !config.imageDpi) {
+            if (!page || !project.imageDpi) {
                 $imageRow.slideUp();
                 return;
             }
@@ -288,7 +287,7 @@
             const imageUrl = '/page-images/' + page + (+line <= 10 ? 'a' : 'b') + '.jpeg';
             $imageRow.slideDown();
             const divWidth = $imageDiv.innerWidth();
-            const ratio = divWidth / (8.5 * config.imageDpi);
+            const ratio = divWidth / (8.5 * project.imageDpi);
             const top = -((line <= 10 ? 902 : -956) + 104 * line) * ratio;
             $imageDiv.css({height: (120 * ratio) + 'px'})
                 .html(
@@ -321,13 +320,13 @@
                     const totals = {'Unprocessed': rawTotals[''] || 0};
                     const seen = {};
                     let processedLines = 0;
-                    $.each(config.circulatorStatuses, function (code, label) {
+                    $.each(project.circulatorStatuses, function (code, label) {
                         const count = rawTotals[code] || 0;
                         label += ' [' + code + ']';
                         totals[label] = count;
                         seen[code] = true;
                     });
-                    $.each(config.findingCodes, function (code, label) {
+                    $.each(project.findingCodes, function (code, label) {
                         const count = rawTotals[code] || 0;
                         label += ' [' + code + ']';
                         totals[label] = count;
@@ -467,11 +466,11 @@
                     address: makeAddress(voterData),
                     ward: voterData.ward,
                 };
-                if (config.party && voterData.party !== config.party) {
+                if (project.party && voterData.party !== project.party) {
                     formData.finding = 'WP';
                     formData.notes = voterData.party;
                 }
-                else if (config.ward && voterData.ward !== config.ward) {
+                else if (project.ward && voterData.ward !== project.ward) {
                     formData.finding = 'WW';
                     formData.notes = 'Ward ' + voterData.ward;
                 }
@@ -531,7 +530,7 @@
 
                 function handleResults(data) {
                     $('#result-div > *').hide();
-                    $('#party-column-head').toggle(!!config.party);
+                    $('#party-column-head').toggle(!!project.party);
                     $('#voter-table').show();
                     const results = data.results;
                     const voterRowTemplate = getTemplate('voter-row');
@@ -540,8 +539,8 @@
                         v.name = makeName(v, true); // reversed
                         v.address = makeAddress(v);
                         v.partyDisplay = v.party ? v.party.substr(0, 3) : '';
-                        v.wantedParty = config.party;
-                        v.wantedWard = config.ward;
+                        v.wantedParty = project.party;
+                        v.wantedWard = project.ward;
                         const tr = $(voterRowTemplate(v)).data('voterData', v);
                         tbody.append(tr);
                     });
@@ -775,7 +774,7 @@
                     'click .save': 'save',
                 },
                 render() {
-                    this.$el.html(this.template({circulatorStatuses: config.circulatorStatuses}));
+                    this.$el.html(this.template({circulatorStatuses: project.circulatorStatuses}));
                     this.modelBinder.bind(this.model, this.el);
                     return this;
                 },

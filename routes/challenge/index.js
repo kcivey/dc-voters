@@ -26,16 +26,15 @@ function challenge(req, res, next) {
     if (!req.project) {
         throw createError(404, 'No project set');
     }
-    const config = req.project.config;
     db.getChallengeLines(req.project.id)
         .then(function (rows) {
-            const challengeInfo = getChallengeInfo(rows, config);
+            const challengeInfo = getChallengeInfo(rows, req.project);
             res.send(challengeTemplate(challengeInfo));
         })
         .catch(next);
 }
 
-function getChallengeInfo(rows, config) {
+function getChallengeInfo(rows, project) {
     const circulators = {};
     const data = {};
     rows.forEach(function (row) {
@@ -47,7 +46,7 @@ function getChallengeInfo(rows, config) {
         let circulatorExplanation = '';
         if (!circulators[row.page]) {
             if (row.circulator_status) {
-                circulatorExplanation = config.circulatorStatuses[row.circulator_status] || row.circulator_status;
+                circulatorExplanation = project.circulatorStatuses[row.circulator_status] || row.circulator_status;
             }
             if (row.circulator_notes) {
                 if (circulatorExplanation) {
@@ -77,7 +76,7 @@ function getChallengeInfo(rows, config) {
                 if (explanation) {
                     explanation += '; ';
                 }
-                // explanation = config.findingCodes[row.finding] || row.finding;
+                // explanation = project.findingCodes[row.finding] || row.finding;
                 explanation += regulations[row.finding] || row.finding;
             }
             let m;
@@ -95,7 +94,7 @@ function getChallengeInfo(rows, config) {
         data[row.page][row.line - 1] = {signer, explanation};
     });
     return {
-        challengeHeader: config.challengeHeader,
+        challengeHeader: project.challengeHeader,
         circulators,
         data,
     };

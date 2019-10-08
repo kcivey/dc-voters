@@ -2,7 +2,12 @@ CREATE TABLE IF NOT EXISTS projects (
   `id` SMALLINT UNSIGNED NOT NULL AUTO_INCREMENT,
   `code` VARCHAR(16),
   `name` VARCHAR(64),
-  `config` TEXT,
+  `finding_codes` TEXT,
+  `circulator_statuses` TEXT,
+  `party` VARCHAR(32),
+  `ward` TINYINT UNSIGNED,
+  `image_dpi` SMALLINT UNSIGNED,
+  `challenge_header` VARCHAR(128),
   PRIMARY KEY (`id`),
   UNIQUE KEY (`code`)
 );
