@@ -5,7 +5,6 @@ const session = require('express-session');
 const SessionMySqlStore = require('express-mysql-session')(session);
 const db = require('../lib/db');
 const sendEmail = require('../lib/send-email');
-const sessionStore = new SessionMySqlStore({}, db.connection);
 const senderEmail = process.env.SENDER_EMAIL;
 const secret = process.env.SECRET;
 let urlBase;
@@ -47,6 +46,7 @@ function setUser(req, res, next) {
 }
 
 module.exports = function (app, apiApp) {
+    const sessionStore = new SessionMySqlStore({}, db.getConnection());
     app.use(session({secret, store: sessionStore, resave: false, saveUninitialized: false}));
     app.use(passwordless.sessionSupport());
     app.use(passwordless.acceptToken({successRedirect: '/'}));
