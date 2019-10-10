@@ -1,12 +1,16 @@
 #!/usr/bin/env node
 
 const assert = require('assert');
+const fs = require('fs');
 const path = require('path');
 const readline = require('readline');
 const {Writable} = require('stream');
+const findConfig = require('find-config');
+const dotenv = require('dotenv');
 const yargs = require('yargs');
 const db = require('../lib/db/admin');
 const argv = getArgv();
+const dotenvFile = findConfig('.env');
 
 main()
     .catch(function (err) {
@@ -21,13 +25,14 @@ async function main() {
     const {database, user, password} = argv;
     await db.establishConnection({database: '', user: adminUser, password: adminPassword});
     const opts = await db.createDatabaseAndUser(database, user, password);
-    const vars = `
-        DATABASE_HOST=localhost
-        DATABASE_NAME=${opts.database}
-        DATABASE_USER=${opts.user}
-        DATABASE_PASSWORD='${opts.password}'
-    `;
-    console.log(vars.replace(/\n\s+/g, '\n'));
+    const env = {
+        ...getDotEnv(),
+        DATABASE_HOST: 'localhost',
+        DATABASE_NAME: opts.database,
+        DATABASE_USER: opts.user,
+        DATABASE_PASSWORD: opts.password,
+    };
+    writeDotEnv(env);
     await db.createTables(database);
     console.warn('Loading', argv['voter-file']);
     await db.loadVoterFile(database, argv['voter-file']);
@@ -45,6 +50,7 @@ function askPassword(question) {
     });
     return new Promise(resolve => readlineInterface.question(question, resolve))
         .then(function (password) {
+            process.stdout.write('\n');
             readlineInterface.close();
             return password;
         });
@@ -106,4 +112,20 @@ function getArgv() {
         })
         .strict(true)
         .argv;
+}
+
+function getDotEnv() {
+    return dotenv.parse(fs.readFileSync(dotenvFile, 'utf8'));
+}
+
+function writeDotEnv(env) {
+    console.warn('Writing', dotenvFile);
+    fs.copyFileSync(dotenvFile, dotenvFile + '.old');
+    const content = Object.entries(env)
+        .map(function([key, value]) {
+            const quote = value.match(/\W/) ? "'" : '';
+            return `${key}=${quote}${value}${quote}\n`;
+        })
+        .join('');
+    fs.writeFileSync(dotenvFile, content);
 }
