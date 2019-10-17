@@ -10,6 +10,21 @@ describe(
     'Basic',
     function () {
         it(
+            'Failed Login',
+            async function () {
+                const page = testing.page;
+                await page.goto(testing.startUrl);
+                const loginHead = await page.$eval('h4.card-title', el => el.textContent);
+                expect(loginHead).to.equal('Get Login Link');
+                await page.type('#send-token-email', 'nonexistent@example.com');
+                await page.click('#send-token-form button');
+                const alertSelector = '#send-token-card .alert-danger';
+                await page.waitFor(alertSelector, {visible: true});
+                const errorAlert = await page.$eval(alertSelector, el => el.textContent);
+                expect(errorAlert).to.contain('Problem sending link. Is this email address registered?');
+            }
+        );
+        it(
             'Login',
             async function () {
                 const page = testing.page;
