@@ -55,7 +55,7 @@ async function main() {
     const username = argv._[0].toLowerCase();
     const name = argv.name || username;
     const project = await db.getProjectByCode(argv.project);
-    assert(project, `No such project "${project}"`);
+    assert(project, `No such project "${argv.project}"`);
     await db.createOrUpdateUser(project.id, {username, email, admin, name});
     if (pages.length) {
         const pagesAssigned = await db.assignPages(username, pages);
