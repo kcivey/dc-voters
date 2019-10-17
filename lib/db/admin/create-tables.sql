@@ -163,3 +163,16 @@ CREATE TABLE IF NOT EXISTS sessions (
   data TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_bin,
   PRIMARY KEY (session_id)
 );
+
+CREATE TABLE passwordless
+(
+  `id`     bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `uid`    varchar(160) DEFAULT NULL,
+  `token`  varchar(60)         NOT NULL,
+  `origin` text,
+  `ttl`    bigint(20)   DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `id` (`id`),
+  UNIQUE KEY `passwordless_token_key` (`token`),
+  UNIQUE KEY `passwordless_uid_key` (`uid`)
+);
