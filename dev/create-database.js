@@ -24,6 +24,9 @@ async function main() {
     const adminPassword = argv['admin-password'] || await askPassword('Admin password: ');
     const {database, user, password} = argv;
     await db.establishConnection({database: '', user: adminUser, password: adminPassword});
+    if (argv.drop) {
+        await db.dropDatabaseAndUser(database, user);
+    }
     const opts = await db.createDatabaseAndUser(database, user, password);
     const env = {
         ...getDotEnv(),
@@ -76,6 +79,10 @@ function getArgv() {
                 required: true,
                 requiresArg: true,
             },
+            drop: {
+                type: 'boolean',
+                describe: 'drop database and user before creating, if they exist',
+            },
             user: {
                 type: 'string',
                 describe: 'username for MySQL account to create (defaults to database name)',
@@ -122,7 +129,7 @@ function writeDotEnv(env) {
     console.warn('Writing', dotenvFile);
     fs.copyFileSync(dotenvFile, dotenvFile + '.old');
     const content = Object.entries(env)
-        .map(function([key, value]) {
+        .map(function ([key, value]) {
             const quote = value.match(/\W/) ? "'" : '';
             return `${key}=${quote}${value}${quote}\n`;
         })
