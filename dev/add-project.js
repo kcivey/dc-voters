@@ -1,0 +1,140 @@
+#!/usr/bin/env node
+
+const assert = require('assert');
+const fs = require('fs');
+const path = require('path');
+const yaml = require('js-yaml');
+const yargs = require('yargs');
+const argv = getArgv();
+const db = require('../lib/db/admin');
+
+main()
+    .then(() => console.log('Added'))
+    .catch(console.trace)
+    .finally(() => db.close());
+
+async function main() {
+    const properties = {
+        code: argv.project,
+        name: argv.name,
+    };
+    if (argv.party) {
+        properties.party = argv.party;
+    }
+    if (argv.ward) {
+        properties.ward = argv.ward;
+    }
+    const project = await db.addProject(properties);
+    assert(project, `Project "${argv.project}" does not exist`);
+    await db.createOrUpdateUser(
+        project.id,
+        {
+            username: argv['admin-user'],
+            name: argv['admin-name'],
+            email: argv['admin-email'],
+            admin: true,
+        }
+    );
+}
+
+function getArgv() {
+    return yargs
+        .options({
+            'admin-email': {
+                type: 'string',
+                describe: 'admin email',
+                required: true,
+                requiresArg: true,
+            },
+            'admin-name': {
+                type: 'string',
+                describe: 'admin name',
+                requiresArg: true,
+                defaultDescription: 'username',
+            },
+            'admin-user': {
+                type: 'string',
+                describe: 'admin username',
+                requiresArg: true,
+                defaultDescription: 'first part of email',
+            },
+            name: {
+                type: 'string',
+                describe: 'project name',
+                requiresArg: true,
+                defaultDescription: 'project code',
+            },
+            party: {
+                type: 'string',
+                describe: 'party (for primary contests)',
+                requiresArg: true,
+            },
+            ward: {
+                type: 'number',
+                describe: 'ward (for ward-level contests)',
+                requiresArg: true,
+            },
+        })
+        .usage('$0 <project>', 'add project', function (yargs) {
+            yargs.positional('project', {
+                type: 'string',
+                describe: 'code for project to add',
+            });
+        })
+        .config(
+            'config',
+            'path to YAML config file',
+            function (configFile) {
+                const content = fs.readFileSync(configFile, 'utf8');
+                return yaml.safeLoad(content);
+            }
+        )
+        .check(function (argv) {
+            assert.strictEqual(argv._.length, 0, 'Unexpected arguments after projectc code');
+            assert(/^[a-z\d-]+$/.test(argv.project), 'Project code must contain only letters, numbers, and hyphens');
+            assert(
+                ![
+                    'api',
+                    'challenge',
+                    'circulators',
+                    'completed',
+                    'dt-line',
+                    'line',
+                    'login',
+                    'logout',
+                    'mark-blank',
+                    'pages',
+                    'project',
+                    'search',
+                    'status',
+                    'user',
+                    'users',
+                ].includes(argv.project),
+                'Invalid project code'
+            );
+            assert(/^[a-z\d_]+$/.test(argv.user), 'Username must contain only letters, numbers, and underscores');
+            assert(!argv.ward || (argv.ward >= 1 && argv.ward <= 8), 'Invalid ward');
+            return true;
+        })
+        .middleware(function (argv) {
+            if (!argv['admin-user']) {
+                argv['admin-user'] = argv['admin-email'].replace(/@.*/, '');
+            }
+            if (!argv['admin-name']) {
+                argv['admin-name'] = argv['admin-user'];
+            }
+            argv['admin-user'] = argv['admin-user'].toLowerCase();
+            if (!argv.name) {
+                argv.name = argv.project;
+            }
+            argv.project = argv.project.toLowerCase()
+                .replace(/[^a-z\d]+/g, '-')
+                .replace(/^-|-$/g, '');
+            if (argv.config) {
+                argv.config = path.resolve(argv.config);
+            }
+            return true;
+        })
+        .strict(true)
+        .argv;
+}
