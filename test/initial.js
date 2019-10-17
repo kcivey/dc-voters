@@ -31,7 +31,7 @@ describe(
                 await page.goto(testing.startUrl);
                 const loginHead = await page.$eval('h4.card-title', el => el.textContent);
                 expect(loginHead).to.equal('Get Login Link');
-                await page.type('#send-token-email', 'keith@iveys.org');
+                await page.type('#send-token-email', 'test@example.com');
                 await page.click('#send-token-form button');
                 const loginUrl = await testing.waitForLoginUrl();
                 await page.goto(loginUrl);
