@@ -873,8 +873,7 @@
             });
 
             $('#bottom-row')
-                .on('click', '.assign-send-button', assignPages)
-                .on('click', '.assign-modal-button', addUsernameToModal)
+                .on('click', '.assign-modal-button', setUpAssignModal)
                 .on('click', '.back-button', backToChecking)
                 .on('click', '.send-token-button', sendTokenFromUserTable)
                 .on('click', '.user-edit-button', editUser)
@@ -883,11 +882,16 @@
                 .on('click', '.circulator-totals-button', showCirculatorTotals)
                 .on('click', '.page-edit-button', editPage);
 
+            $('#assign-pages-modal')
+                .on('click', '.assign-send-button', assignPages);
+
             function assignPages() {
                 const modal = $('#assign-pages-modal');
-                const username = $('.username', modal).text();
+                const username = $('.username', modal).text()
+                    .trim();
                 const pageString = $('[name=pages]', modal).val();
                 const pages = stringToList(pageString);
+                console.log(pageString, pages);
                 if (pages.length) {
                     $.ajax({
                         url: apiUrl('users/' + username + '/pages'),
@@ -925,10 +929,12 @@
                 }
             }
 
-            function addUsernameToModal() {
+            function setUpAssignModal() {
                 const username = $(this).closest('tr')
-                    .find('td:first')
+                    .find('td')
+                    .eq(1)
                     .text();
+                $('#assign-pages-modal [name=pages]').val('');
                 $('#assign-pages-modal .username').text(username);
             }
 

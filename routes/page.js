@@ -5,6 +5,7 @@ module.exports = {
 
     assignPages(req, res, next) {
         const pages = req.body;
+        console.log('pages', pages)
         if (!Array.isArray(pages) || pages.filter(v => !/^\d+$/.test(v)).length) {
             throw createError(400, 'Invalid pages');
         }
@@ -16,7 +17,7 @@ module.exports = {
     createOrUpdatePage(req, res, next) {
         const projectId = req.project.id;
         const data = req.body;
-        const number = +req.params.number;
+        const number = req.params.number;
         const id = data.id;
         db.createOrUpdatePage({projectId, data, number, id})
             .then(page => res.json(page))

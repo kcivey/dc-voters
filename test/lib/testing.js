@@ -79,10 +79,10 @@ class Testing {
         }
 
         async function startBrowser() {
-            const browser = await puppeteer.launch();
+            const browser = await puppeteer.launch({defaultViewport: {width: 1280, height: 800}});
             const page = await browser.newPage();
             page.on('pageerror', function (err) {
-                throw err;
+                console.error(err);
             });
             that.browser = browser;
             that.page = page;
@@ -91,10 +91,14 @@ class Testing {
     }
 
     tearDown() {
-        process.kill(-this.serverProcess.pid); // negative means kill all processes in process group
+        const serverProcess = this.serverProcess;
         return Promise.all([
             this.browser.close(),
             new Promise(resolve => this.maildev.close(resolve)),
+            new Promise(function (resolve) {
+                serverProcess.on('exit', resolve);
+                process.kill(-serverProcess.pid); // negative means kill all processes in process group
+            }),
         ]);
     }
 
