@@ -954,6 +954,7 @@
             function sendTokenFromUserTable() {
                 const button = $(this);
                 const email = button.data('email');
+                const originalButtonContent = button.html();
                 sendToken(email).then(
                     function () {
                         button.text('Sent').addClass('btn-success');
@@ -965,7 +966,8 @@
                     }
                 );
                 function restoreButton() {
-                    button.text('Send Link').removeClass('btn-success btn-danger');
+                    button.html(originalButtonContent)
+                        .removeClass('btn-success btn-danger');
                 }
             }
 
