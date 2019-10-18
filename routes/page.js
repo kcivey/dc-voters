@@ -5,7 +5,6 @@ module.exports = {
 
     assignPages(req, res, next) {
         const pages = req.body;
-        console.log('pages', pages)
         if (!Array.isArray(pages) || pages.filter(v => !/^\d+$/.test(v)).length) {
             throw createError(400, 'Invalid pages');
         }
