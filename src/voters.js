@@ -101,7 +101,9 @@
                 }
                 else {
                     $('#top-nav,#main-container,#check-form').show();
-                    $('#check-form-name').focus();
+                    $('#check-form-name').val('')
+                        .focus();
+                    $('#check-form-address').val('');
                     $('#send-token-card').hide();
                     if (!user.admin) {
                         $('.admin-only').remove();
