@@ -823,16 +823,18 @@
                   <table class="table table-striped">
                     <tbody>
                       <% _.each(wardBreakdown, function (info, ward) { %>
-                        <tr>
-                          <td><% if (ward !== 'TOTAL') { %>Ward <% } %><%- ward %></td>
-                          <td class="text-right text-nowrap">
-                            <%- info.signers.toLocaleString() %>
-                            <% if (!circulatorName) { %>
-                              / <%- info.registered.toLocaleString() %>
-                              (<%- (100 * info.signers / info.registered).toFixed(2) %>%)
-                            <% } %>
-                          </td>
-                        </tr>
+                        <% if (info.signers) { %>
+                          <tr>
+                            <td><% if (ward !== 'TOTAL') { %>Ward <% } %><%- ward %></td>
+                            <td class="text-right text-nowrap">
+                              <%- info.signers.toLocaleString() %>
+                              <% if (!circulatorName) { %>
+                                / <%- info.registered.toLocaleString() %>
+                                (<%- (100 * info.signers / info.registered).toFixed(2) %>%)
+                              <% } %>
+                            </td>
+                          </tr>
+                        <% } %>
                       <% }); %>
                     </tbody>
                   </table>
