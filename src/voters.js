@@ -622,7 +622,7 @@
                     columns: [
                         {
                             defaultContent: '<button type="button" class="btn btn-outline-primary btn-sm edit-button ' +
-                                'table-button" title="Edit"><i class="fas fa-edit"></i></button>',
+                                'table-button" title="Edit"><i class="fas fa-pencil-alt"></i></button>',
                             title: '',
                             width: 33,
                             searchable: false,
