@@ -59,7 +59,7 @@ module.exports = function (app, apiApp) {
             url.protocol = req.protocol;
             url.host = req.get('host'); // includes port
             // Set the URL base (no need to have an environment variable for it, which could be wrong)
-            urlBase = url.toString();
+            urlBase = url.toString().replace(/\/$/, '');
             next();
         },
         passwordless.requestToken(
