@@ -40,7 +40,7 @@ CREATE TABLE petition_lines (
   `project_id` SMALLINT UNSIGNED NOT NULL,
   `page` SMALLINT UNSIGNED NOT NULL,
   `line` TINYINT UNSIGNED NOT NULL,
-  `checker` VARCHAR(10) DEFAULT '' NOT NULL,
+  `checker` VARCHAR(10) DEFAULT NULL,
   `check_time` DATETIME DEFAULT NULL,
   `voter_id` VARCHAR(10) DEFAULT '' NOT NULL,
   `finding` VARCHAR(10) DEFAULT '' NOT NULL,
@@ -58,7 +58,8 @@ CREATE TABLE petition_lines (
   KEY (`finding`),
   KEY (`ward`),
   FOREIGN KEY (`project_id`) REFERENCES `projects` (`id`),
-  FOREIGN KEY (`project_id`, `page`) REFERENCES pages (`project_id`, `number`)
+  FOREIGN KEY (`project_id`, `page`) REFERENCES pages (`project_id`, `number`),
+  FOREIGN KEY (`checker`) REFERENCES  `users` (`username`)
 );
 
 CREATE TABLE IF NOT EXISTS users (

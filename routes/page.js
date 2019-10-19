@@ -18,7 +18,9 @@ module.exports = {
         const data = req.body;
         const number = req.params.number;
         const id = data.id;
-        db.createOrUpdatePage({projectId, data, number, id})
+        const checker = data.checker;
+        delete data.checker;
+        db.createOrUpdatePage({projectId, data, number, id, checker})
             .then(page => res.json(page))
             .catch(next);
     },

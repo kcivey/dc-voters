@@ -50,6 +50,7 @@ apiApp.get('/pages/:number', routes.getPage);
 apiApp.put('/pages/:number', routes.createOrUpdatePage);
 apiApp.get('/users', routes.getUsers);
 apiApp.post('/users', routes.createOrUpdateUser);
+apiApp.get('/users/usernames', routes.getUsernames);
 apiApp.get('/users/:id', routes.getUser);
 apiApp.put('/users/:id', routes.createOrUpdateUser);
 apiApp.post('/users/:username/pages', routes.assignPages);

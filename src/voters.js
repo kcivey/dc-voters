@@ -844,15 +844,21 @@
                 },
                 checkDateSigned,
                 render() {
-                    $.getJSON(apiUrl('circulators')).then(function (circulators) {
-                        this.$el.html(this.template({circulators}));
-                        if (this.model.get('id')) {
-                            this.$('[name=number]').prop('readonly', true) // to prevent changing page number
-                                .removeClass('form-control')
-                                .addClass('form-control-plaintext');
-                        }
-                        this.modelBinder.bind(this.model, this.el);
-                    }.bind(this));
+                    $.getJSON(apiUrl('circulators')).then(
+                        function (circulators) {
+                            $.getJSON(apiUrl('users/usernames')).then(
+                                function (checkers) {
+                                    this.$el.html(this.template({circulators, checkers}));
+                                    if (this.model.get('id')) {
+                                        this.$('[name=number]').prop('readonly', true)
+                                            .removeClass('form-control')
+                                            .addClass('form-control-plaintext');
+                                    }
+                                    this.modelBinder.bind(this.model, this.el);
+                                }.bind(this)
+                            );
+                        }.bind(this)
+                    );
                     return this;
                 },
             });

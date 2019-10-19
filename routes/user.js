@@ -32,4 +32,10 @@ module.exports = {
             .catch(next);
     },
 
+    getUsernames(req, res, next) {
+        db.getUsernamesForProject(req.project.id)
+            .then(usernames => res.json(usernames))
+            .catch(next);
+    },
+
 };
