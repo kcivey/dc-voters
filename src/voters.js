@@ -68,7 +68,7 @@
                             const message = `Record saved for page ${data.page}, line ${data.line}`;
                             const alert = that.showAlert(true, message);
                             const timeoutHandle = setTimeout(() => alert.alert('close'), 1000);
-                            alert.on('closed', () => clearTimeout(timeoutHandle));
+                            alert.on('closed.bs.alert', () => clearTimeout(timeoutHandle));
                             status.defaultDateSigned = that.model.get('date_signed');
                             start();
                         })
@@ -752,9 +752,7 @@
                             form.next().remove();
                         }
                         alert.insertAfter(form)
-                            .on('closed', function () {
-                                clearTimeout(timeoutHandle);
-                            });
+                            .on('closed.bs.alert', () => clearTimeout(timeoutHandle));
                     }
                 );
             }
@@ -799,9 +797,9 @@
                                 const message = 'Record saved';
                                 const alert = that.showAlert(true, message);
                                 const timeoutHandle = setTimeout(() => alert.alert('close'), 1000);
-                                alert.on('closed', function () {
+                                alert.on('closed.bs.alert', function () {
                                     clearTimeout(timeoutHandle);
-                                    alert.closest('.modal').modal('hide');
+                                    that.$el.closest('.modal').modal('hide');
                                 });
                                 if (that.tableName === 'pages' && isNew) {
                                     // default to same values on next page
