@@ -1,0 +1,4 @@
+User-agent: *
+Disallow: /api
+Disallow: /completed.tsv
+Disallow: /challenge.html
