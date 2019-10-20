@@ -7,6 +7,12 @@
 /* eslint-disable no-restricted-properties */
 (function ($) {
 
+    $(document).ajaxError(function (evt, jqXhr) {
+        if (jqXhr.readyState < 4) {
+            alert('Network Error\nCheck your connection.');
+        }
+    });
+
     $.getJSON('/user', init);
 
     function init(user) {
@@ -171,7 +177,7 @@
                     if (errorThrown === 'Unauthorized') {
                         return callback(null, {});
                     }
-                    return callback('Unexpected problem: ' + textStatus + ' (' + errorThrown + ')');
+                    return callback('Unexpected problem getting status: ' + textStatus + ' (' + errorThrown + ')');
                 }
             );
         }
