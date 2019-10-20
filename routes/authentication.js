@@ -67,7 +67,6 @@ module.exports = function (app, apiApp) {
                 db.getUser({email})
                     .then(function (user) {
                         if (user && !user.blocked) {
-                            console.log('sending token for user', user);
                             return callback(null, user.id);
                         }
                         return callback(null, null);
