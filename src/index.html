@@ -809,7 +809,7 @@
                   </td>
                   <td class="number"><%- user.page_count %></td>
                   <td><%- user.pages %></td>
-                  <td class="number"><%- user.avg_time ? user.avg_time.toFixed(1) : '' %></td>
+                  <td class="number"><%- user.avg_time ? Math.round(3600 / user.avg_time) : '' %></td>
                 </tr>
               <% }); %>
             </tbody>
