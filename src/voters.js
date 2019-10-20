@@ -361,10 +361,15 @@
                             totals,
                             wardBreakdown: data.wardBreakdown,
                             circulatorName,
+                            commify,
                         }))
                         .show();
                 }
             );
+
+            function commify(n) {
+                return n.toString().replace(/(\d)(?=(?:\d{3})+$)/g, '$1,');
+            }
         }
 
         function makeName(v, reversed) {

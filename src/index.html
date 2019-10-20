@@ -833,7 +833,7 @@
               <% _.each(totals, function (total, label) { %>
                 <tr>
                   <td colspan="2"><%- label %></td>
-                  <td class="text-right"><%- typeof total === 'number' ? total.toLocaleString() : total %></td>
+                  <td class="text-right"><%- typeof total === 'number' ? commify(total) : total %></td>
                 </tr>
               <% }); %>
               <tr>
@@ -846,9 +846,9 @@
                           <tr>
                             <td><% if (ward !== 'TOTAL') { %>Ward <% } %><%- ward %></td>
                             <td class="text-right text-nowrap">
-                              <%- info.signers.toLocaleString() %>
+                              <%- commify(info.signers) %>
                               <% if (!circulatorName) { %>
-                                / <%- info.registered.toLocaleString() %>
+                                / <%- commify(info.registered) %>
                                 (<%- (100 * info.signers / info.registered).toFixed(2) %>%)
                               <% } %>
                             </td>
