@@ -585,7 +585,7 @@
                 $(selector).collapse('toggle');
                 return false;
             });
-            $('#edit-line-form').on('click', '.edit-button', handleAdminLineEdit);
+            $('#edit-line-form').on('submit', handleAdminLineEdit);
 
             function logout(evt) {
                 evt.preventDefault();
@@ -738,7 +738,8 @@
                 });
             }
 
-            function handleAdminLineEdit() {
+            function handleAdminLineEdit(evt) {
+                evt.preventDefault();
                 const form = $(this);
                 const page = +$('[name=page]', form).val();
                 const line = +$('[name=line]', form).val();
@@ -781,7 +782,7 @@
                     this.render();
                 },
                 events: {
-                    'click .save': 'save',
+                    'submit': 'save',
                 },
                 render() {
                     this.$el.html(this.template({circulatorStatuses: project.circulatorStatuses}));
@@ -796,7 +797,8 @@
                     }
                     return alert.insertBefore(this.$el);
                 },
-                save() {
+                save(evt) {
+                    evt.preventDefault();
                     const error = this.check();
                     const that = this; // save to use in inner functions
                     const isNew = !that.model.get('id');
@@ -847,7 +849,7 @@
                 template: getTemplate('page-form'),
                 tableName: 'pages',
                 events: {
-                    'click .save': 'save',
+                    'submit': 'save',
                     'change [name=date_signed]': 'checkDateSigned',
                 },
                 checkDateSigned,
@@ -879,7 +881,7 @@
                 template: getTemplate('user-form'),
                 tableName: 'users',
                 events: {
-                    'click .save': 'save',
+                    'submit': 'save',
                 },
                 render() {
                     this.$el.html(this.template());
@@ -907,7 +909,6 @@
                     .trim();
                 const pageString = $('[name=pages]', modal).val();
                 const pages = stringToList(pageString);
-                console.log(pageString, pages);
                 if (pages.length) {
                     $.ajax({
                         url: apiUrl('users/' + username + '/pages'),
