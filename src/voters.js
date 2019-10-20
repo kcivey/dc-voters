@@ -594,13 +594,16 @@
 
             function logout(evt) {
                 evt.preventDefault();
-                user = null;
-                $.ajax({
-                    url: '/logout',
-                    cache: false,
-                }).then(function () {
-                    window.location.href = '/';
-                });
+                $.ajax({url: '/logout', cache: false}).then(
+                    function () {
+                        user = null;
+                        start();
+                        window.location.href = '/';
+                    },
+                    function () {
+                        alert("Can't log out. Probably a network error. Close your browser to log out.");
+                    }
+                );
             }
 
             function displayReviewTable(evt) {
