@@ -202,9 +202,10 @@
                 editLine(rec);
                 return;
             }
-            const checkFormTemplate = getTemplate('check-form');
-            $('#check-form-intro')
-                .html(checkFormTemplate({line: rec.line, complete: status.complete}));
+            $('.pages-left').toggle(!!rec.line);
+            $('.no-pages-left').toggle(!rec.line);
+            $('.pages-completed').toggle(!!status.complete);
+            $('.no-pages-completed').toggle(!status.complete);
             $('#check-form').show()
                 .after($('#result-div .alert'));
             $('#result-div > *').hide();
@@ -434,6 +435,12 @@
                     }
                     searchTimeout = setTimeout(doSearch, 200);
                 });
+            $('#check-instructions')
+                .on('show.bs.collapse', () => $('#check-instructions-toggle').html('&times;'))
+                .on(
+                    'hide.bs.collapse',
+                    () => $('#check-instructions-toggle').html('<i class="fas fa-question-circle"></i>')
+                );
 
             function sendTokenFromForm(evt) {
                 const form = $(this);

@@ -239,10 +239,30 @@
             <div class="card-body">
               <h2 id="page-line" class="card-title"></h2>
               <form action="/" id="check-form">
-                <div id="check-form-intro"></div>
-                <p>Use one or both of these fields to search for the voter (does a prefix search for
-                  names, so <code>richards</code> will match "Richardson" and
-                  <code>connect</code> will match "Connecticut Ave").</p>
+                <button type="button" id="check-instructions-toggle" class="close" data-toggle="collapse" data-target="#check-instructions">
+                  &times;
+                </button>
+                <div id="check-instructions" class="collapse show">
+                  <p class="pages-left">
+                    Search if you want to check a name. Or click "Blank" if the line has no name,
+                    "Rest Blank" if the rest of the page is blank, or "Illegible" if you can't even
+                    figure out what to search for.
+                  </p>
+                  <p class="no-pages-left">
+                    <span class="pages-completed">
+                      You have completed your assigned pages. Congratulations! And thanks!
+                    </span>
+                    <span class="no-pages-completed">
+                      No pages have been assigned to you yet.
+                    </span>
+                    You can still search, if you'd like.
+                  </p>
+                  <p>
+                    Use one or both of these fields to search for the voter (does a prefix search for
+                    names, so <code>richards</code> will match "Richardson" and
+                    <code>connect</code> will match "Connecticut Ave").
+                  </p>
+                </div>
                 <div class="form-group">
                   <label class="sr-only" for="check-form-name">Name</label>
                   <input type="text" class="form-control" name="name" id="check-form-name" placeholder="Name">
@@ -259,6 +279,13 @@
                   <div class="btn-group">
                     <button id="search-button" type="button" class="btn btn-primary">Search</button>
                     <button id="reset-button" type="reset" class="btn btn-secondary">Clear</button>
+                  </div>
+                </div>
+                <div class="form-group page-assigned">
+                  <div class="btn-group">
+                    <button type="button" class="btn btn-info" id="blank-button">Blank</button>
+                    <button type="button" class="btn btn-danger" id="rest-blank-button">Rest Blank</button>
+                    <button type="button" class="btn btn-warning" id="illegible-button">Illegible</button>
                   </div>
                 </div>
               </form>
@@ -385,27 +412,6 @@
       integrity="sha256-0+5OfvOxkLHqpLPPwy9pDjug8N3cwaqcmleaxnR5VS8=" crossorigin="anonymous"></script>
     <script src="/voters.js"></script>
     <script type="text/template" id="check-form-template">
-      <% if (line) { %>
-        <p>
-          Search if you want to check a name. Or click "Blank" if the line has no name,
-          "Rest Blank" if the rest of the page is blank, or "Illegible" if you can't even
-          figure out what to search for.
-        </p>
-      <% } else { %>
-        <% if (complete) { %>
-          <p>You have completed your assigned pages. Congratulations! And thanks!
-        <% } else { %>
-          <p>No pages have been assigned to you yet.
-        <% } %>
-        You can still search, if you'd like.</p>
-      <% } %>
-      <p>
-        <% if (line) { %>
-          <button type="button" class="btn btn-secondary" id="blank-button">Blank</button>
-          <button type="button" class="btn btn-secondary" id="rest-blank-button">Rest Blank</button>
-          <button type="button" class="btn btn-secondary" id="illegible-button">Illegible</button>
-        <% } %>
-      </p>
     </script>
     <script type="text/template" id="voter-row-template">
       <tr>
