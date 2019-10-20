@@ -349,6 +349,9 @@
                     if (nonBlank) {
                         totals['Valid percentage'] = (100 * rawTotals['OK'] / nonBlank).toFixed(1) + '%';
                     }
+                    if (data.avgTime) {
+                        totals['Average lines per hour per person'] = Math.round(3600 / data.avgTime);
+                    }
                     $('#top-row').hide();
                     hideImageRow();
                     const totalTableTemplate = getTemplate('total-table');
