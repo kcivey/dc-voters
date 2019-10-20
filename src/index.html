@@ -775,6 +775,7 @@
                 <th class="text-center">Blocked</th>
                 <th class="number">Page Count</th>
                 <th>Pages</th>
+                <th>Sec/Line</th>
               </tr>
             </thead>
             <tbody>
@@ -808,6 +809,7 @@
                   </td>
                   <td class="number"><%- user.page_count %></td>
                   <td><%- user.pages %></td>
+                  <td class="number"><%- user.avg_time ? user.avg_time.toFixed(1) : '' %></td>
                 </tr>
               <% }); %>
             </tbody>
