@@ -266,7 +266,9 @@
                     hideImageRow();
                     const template = getTemplate(name.replace(/s$/, '') + '-table');
                     $('#bottom-row').html(template(values))
-                        .show();
+                        .show()
+                        .find('button[title], a[title]')
+                        .tooltip();
                 }
             );
         }
@@ -643,12 +645,13 @@
                             .click(function () {
                                 $('#go-back').click(); // kluge
                             });
+                        $('#line-table button[title]').tooltip();
                         $('.dt-top-left').html(button);
                     },
                     columns: [
                         {
                             defaultContent: '<button type="button" class="btn btn-outline-primary btn-sm edit-button ' +
-                                'table-button" title="Edit"><i class="fas fa-pencil-alt"></i></button>',
+                                'table-button" title="Edit"><i class="fas fa-pencil-alt fa-fw"></i></button>',
                             title: '',
                             width: 33,
                             searchable: false,
