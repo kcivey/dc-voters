@@ -76,7 +76,7 @@ module.exports = function (app, apiApp) {
         ),
         function (req, res) {
             res.json({sent: true});
-        },
+        }
     );
     app.get('/user', (req, res) => res.json(req.user || null)); // get logged-in user
     const redirectToFrontPage = (req, res) => res.redirect('/');
