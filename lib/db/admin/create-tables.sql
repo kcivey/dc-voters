@@ -156,7 +156,9 @@ CREATE TABLE IF NOT EXISTS voters (
   INDEX (lastname),
   INDEX (firstname),
   INDEX (res_house),
-  INDEX (res_street)
+  INDEX (res_street),
+  INDEX (ward),
+  INDEX (registered, ward)
 );
 
 CREATE TABLE IF NOT EXISTS sessions (
