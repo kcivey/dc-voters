@@ -47,7 +47,7 @@
                 this.render();
             },
             events: {
-                'click .save': 'save',
+                'submit': 'save',
                 'change #date_signed': 'checkDateSigned',
             },
             checkDateSigned,
@@ -64,7 +64,8 @@
                 }
                 return alert.insertBefore(this.$el);
             },
-            save() {
+            save(evt) {
+                evt.preventDefault();
                 const error = this.check();
                 const that = this; // save to use in inner functions
                 let jqXhr;
