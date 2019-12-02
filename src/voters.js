@@ -430,15 +430,15 @@
                 .on('click', '.not-found', () => editLine({finding: 'NR'}));
             $('#send-token-form')
                 .on('submit', sendTokenFromForm);
+            $('#more-button').on('click', function () {
+                $('#line-form').hide();
+                $('#check-form').next('.alert')
+                    .remove(); // remove leftover alert if there
+                const rec = status.lineRecord || {};
+                showImageRow(rec.page, rec.line);
+                doSearch(true);
+            });
             $('#check-form')
-                .on('click', '#more-button', function () {
-                    $('#line-form').hide();
-                    $('#check-form').next('.alert')
-                        .remove(); // remove leftover alert if there
-                    const rec = status.lineRecord || {};
-                    showImageRow(rec.page, rec.line);
-                    doSearch();
-                })
                 .on('click', '#search-button', doSearch)
                 .on('click', '#blank-button, #rest-blank-button', markBlankLines)
                 .on('click', '#illegible-button', () => editLine({finding: 'I'}))
@@ -517,7 +517,7 @@
                 }).then(start);
             }
 
-            function doSearch() {
+            function doSearch(more) {
                 const searchData = {};
                 $.each(['q', 'name', 'address'], function (i, name) {
                     const value = $.trim($('#check-form-' + name).val());
@@ -541,7 +541,6 @@
                     },
                     10000
                 );
-                const more = this.id && this.id === 'more-button';
                 if (more) {
                     searchData.limit = 50;
                 }
