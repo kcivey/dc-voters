@@ -8,6 +8,7 @@ CREATE TABLE IF NOT EXISTS projects (
   `ward` TINYINT UNSIGNED,
   `image_dpi` SMALLINT UNSIGNED,
   `challenge_header` VARCHAR(128),
+  `type` VARCHAR(10),
   PRIMARY KEY (`id`),
   UNIQUE KEY (`code`)
 );
@@ -48,6 +49,9 @@ CREATE TABLE petition_lines (
   `address` VARCHAR(255) DEFAULT '' NOT NULL,
   `ward` VARCHAR(1) DEFAULT '' NOT NULL,
   `date_signed` DATE DEFAULT NULL,
+  `challenged` TINYINT(1) NOT NULL DEFAULT 0,
+  `challenge_reason` TEXT,
+  `rebuttal` TEXT,
   `notes` TEXT,
   PRIMARY KEY (`id`),
   UNIQUE `page_line` (`project_id`, `page`, `line`),

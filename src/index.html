@@ -539,6 +539,28 @@
           <input type="text" name="date_signed" id="date_signed" class="form-control"/>
         </div>
       </div>
+      <% if (type == 'response') { %>
+        <div class="form-group row">
+          <label class="col-form-label col-sm-2" for="challenged">Challenged?</label>
+          <div class="col-sm-10">
+            <div class="form-check">
+              <input type="checkbox" class="form-check-input position-static align-middle" name="challenged" id="challenged" value="1"/>
+            </div>
+          </div>
+        </div>
+        <div class="form-group row">
+          <label class="col-form-label col-sm-2" for="challenge_reason">Challenge Reason</label>
+          <div class="col-sm-10">
+            <textarea name="challenge_reason" id="challenge_reason" class="form-control"></textarea>
+          </div>
+        </div>
+        <div class="form-group row">
+          <label class="col-form-label col-sm-2" for="rebuttal">Rebuttal</label>
+          <div class="col-sm-10">
+            <textarea name="rebuttal" id="rebuttal" class="form-control"></textarea>
+          </div>
+        </div>
+      <% } %>
       <div class="form-group row">
         <label class="col-form-label col-sm-2" for="notes">Notes</label>
         <div class="col-sm-10">
