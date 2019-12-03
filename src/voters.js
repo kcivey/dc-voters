@@ -224,6 +224,7 @@
         }
 
         function editLine(lineData) {
+            $('div.tooltip').remove(); // remove leftover tooltips
             const lineForm = $('#line-form');
             if (searchTimeout) {
                 clearTimeout(searchTimeout);
