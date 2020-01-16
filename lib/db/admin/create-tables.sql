@@ -36,37 +36,6 @@ CREATE TABLE IF NOT EXISTS pages (
   FOREIGN KEY (`circulator_id`) REFERENCES `circulators` (`id`)
 );
 
-CREATE TABLE petition_lines (
-  `id` MEDIUMINT UNSIGNED NOT NULL AUTO_INCREMENT,
-  `project_id` SMALLINT UNSIGNED NOT NULL,
-  `page` SMALLINT UNSIGNED NOT NULL,
-  `line` TINYINT UNSIGNED NOT NULL,
-  `checker` VARCHAR(10) DEFAULT NULL,
-  `check_time` DATETIME DEFAULT NULL,
-  `voter_id` INT UNSIGNED DEFAULT NULL,
-  `finding` VARCHAR(10) DEFAULT '' NOT NULL,
-  `voter_name` VARCHAR(255) DEFAULT '' NOT NULL,
-  `address` VARCHAR(255) DEFAULT '' NOT NULL,
-  `ward` VARCHAR(1) DEFAULT '' NOT NULL,
-  `date_signed` DATE DEFAULT NULL,
-  `challenged` TINYINT(1) NOT NULL DEFAULT 0,
-  `challenge_reason` TEXT,
-  `rebuttal` TEXT,
-  `notes` TEXT,
-  PRIMARY KEY (`id`),
-  UNIQUE `page_line` (`project_id`, `page`, `line`),
-  KEY (`checker`),
-  KEY (`check_time`),
-  KEY (`voter_id`),
-  KEY (`date_signed`),
-  KEY (`finding`),
-  KEY (`ward`),
-  FOREIGN KEY (`project_id`) REFERENCES `projects` (`id`),
-  FOREIGN KEY (`project_id`, `page`) REFERENCES pages (`project_id`, `number`),
-  FOREIGN KEY (`checker`) REFERENCES  `users` (`username`),
-  FOREIGN KEY (`voter_id`) REFERENCES `voters` (`voter_id`)
-);
-
 CREATE TABLE IF NOT EXISTS users (
   `id` MEDIUMINT UNSIGNED NOT NULL AUTO_INCREMENT,
   `name` VARCHAR(255) NOT NULL,
@@ -163,6 +132,37 @@ CREATE TABLE IF NOT EXISTS voters (
   INDEX (res_street),
   INDEX (ward),
   INDEX (registered, ward)
+);
+
+CREATE TABLE petition_lines (
+  `id` MEDIUMINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `project_id` SMALLINT UNSIGNED NOT NULL,
+  `page` SMALLINT UNSIGNED NOT NULL,
+  `line` TINYINT UNSIGNED NOT NULL,
+  `checker` VARCHAR(10) DEFAULT NULL,
+  `check_time` DATETIME DEFAULT NULL,
+  `voter_id` INT UNSIGNED DEFAULT NULL,
+  `finding` VARCHAR(10) DEFAULT '' NOT NULL,
+  `voter_name` VARCHAR(255) DEFAULT '' NOT NULL,
+  `address` VARCHAR(255) DEFAULT '' NOT NULL,
+  `ward` VARCHAR(1) DEFAULT '' NOT NULL,
+  `date_signed` DATE DEFAULT NULL,
+  `challenged` TINYINT(1) NOT NULL DEFAULT 0,
+  `challenge_reason` TEXT,
+  `rebuttal` TEXT,
+  `notes` TEXT,
+  PRIMARY KEY (`id`),
+  UNIQUE `page_line` (`project_id`, `page`, `line`),
+  KEY (`checker`),
+  KEY (`check_time`),
+  KEY (`voter_id`),
+  KEY (`date_signed`),
+  KEY (`finding`),
+  KEY (`ward`),
+  FOREIGN KEY (`project_id`) REFERENCES `projects` (`id`),
+  FOREIGN KEY (`project_id`, `page`) REFERENCES pages (`project_id`, `number`),
+  FOREIGN KEY (`checker`) REFERENCES  `users` (`username`),
+  FOREIGN KEY (`voter_id`) REFERENCES `voters` (`voter_id`)
 );
 
 CREATE TABLE IF NOT EXISTS sessions (
