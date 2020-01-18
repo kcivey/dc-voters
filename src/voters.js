@@ -198,14 +198,15 @@
             if (rec.line) {
                 $('#page-line').html('Petition Page ' + rec.page + ', Line ' + rec.line)
                     .show();
+                showImageRow(rec.page, rec.line);
             }
             else {
                 $('#page-line').hide();
+                hideImageRow();
             }
             if (rec.finding) {
                 $('#check-form').show();
                 $('#check-form-name').focus();
-                showImageRow(rec.page, rec.line);
                 editLine(rec);
                 return;
             }
@@ -216,7 +217,6 @@
             $('#check-form').show()
                 .after($('#result-div .alert'));
             $('#result-div > *').hide();
-            hideImageRow();
 
             function commify(n) {
                 return n.toString().replace(/(\d)(?=\d{3}$)/, '$1,');
