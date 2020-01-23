@@ -1,0 +1,39 @@
+#!/usr/bin/env node
+
+const assert = require('assert');
+const argv = require('yargs')
+    .options({
+        project: {
+            type: 'string',
+            describe: 'code for project',
+            requiredArg: true,
+            required: true,
+        },
+    })
+    .usage('$0 <username>', 'add user to project', function (yargs) {
+        yargs.positional('username', {
+            type: 'string',
+            describe: 'username',
+        });
+    })
+    .check(function (argv) {
+        assert.strictEqual(argv._.length, 0, 'Unexpected arguments after username');
+        return true;
+    })
+    .strict(true)
+    .argv;
+const db = require('../lib/db');
+
+main()
+    .then(() => console.log('Added'))
+    .catch(console.trace)
+    .finally(() => db.close());
+
+async function main() {
+    const username = argv.username.toLowerCase();
+    const user = await db.getUser({username});
+    assert(user, `No such user "${username}"`);
+    const project = await db.getProjectByCode(argv.project);
+    assert(project, `No such project "${argv.project}"`);
+    db.addUserToProject(project.id, user.id);
+}
