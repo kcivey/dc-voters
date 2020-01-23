@@ -98,15 +98,19 @@
         start();
 
         function start() {
-            console.log(user, projects, project)
             if (!user) {
                 $('#top-nav,#main-container,#project-menu-card').hide();
                 $('#send-token-card').show();
                 return;
             }
             if (!project) {
+                const m = document.cookie.match(/(?:(?:^|.*;\s*)project\s*=\s*([^;]*).*$)|^.*$/);
+                const projectCode = m[1];
                 if (projects.length === 1) {
                     project = projects[0];
+                }
+                else if (projectCode) {
+                    project = projects.find(p => p.code === projectCode);
                 }
                 else {
                     $('#top-nav,#main-container,#send-token-card').hide();
@@ -444,6 +448,7 @@
             $('#project-menu-card')
                 .on('click', 'button', function () {
                     const projectCode = $(this).attr('value');
+                    document.cookie = 'project=' + projectCode;
                     project = projects.find(p => p.code === projectCode);
                     start();
                 });
@@ -627,16 +632,24 @@
 
             function logout(evt) {
                 evt.preventDefault();
-                $.ajax({url: '/logout', cache: false}).then(
-                    function () {
-                        user = null;
-                        start();
-                        window.location.href = '/';
-                    },
-                    function () {
-                        alert("Can't log out. Probably a network error. Close your browser to log out.");
-                    }
-                );
+                $.ajax({url: '/logout', cache: false})
+                    .then(
+                        function () {
+                            user = null;
+                            start();
+                            window.location.href = '/';
+                        },
+                        function () {
+                            alert("Can't log out. Probably a network error. Close your browser to log out.");
+                        }
+                    )
+                    .then(
+                        function () {
+                            // Delete login cookie
+                            document.cookie = 'connect.sid=;expires=Thu, 01 Jan 1970 00:00:00 GMT';
+                            document.cookie = 'project=;expires=Thu, 01 Jan 1970 00:00:00 GMT';
+                        }
+                    );
             }
 
             function displayReviewTable(evt) {
