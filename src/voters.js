@@ -16,12 +16,13 @@
     $.getJSON('/user', init);
 
     function init(user) {
-        const project = user && user.projects[0];
         const templateCache = {};
         const alertTemplate = getTemplate('alert');
+        let projects = user && user.projects;
         let status = {};
         let lineView;
         let searchTimeout;
+        let project;
 
         const Line = Backbone.Model.extend({
             initialize() {
@@ -97,10 +98,23 @@
         start();
 
         function start() {
+            console.log(user, projects, project)
             if (!user) {
-                $('#top-nav,#main-container').hide();
+                $('#top-nav,#main-container,#project-menu-card').hide();
                 $('#send-token-card').show();
                 return;
+            }
+            if (!project) {
+                if (projects.length === 1) {
+                    project = projects[0];
+                }
+                else {
+                    $('#top-nav,#main-container,#send-token-card').hide();
+                    $('#project-menu-card').show();
+                    const template = getTemplate('project-menu');
+                    $('#project-menu').html(template({projects}));
+                    return;
+                }
             }
             getStatus(function (err, status) {
                 if (err) {
@@ -111,7 +125,7 @@
                     $('#check-form-name').val('')
                         .focus();
                     $('#check-form-address').val('');
-                    $('#send-token-card').hide();
+                    $('#send-token-card,#project-menu-card').hide();
                     if (!user.admin) {
                         $('.admin-only').remove();
                     }
@@ -420,9 +434,19 @@
         }
 
         function setUpHandlers() {
+            setUpProjectMenuHandler();
             setUpNavHandlers();
             setUpTopRowHandlers();
             setUpBottomRowHandlers();
+        }
+
+        function setUpProjectMenuHandler() {
+            $('#project-menu-card')
+                .on('click', 'button', function () {
+                    const projectCode = $(this).attr('value');
+                    project = projects.find(p => p.code === projectCode);
+                    start();
+                });
         }
 
         function setUpTopRowHandlers() {

@@ -20,9 +20,10 @@
         padding-top: 76px; /* to make it scroll all the way to the bottom of the topbar */
         padding-bottom: 60px;
       }
-      #send-token-card {
+      #send-token-card, #project-menu-card {
         max-width: 360px;
         margin: 0 auto;
+        display: none;
       }
       #check-card {
         margin-left: -15px;
@@ -136,6 +137,13 @@
             </div>
           </div>
         </form>
+      </div>
+    </div>
+
+    <div id="project-menu-card" class="card bg-light">
+      <div class="card-body">
+        <h4 class="card-title">Select Project</h4>
+        <ul id="project-menu" class="list-unstyled"></ul>
       </div>
     </div>
 
@@ -415,7 +423,10 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-timeago/1.6.7/jquery.timeago.min.js"
       integrity="sha256-0+5OfvOxkLHqpLPPwy9pDjug8N3cwaqcmleaxnR5VS8=" crossorigin="anonymous"></script>
     <script src="/voters.js"></script>
-    <script type="text/template" id="check-form-template">
+    <script type="text/template" id="project-menu-template">
+      <% _.each(projects, function (p) { %>
+        <button type="button" class="btn btn-primary btn-lg btn-block" value="<%- p.code %>"><%- p.name %></button>
+      <% }) %>
     </script>
     <script type="text/template" id="voter-row-template">
       <tr>
