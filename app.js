@@ -69,7 +69,7 @@ function setProject(req, res, next) {
     }
     return db.getProjectByCode(projectCode)
         .then(function (project) {
-            if (project) {
+            if (project && req.user.projects.find(p => p.code === project.code)) {
                 req.project = project;
                 req.url = req.url.replace('/' + projectCode, '');
                 return next();
