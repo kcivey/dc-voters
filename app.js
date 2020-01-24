@@ -28,6 +28,14 @@ const apiApp = express();
 routes.authentication(app, apiApp);
 app.use(apiUrlBase, apiApp);
 app.use(setProject);
+app.get(
+    '/page-images/*',
+    function (req, res, next) {
+        req.url = req.url.replace('/page-images', '/page-images/' + req.project.code);
+        next();
+    },
+    express.static(path.join(__dirname, staticDir), {maxAge: '15m'})
+);
 apiApp.use(setProject);
 apiApp.get('/project', routes.getProject);
 apiApp.get('/search', routes.search);

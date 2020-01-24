@@ -318,7 +318,7 @@
             if (page.length < 4) {
                 page = '0000'.substr(0, 4 - page.length) + page;
             }
-            const imageUrl = '/page-images/' + page + (+line <= 10 ? 'a' : 'b') + '.jpeg';
+            const imageUrl = '/' + project.code + '/page-images/' + page + (+line <= 10 ? 'a' : 'b') + '.jpeg';
             $imageRow.slideDown();
             const divWidth = $imageDiv.innerWidth();
             const ratio = divWidth / (8.5 * project.imageDpi);
