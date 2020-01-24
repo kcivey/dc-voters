@@ -18,7 +18,7 @@
     function init(user) {
         const templateCache = {};
         const alertTemplate = getTemplate('alert');
-        let projects = user && user.projects;
+        const projects = user && user.projects;
         let status = {};
         let lineView;
         let searchTimeout;
@@ -131,7 +131,10 @@
                     $('#check-form-address').val('');
                     $('#send-token-card,#project-menu-card').hide();
                     if (!user.admin) {
-                        $('.admin-only').remove();
+                        $('.admin-only').hide();
+                    }
+                    if (!project.challengeHeader) {
+                        $('#challenge-link').hide();
                     }
                     setStatus(status);
                 }

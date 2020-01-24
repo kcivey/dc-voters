@@ -23,12 +23,16 @@ const challengeTemplate = _.template(
 );
 
 function challenge(req, res, next) {
-    if (!req.project) {
+    const project = req.project;
+    if (!project) {
         throw createError(404, 'No project set');
     }
-    db.getChallengeLines(req.project.id)
+    if (!project.challengeHeader) {
+        throw createError(404, 'No challenge report for this project');
+    }
+    db.getChallengeLines(project.id)
         .then(function (rows) {
-            const challengeInfo = getChallengeInfo(rows, req.project);
+            const challengeInfo = getChallengeInfo(rows, project);
             res.send(challengeTemplate(challengeInfo));
         })
         .catch(next);
