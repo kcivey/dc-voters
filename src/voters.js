@@ -1,5 +1,5 @@
 /**
- * Copyright 2019 Keith C. Ivey
+ * Copyright 2012-2020 Keith C. Ivey
  * keith@iveys.org
  * https://dcgeekery.com
  */
