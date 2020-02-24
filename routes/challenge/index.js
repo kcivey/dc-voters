@@ -27,7 +27,7 @@ function challenge(req, res, next) {
     if (!project) {
         throw createError(404, 'No project set');
     }
-    if (!project.challengeHeader) {
+    if (project.type !== 'challenge') {
         throw createError(404, 'No challenge report for this project');
     }
     db.getChallengeLines(project.id)

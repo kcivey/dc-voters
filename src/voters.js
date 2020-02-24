@@ -133,7 +133,7 @@
                     if (!user.admin) {
                         $('.admin-only').hide();
                     }
-                    if (!project.challengeHeader) {
+                    if (project.type !== 'challenge') {
                         $('#challenge-link').hide();
                     }
                     setStatus(status);

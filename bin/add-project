@@ -69,6 +69,12 @@ function getArgv() {
                 describe: 'party (for primary contests)',
                 requiresArg: true,
             },
+            type: {
+                choices: ['petition', 'challenge', 'response'],
+                describe: 'type of project',
+                default: 'petition',
+                requiresArg: true,
+            },
             ward: {
                 type: 'number',
                 describe: 'ward (for ward-level contests)',

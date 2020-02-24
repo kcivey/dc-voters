@@ -742,7 +742,7 @@
                   <% } %>
                   <td><%- c.notes %></td>
                   <td>
-                    <% if (c.pages && project.challengeHeader) { %>
+                    <% if (c.pages && project.type === 'challenge') { %>
                       <a href="/<%= project.code %>/challenge.html?p=<%= encodeURIComponent(c.pages) %>" target="_blank"
                          title="Get list of petition defects">
                         <%- c.pages %>
