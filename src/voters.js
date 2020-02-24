@@ -843,7 +843,10 @@
                     'submit': 'save',
                 },
                 render() {
-                    this.$el.html(this.template({circulatorStatuses: project.circulatorStatuses}));
+                    this.$el.html(this.template({
+                        circulatorStatuses: project.circulatorStatuses,
+                        paidCirculators: project.paidCirculators,
+                    }));
                     this.modelBinder.bind(this.model, this.el);
                     return this;
                 },
