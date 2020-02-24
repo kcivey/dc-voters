@@ -8,7 +8,9 @@ CREATE TABLE IF NOT EXISTS projects (
   `ward` TINYINT UNSIGNED,
   `image_dpi` SMALLINT UNSIGNED,
   `challenge_header` VARCHAR(128),
-  `type` VARCHAR(10),
+  `type` ENUM('petition', 'challenge', 'response') NOT NULL DEFAULT 'petition',
+  `paid_circulators` TINYINT(1) NOT NULL DEFAULT 0,
+  `pay_per_signature` DECIMAL(4,2),
   PRIMARY KEY (`id`),
   UNIQUE KEY (`code`)
 );
@@ -19,9 +21,24 @@ CREATE TABLE IF NOT EXISTS circulators (
   `name` VARCHAR(255) NOT NULL,
   `status` varchar(10) NOT NULL DEFAULT '',
   `notes` TEXT,
+  'pay_per_signature' DECIMAL(4,2),
   UNIQUE KEY (`project_id`, `name`),
   PRIMARY KEY (`id`),
   FOREIGN KEY (`project_id`) REFERENCES `projects` (`id`)
+);
+
+CREATE TABLE IF NOT EXISTS invoices (
+    `id` MEDIUMINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    `project_id` SMALLINT UNSIGNED NOT NULL,
+    `number` MEDIUMINT UNSIGNED NOT NULL,
+    `date_created` DATE NOT NULL,
+    `date_paid` DATE NOT NULL,
+    `circulator_id` MEDIUMINT UNSIGNED NOT NULL,
+    `amount` DECIMAL(7,2),
+    PRIMARY KEY (`id`),
+    UNIQUE KEY (`project_id`, `number`),
+    FOREIGN KEY (`project_id`) REFERENCES `projects` (`id`),
+    FOREIGN KEY (`circulator_id`) REFERENCES `circulators` (`id`)
 );
 
 CREATE TABLE IF NOT EXISTS pages (
@@ -31,11 +48,13 @@ CREATE TABLE IF NOT EXISTS pages (
   `circulator_id` MEDIUMINT UNSIGNED NOT NULL,
   `date_signed` DATE DEFAULT NULL,
   `notes` TEXT,
+  `invoice_id` MEDIUMINT UNSIGNED,
   PRIMARY KEY (`id`),
   UNIQUE KEY (`project_id`, `number`),
   KEY (`circulator_id`),
   FOREIGN KEY (`project_id`) REFERENCES `projects` (`id`),
-  FOREIGN KEY (`circulator_id`) REFERENCES `circulators` (`id`)
+  FOREIGN KEY (`circulator_id`) REFERENCES `circulators` (`id`),
+  FOREIGN KEY (`invoice_id`) REFERENCES `invoices` (`id`)
 );
 
 CREATE TABLE IF NOT EXISTS users (
