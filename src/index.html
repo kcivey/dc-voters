@@ -777,6 +777,9 @@
               <th class="text-right">Processed</th>
               <th class="text-right">Valid</th>
               <th>Checker</th>
+              <% if (project.paidCirculators) { %>
+                <th>Paid</th>
+              <% } %>
             </tr>
             </thead>
             <tbody>
@@ -794,6 +797,9 @@
                 <td class="text-right"><%- p.processed_lines %></td>
                 <td class="text-right"><%- p.valid_lines %></td>
                 <td><%- p.checker || '' %></td>
+                <% if (project.paidCirculators) { %>
+                  <td><%- p.date_paid || '' %></td>
+                <% } %>
               </tr>
             <% }); %>
             </tbody>
