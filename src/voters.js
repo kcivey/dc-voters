@@ -136,6 +136,9 @@
                     if (project.type !== 'challenge') {
                         $('#challenge-link').hide();
                     }
+                    if (!project.paidCirculators) {
+                        $('#invoices-link').hide();
+                    }
                     setStatus(status);
                 }
             });
@@ -901,6 +904,32 @@
                 },
             });
 
+            const Invoice = Backbone.Model.extend({
+                idAttribute: 'number',
+                urlRoot: () => apiUrl('invoices'),
+            });
+
+            const InvoiceView = CirculatorView.extend({
+                template: getTemplate('invoice-form'),
+                tableName: 'invoices',
+                events: {
+                    'submit': 'save',
+                    // 'change [name=date_signed]': 'checkDateSigned',
+                },
+                render() {
+                    $.getJSON(apiUrl('circulators')).then(
+                        function (circulators) {
+                            this.$el.html(this.template({circulators}));
+                            this.$('[name=number]').prop('readonly', true)
+                                .removeClass('form-control')
+                                .addClass('form-control-plaintext');
+                            this.modelBinder.bind(this.model, this.el);
+                        }.bind(this)
+                    );
+                    return this;
+                },
+            });
+
             const Page = Backbone.Model.extend({
                 idAttribute: 'number',
                 urlRoot: () => apiUrl('pages'),
@@ -956,6 +985,7 @@
                 .on('click', '.back-button', backToChecking)
                 .on('click', '.send-token-button', sendTokenFromUserTable)
                 .on('click', '.user-edit-button', editUser)
+                .on('click', '.invoice-edit-button', editInvoice)
                 .on('click', '.circulator-edit-button', editCirculator)
                 .on('click', '.circulator-delete-button', deleteCirculator)
                 .on('click', '.circulator-totals-button', showCirculatorTotals)
@@ -1074,6 +1104,20 @@
                 function showForm(data) {
                     const view = new CirculatorView({model: new Circulator(data)});
                     openModal('Circulator', view.$el);
+                }
+            }
+
+            function editInvoice() {
+                const number = $(this).data('number');
+                if (number) {
+                    $.getJSON(apiUrl('invoices' + '/' + number)).then(showForm);
+                }
+                else {
+                    showForm();
+                }
+                function showForm(data) {
+                    const view = new InvoiceView({model: new Invoice(data)});
+                    openModal('Invoice', view.$el);
                 }
             }
 

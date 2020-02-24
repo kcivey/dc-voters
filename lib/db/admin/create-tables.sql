@@ -35,6 +35,7 @@ CREATE TABLE IF NOT EXISTS invoices (
     `date_paid` DATE NOT NULL,
     `circulator_id` MEDIUMINT UNSIGNED NOT NULL,
     `amount` DECIMAL(7,2),
+    `notes` TEXT,
     PRIMARY KEY (`id`),
     UNIQUE KEY (`project_id`, `number`),
     FOREIGN KEY (`project_id`) REFERENCES `projects` (`id`),

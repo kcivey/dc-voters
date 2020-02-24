@@ -2,6 +2,7 @@ const db = require('../lib/db');
 const pkg = require('../package.json');
 const authentication = require('./authentication');
 const circulatorRoutes = require('./circulator');
+const invoiceRoutes = require('./invoice');
 const lineRoutes = require('./line');
 const pageRoutes = require('./page');
 const tsvRoutes = require('./tsv');
@@ -54,6 +55,7 @@ module.exports = function (/* app */) {
         challenge,
 
         ...circulatorRoutes,
+        ...invoiceRoutes,
         ...lineRoutes,
         ...pageRoutes,
         ...tsvRoutes,

@@ -173,6 +173,9 @@
             <button class="dropdown-item table-link btn btn-link" type="button" data-name="circulators">
               Circulators
             </button>
+            <button id="invoices-link" class="dropdown-item table-link btn btn-link" type="button" data-name="invoices">
+              Invoices
+            </button>
             <button class="dropdown-item table-link btn btn-link" type="button" data-name="pages">
               Pages
             </button>
@@ -634,6 +637,45 @@
         </div>
       </form>
     </script>
+    <script type="text/template" id="invoice-form-template">
+      <form action="/" id="invoice-form">
+        <div class="form-group row">
+          <label class="col-form-label col-sm-3" for="page-number">Number</label>
+          <div class="col-sm-9">
+            <input type="text" class="form-control" name="number" id="invoice-number"/>
+          </div>
+        </div>
+        <div class="form-group row">
+          <label class="col-form-label col-sm-3" for="page-circulator-id">Circulator</label>
+          <div class="col-sm-9">
+            <select class="form-control" name="circulator_id" id="invoice-circulator-id">
+              <option value="">-- Select --</option>
+              <% _.each(circulators, function (c) { %>
+                <option value="<%- c.id %>"><%- c.name %></option>
+              <% }); %>
+            </select>
+          </div>
+        </div>
+        <div class="form-group row">
+          <label class="col-form-label col-sm-3" for="page-date-signed">Date Created</label>
+          <div class="col-sm-9">
+            <input type="text" class="form-control" name="date_created" id="page-date-created"/>
+          </div>
+        </div>
+        <div class="form-group row">
+          <label class="col-form-label col-sm-3" for="page-notes">Notes</label>
+          <div class="col-sm-9">
+            <textarea name="notes" id="invoice-notes" class="form-control"></textarea>
+          </div>
+        </div>
+        <div class="form-group row">
+          <div class="col-12">
+            <input type="hidden" name="id"/>
+            <button type="submit" class="btn btn-primary btn save">Save</button>
+          </div>
+        </div>
+      </form>
+    </script>
     <script type="text/template" id="circulator-form-template">
       <form action="/" id="circulator-form">
         <div class="form-group row">
@@ -814,6 +856,47 @@
                 <% if (project.paidCirculators) { %>
                   <td><%- p.date_paid || '' %></td>
                 <% } %>
+              </tr>
+            <% }); %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </script>
+    <script type="text/template" id="invoice-table-template">
+      <div class="col">
+        <button type="button" class="btn btn-link back-button">Back to Checking</button>
+        <button type="button" class="btn btn-primary invoice-edit-button">
+          <i class="fas fa-plus"></i>
+          New Invoice
+        </button>
+        <div>
+          <table id="invoice-table" class="table table-sm table-striped table-hover">
+            <thead>
+              <tr>
+                <th></th>
+                <th class="number">Invoice</th>
+                <th>Circulator</th>
+                <th>Created</th>
+                <th>Paid</th>
+                <th>Amount</th>
+                <th>Notes</th>
+              </tr>
+            </thead>
+            <tbody>
+            <% _.each(invoices, function (i) { %>
+              <tr>
+                <td>
+                  <button type="button" class="btn btn-outline-primary table-button btn-sm invoice-edit-button" data-number="<%- i.number %>" title="Edit">
+                    <i class="fas fa-pencil-alt fa-fw"></i>
+                  </button>
+                </td>
+                <td class="number"><%- i.number %></td>
+                <td><%- i.circulator_name %></td>
+                <td><%- i.date_created ? i.date_created.replace(/^(\d{4})-(\d\d)-(\d\d).*/, '$2/$3') : '' %></td>
+                <td><%- i.date_paid ? i.date_paid.replace(/^(\d{4})-(\d\d)-(\d\d).*/, '$2/$3') : '' %></td>
+                <td class="number"><%- i.amount %></td>
+                <td><%- p.notes || '' %></td>
               </tr>
             <% }); %>
             </tbody>
