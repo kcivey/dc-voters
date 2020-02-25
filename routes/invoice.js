@@ -6,11 +6,11 @@ const db = require('../lib/db');
 module.exports = {
 
     createInvoices(req, res, next) {
-        if (!req.project.paid_circulators) {
+        if (!req.project.paidCirculators) {
             throw createError(404, 'No invoices for this project');
         }
         const project = req.project;
-        const date = +req.params.date;
+        const date = req.params.date;
         const mDate = moment(date, 'YYYY-MM-DD');
         if (!/^\d{4}-\d\d-\d\d$/.test(date) || !mDate.isValid()) {
             throw createError(400, 'Invalid date');
@@ -21,7 +21,7 @@ module.exports = {
     },
 
     createOrUpdateInvoice(req, res, next) {
-        if (!req.project.paid_circulators) {
+        if (!req.project.paidCirculators) {
             throw createError(404, 'No invoices for this project');
         }
         const projectId = req.project.id;
@@ -33,7 +33,7 @@ module.exports = {
     },
 
     getInvoice(req, res, next) {
-        if (!req.project.paid_circulators) {
+        if (!req.project.paidCirculators) {
             throw createError(404, 'No invoices for this project');
         }
         db.getInvoice(req.project.id, +req.params.number)
@@ -47,7 +47,7 @@ module.exports = {
     },
 
     getInvoices(req, res, next) {
-        if (!req.project.paid_circulators) {
+        if (!req.project.paidCirculators) {
             throw createError(404, 'No invoices for this project');
         }
         db.getInvoices(req.project.id)

@@ -637,45 +637,6 @@
         </div>
       </form>
     </script>
-    <script type="text/template" id="invoice-form-template">
-      <form action="/" id="invoice-form">
-        <div class="form-group row">
-          <label class="col-form-label col-sm-3" for="page-number">Number</label>
-          <div class="col-sm-9">
-            <input type="text" class="form-control" name="number" id="invoice-number"/>
-          </div>
-        </div>
-        <div class="form-group row">
-          <label class="col-form-label col-sm-3" for="page-circulator-id">Circulator</label>
-          <div class="col-sm-9">
-            <select class="form-control" name="circulator_id" id="invoice-circulator-id">
-              <option value="">-- Select --</option>
-              <% _.each(circulators, function (c) { %>
-                <option value="<%- c.id %>"><%- c.name %></option>
-              <% }); %>
-            </select>
-          </div>
-        </div>
-        <div class="form-group row">
-          <label class="col-form-label col-sm-3" for="page-date-signed">Date Created</label>
-          <div class="col-sm-9">
-            <input type="text" class="form-control" name="date_created" id="page-date-created"/>
-          </div>
-        </div>
-        <div class="form-group row">
-          <label class="col-form-label col-sm-3" for="page-notes">Notes</label>
-          <div class="col-sm-9">
-            <textarea name="notes" id="invoice-notes" class="form-control"></textarea>
-          </div>
-        </div>
-        <div class="form-group row">
-          <div class="col-12">
-            <input type="hidden" name="id"/>
-            <button type="submit" class="btn btn-primary btn save">Save</button>
-          </div>
-        </div>
-      </form>
-    </script>
     <script type="text/template" id="circulator-form-template">
       <form action="/" id="circulator-form">
         <div class="form-group row">
@@ -868,8 +829,9 @@
         <button type="button" class="btn btn-link back-button">Back to Checking</button>
         <button type="button" id="create-invoices-button" class="btn btn-primary">
           <i class="fas fa-plus"></i>
-          Create Invoices
+          Create Invoices through
         </button>
+        <input type="text" id="invoice-through-date" name="through_date" value="<%- today %>"/>
         <div>
           <table id="invoice-table" class="table table-sm table-striped table-hover">
             <thead>

@@ -286,6 +286,7 @@
                     const values = {
                         useCirculatorStatus: !!Object.keys(project.circulatorStatuses).length,
                         project,
+                        today: getToday(),
                     };
                     values[name] = data;
                     $('#top-row').hide();
@@ -297,6 +298,16 @@
                         .tooltip();
                 }
             );
+
+            function getToday() {
+                const date = new Date();
+                const year = date.getFullYear();
+                const month = (1 + date.getMonth()).toString()
+                    .padStart(2, '0');
+                const day = date.getDate().toString()
+                    .padStart(2, '0');
+                return month + '/' + day + '/' + year;
+            }
         }
 
         function getTemplate(name) {
@@ -904,32 +915,6 @@
                 },
             });
 
-            const Invoice = Backbone.Model.extend({
-                idAttribute: 'number',
-                urlRoot: () => apiUrl('invoices'),
-            });
-
-            const InvoiceView = CirculatorView.extend({
-                template: getTemplate('invoice-form'),
-                tableName: 'invoices',
-                events: {
-                    'submit': 'save',
-                    // 'change [name=date_signed]': 'checkDateSigned',
-                },
-                render() {
-                    $.getJSON(apiUrl('circulators')).then(
-                        function (circulators) {
-                            this.$el.html(this.template({circulators}));
-                            this.$('[name=number]').prop('readonly', true)
-                                .removeClass('form-control')
-                                .addClass('form-control-plaintext');
-                            this.modelBinder.bind(this.model, this.el);
-                        }.bind(this)
-                    );
-                    return this;
-                },
-            });
-
             const Page = Backbone.Model.extend({
                 idAttribute: 'number',
                 urlRoot: () => apiUrl('pages'),
@@ -1108,17 +1093,13 @@
             }
 
             function createInvoices() {
-                const number = $(this).data('number');
-                if (number) {
-                    $.getJSON(apiUrl('invoices' + '/' + number)).then(showForm);
-                }
-                else {
-                    showForm();
-                }
-                function showForm(data) {
-                    const view = new InvoiceView({model: new Invoice(data)});
-                    openModal('Invoice', view.$el);
-                }
+                const date = $('#invoice-through-date').val()
+                    .replace(/^(\d\d)\/(\d\d)\/(\d{4})$/, '$3-$1-$2');
+                $.ajax({
+                    url: apiUrl('invoices/create' + '/' + date),
+                    dataType: 'json',
+                    type: 'POST',
+                }).then(() => showTable('invoices'));
             }
 
             function deleteCirculator() {
