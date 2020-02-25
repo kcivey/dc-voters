@@ -1131,7 +1131,11 @@
                 const $modal = $('#global-modal');
                 $('.modal-title', $modal).text(title);
                 $('.modal-body', $modal).html(body);
-                $modal.modal();
+                $modal.modal()
+                    .on('shown.bs.modal', function () {
+                        $('.modal-body input', $modal).eq(0)
+                            .focus();
+                    });
             }
         }
     }
