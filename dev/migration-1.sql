@@ -15,4 +15,6 @@ CREATE TABLE IF NOT EXISTS invoices (
     FOREIGN KEY (`project_id`) REFERENCES `projects` (`id`),
     FOREIGN KEY (`circulator_id`) REFERENCES `circulators` (`id`)
 );
-ALTER TABLE pages ADD `invoice_id` MEDIUMINT UNSIGNED, ADD FOREIGN KEY (`invoice_id`) REFERENCES `invoices` (`id`);
+ALTER TABLE pages ADD `date_received` DATE DEFAULT NULL, ADD `processed_lines` TINYINT UNSIGNED NOT NULL,
+    ADD `valid_lines` TINYINT UNSIGNED NOT NULL, ADD `invoice_id` MEDIUMINT UNSIGNED,
+    ADD FOREIGN KEY (`invoice_id`) REFERENCES `invoices` (`id`);

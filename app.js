@@ -55,6 +55,7 @@ apiApp.delete('/circulators/:id', routes.deleteCirculator);
 apiApp.get('/pages', routes.getPages);
 apiApp.post('/pages', routes.createOrUpdatePage);
 apiApp.get('/pages/:number', routes.getPage);
+apiApp.post('/invoices/create/:date', routes.createInvoices);
 apiApp.put('/pages/:number', routes.createOrUpdatePage);
 apiApp.get('/invoices', routes.getInvoices);
 apiApp.post('/invoices', routes.createOrUpdateInvoice);

@@ -985,7 +985,7 @@
                 .on('click', '.back-button', backToChecking)
                 .on('click', '.send-token-button', sendTokenFromUserTable)
                 .on('click', '.user-edit-button', editUser)
-                .on('click', '.invoice-edit-button', editInvoice)
+                .on('click', '#create-invoices-button', createInvoices)
                 .on('click', '.circulator-edit-button', editCirculator)
                 .on('click', '.circulator-delete-button', deleteCirculator)
                 .on('click', '.circulator-totals-button', showCirculatorTotals)
@@ -1107,7 +1107,7 @@
                 }
             }
 
-            function editInvoice() {
+            function createInvoices() {
                 const number = $(this).data('number');
                 if (number) {
                     $.getJSON(apiUrl('invoices' + '/' + number)).then(showForm);

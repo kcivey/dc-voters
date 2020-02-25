@@ -866,15 +866,14 @@
     <script type="text/template" id="invoice-table-template">
       <div class="col">
         <button type="button" class="btn btn-link back-button">Back to Checking</button>
-        <button type="button" class="btn btn-primary invoice-edit-button">
+        <button type="button" id="create-invoices-button" class="btn btn-primary">
           <i class="fas fa-plus"></i>
-          New Invoice
+          Create Invoices
         </button>
         <div>
           <table id="invoice-table" class="table table-sm table-striped table-hover">
             <thead>
               <tr>
-                <th></th>
                 <th class="number">Invoice</th>
                 <th>Circulator</th>
                 <th>Created</th>
@@ -886,11 +885,6 @@
             <tbody>
             <% _.each(invoices, function (i) { %>
               <tr>
-                <td>
-                  <button type="button" class="btn btn-outline-primary table-button btn-sm invoice-edit-button" data-number="<%- i.number %>" title="Edit">
-                    <i class="fas fa-pencil-alt fa-fw"></i>
-                  </button>
-                </td>
                 <td class="number"><%- i.number %></td>
                 <td><%- i.circulator_name %></td>
                 <td><%- i.date_created ? i.date_created.replace(/^(\d{4})-(\d\d)-(\d\d).*/, '$2/$3') : '' %></td>
