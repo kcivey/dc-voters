@@ -976,6 +976,8 @@
                 .on('click', '.circulator-totals-button', showCirculatorTotals)
                 .on('click', '.page-edit-button', editPage);
 
+            $('#global-modal').on('click', '.circulator-edit-button', editCirculator);
+
             $('#assign-pages-modal')
                 .on('click', '.assign-send-button', assignPages);
 
