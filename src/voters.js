@@ -112,7 +112,7 @@
                 else if (projectCode) {
                     project = projects.find(p => p.code === projectCode);
                 }
-                else {
+                if (!project) {
                     $('#top-nav,#main-container,#send-token-card').hide();
                     $('#project-menu-card').show();
                     const template = getTemplate('project-menu');
