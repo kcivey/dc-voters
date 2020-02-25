@@ -292,7 +292,15 @@
                     $('#top-row').hide();
                     hideImageRow();
                     const template = getTemplate(name.replace(/s$/, '') + '-table');
-                    $('#bottom-row').html(template(values))
+                    const $table = $(template(values));
+                    if (!data.length) {
+                        const cols = $('tr', $table).eq(0)
+                            .children().length;
+                        $('tbody', $table).append(
+                            `<tr><td colspan="${cols}" class="text-center"><em>No records</em></td></tr>`
+                        );
+                    }
+                    $('#bottom-row').html($table)
                         .show()
                         .find('button[title], a[title]')
                         .tooltip();
