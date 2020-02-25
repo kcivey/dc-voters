@@ -14,7 +14,7 @@ main()
     .finally(() => db.close());
 
 async function main() {
-    const properties = {
+    let properties = {
         code: argv.project,
         name: argv.name,
     };
@@ -26,18 +26,18 @@ async function main() {
     }
     const project = await db.addProject(properties);
     assert(project, `Project "${argv.project}" does not exist`);
-    const adminUser = await db.getUser({username: argv['admin-user']});
-    if (!adminUser) {
-        await db.createOrUpdateUser(
-            project.id,
-            {
-                username: argv['admin-user'],
-                name: argv['admin-name'],
-                email: argv['admin-email'],
-                admin: true,
-            }
-        );
-    }
+    properties = {
+        username: argv['admin-user'],
+        email: argv['admin-email'],
+    };
+    const adminUser = await db.getUser(properties);
+    properties.name = argv['admin-name'];
+    properties.admin = true;
+    await db.createOrUpdateUser(
+        project.id,
+        properties,
+        adminUser ? adminUser.id : null
+    );
 }
 
 function getArgv() {
