@@ -26,15 +26,18 @@ async function main() {
     }
     const project = await db.addProject(properties);
     assert(project, `Project "${argv.project}" does not exist`);
-    await db.createOrUpdateUser(
-        project.id,
-        {
-            username: argv['admin-user'],
-            name: argv['admin-name'],
-            email: argv['admin-email'],
-            admin: true,
-        }
-    );
+    const adminUser = await db.getUser({username: argv['admin-user']});
+    if (!adminUser) {
+        await db.createOrUpdateUser(
+            project.id,
+            {
+                username: argv['admin-user'],
+                name: argv['admin-name'],
+                email: argv['admin-email'],
+                admin: true,
+            }
+        );
+    }
 }
 
 function getArgv() {
