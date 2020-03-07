@@ -11,6 +11,7 @@ CREATE TABLE IF NOT EXISTS projects (
   `type` ENUM('petition', 'challenge', 'response') NOT NULL DEFAULT 'petition',
   `paid_circulators` TINYINT(1) NOT NULL DEFAULT 0,
   `pay_per_signature` DECIMAL(4,2),
+  `voters_table` VARCHAR(32),
   PRIMARY KEY (`id`),
   UNIQUE KEY (`code`)
 );
@@ -21,7 +22,7 @@ CREATE TABLE IF NOT EXISTS circulators (
   `name` VARCHAR(255) NOT NULL,
   `status` varchar(10) NOT NULL DEFAULT '',
   `notes` TEXT,
-  'pay_per_signature' DECIMAL(4,2),
+  `volunteer` TINYINT(1) UNSIGNED NOT NULL DEFAULT 0,
   UNIQUE KEY (`project_id`, `name`),
   PRIMARY KEY (`id`),
   FOREIGN KEY (`project_id`) REFERENCES `projects` (`id`)
@@ -82,7 +83,7 @@ CREATE TABLE IF NOT EXISTS project_users (
   FOREIGN KEY (`user_id`) REFERENCES `users` (`id`)
 );
 
-CREATE TABLE IF NOT EXISTS voters (
+CREATE TABLE IF NOT EXISTS voters_base (
   registered DATE,
   lastname VARCHAR(20) DEFAULT '' NOT NULL,
   firstname VARCHAR(20) DEFAULT '' NOT NULL,
@@ -186,8 +187,7 @@ CREATE TABLE petition_lines (
   KEY (`ward`),
   FOREIGN KEY (`project_id`) REFERENCES `projects` (`id`),
   FOREIGN KEY (`project_id`, `page`) REFERENCES pages (`project_id`, `number`),
-  FOREIGN KEY (`checker`) REFERENCES  `users` (`username`),
-  FOREIGN KEY (`voter_id`) REFERENCES `voters` (`voter_id`)
+  FOREIGN KEY (`checker`) REFERENCES  `users` (`username`)
 );
 
 CREATE TABLE IF NOT EXISTS sessions (

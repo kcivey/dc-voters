@@ -24,7 +24,7 @@ module.exports = {
         if (!req.project) {
             throw createError(404, 'No project set');
         }
-        db.getCompletedLines(req.project.id, req.project.party)
+        db.getCompletedLines(req.project, req.project.party)
             .then(function (rows) {
                 const m = req.path.match(/([^/]+)$/);
                 const filename = m ? m[1] : 'data.tsv';

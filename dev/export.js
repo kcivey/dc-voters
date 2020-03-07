@@ -18,6 +18,11 @@ const argv = require('yargs')
             describe: 'get voters in specified precinct',
             requiredArg: true,
         },
+        'voters-table': {
+            type: 'string',
+            describe: 'name of voters table (defaults to most recent)',
+            requiredArg: true,
+        },
         'ward': {
             type: 'number',
             describe: 'get voters in specified ward',
@@ -38,10 +43,11 @@ getVoters()
 
 async function getVoters() {
     const criteria = getCriteria();
+    const votersTable = await getVotersTable();
     const length = 10000;
     let offset = 0;
     while (true) {
-        const voterRecords = await db.getVoters(criteria, offset, length);
+        const voterRecords = await db.getVoters({criteria, offset, length, votersTable});
         const csv = stringify(voterRecords, {headers: true});
         process.stdout.write(csv);
         if (voterRecords.length < length) {
@@ -66,4 +72,12 @@ function getCriteria() {
         criteria[column] = argv.anc;
     }
     return criteria;
+}
+
+async function getVotersTable() {
+    let votersTable = argv['voters-table'];
+    if (!votersTable) {
+        votersTable = await db.getMostRecentVotersTable();
+    }
+    return votersTable;
 }

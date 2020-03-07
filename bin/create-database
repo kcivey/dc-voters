@@ -22,23 +22,31 @@ main()
 async function main() {
     const adminUser = argv['admin-user'];
     const adminPassword = argv['admin-password'] || await askPassword('Admin password: ');
-    const {database, user, password} = argv;
-    await db.establishConnection({database: '', user: adminUser, password: adminPassword});
-    if (argv.drop) {
-        await db.dropDatabaseAndUser(database, user);
+    const config = {user: adminUser, password: adminPassword};
+    if (!argv['load-voters-only']) {
+        config.database = '';
     }
-    const opts = await db.createDatabaseAndUser(database, user, password);
-    const env = {
-        ...getDotEnv(),
-        DATABASE_HOST: 'localhost',
-        DATABASE_NAME: opts.database,
-        DATABASE_USER: opts.user,
-        DATABASE_PASSWORD: opts.password,
-    };
-    writeDotEnv(env);
-    await db.createTables(database);
+    await db.establishConnection(config);
+    if (!argv['load-voters-only']) {
+        const {database, user, password} = argv;
+        if (argv.drop) {
+            await db.dropDatabaseAndUser(database, user);
+        }
+        const opts = await db.createDatabaseAndUser(database, user, password);
+        const env = {
+            ...getDotEnv(),
+            DATABASE_HOST: 'localhost',
+            DATABASE_NAME: opts.database,
+            DATABASE_USER: opts.user,
+            DATABASE_PASSWORD: opts.password,
+        };
+        writeDotEnv(env);
+        await db.createTables(database);
+        await db.useDatabase(database);
+    }
     console.warn('Loading', argv['voter-file']);
-    await db.loadVoterFile(database, argv['voter-file']);
+    const votersTable = await db.loadVoterFile(argv['voter-file']);
+    console.warn('Created', votersTable);
 }
 
 function askPassword(question) {
@@ -76,12 +84,15 @@ function getArgv() {
             database: {
                 type: 'string',
                 describe: 'name for database',
-                required: true,
                 requiresArg: true,
             },
             drop: {
                 type: 'boolean',
                 describe: 'drop database and user before creating, if they exist',
+            },
+            'load-voters-only': {
+                type: 'boolean',
+                describe: 'just load voters (assumes database has already been created',
             },
             user: {
                 type: 'string',
@@ -108,6 +119,9 @@ function getArgv() {
         })
         .check(function (argv) {
             assert.strictEqual(argv._.length, 0, 'Unexpected arguments after database name');
+            if (!argv['load-voters-only']) {
+                assert(argv.database, 'Missing database option');
+            }
             return true;
         })
         .middleware(function (argv) {

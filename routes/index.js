@@ -15,6 +15,7 @@ module.exports = function (/* app */) {
 
         search(req, res, next) {
             const options = req.query;
+            options.votersTable = req.project.votersTable;
             db.searchForVoter(options)
                 .then(function (results) {
                     res.set('Cache-Control', 'max-age=600'); // cache for 10 min
@@ -43,7 +44,7 @@ module.exports = function (/* app */) {
         },
 
         getTotals(req, res, next) {
-            db.getTotals(req.project.id, +req.query.circulator)
+            db.getTotals(req.project, +req.query.circulator)
                 .then(results => res.json(results))
                 .catch(next);
         },
