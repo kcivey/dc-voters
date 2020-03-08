@@ -1,0 +1,1 @@
+ALTER TABLE pages MODIFY `circulator_id` MEDIUMINT UNSIGNED;
