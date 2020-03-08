@@ -1,0 +1,1 @@
+ALTER TABLE pages MODIFY `processed_lines` TINYINT UNSIGNED, MODIFY `valid_lines` TINYINT UNSIGNED;
