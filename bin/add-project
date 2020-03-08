@@ -17,6 +17,7 @@ async function main() {
     let properties = {
         code: argv.project,
         name: argv.name,
+        voters_table: await getVotersTable(),
     };
     if (argv.party) {
         properties.party = argv.party;
@@ -77,6 +78,11 @@ function getArgv() {
                 describe: 'type of project',
                 default: 'petition',
                 requiresArg: true,
+            },
+            'voters-table': {
+                type: 'string',
+                describe: 'name of voters table (defaults to most recent)',
+                requiredArg: true,
             },
             ward: {
                 type: 'number',
@@ -146,4 +152,12 @@ function getArgv() {
         })
         .strict(true)
         .argv;
+}
+
+async function getVotersTable() {
+    let votersTable = argv['voters-table'];
+    if (!votersTable) {
+        votersTable = await db.getMostRecentVotersTable();
+    }
+    return votersTable;
 }
