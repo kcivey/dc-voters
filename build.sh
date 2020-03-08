@@ -2,7 +2,6 @@
 
 set -e
 echo 'Copying files from src to public'
-rm -rf public/*
 cp -au src/* public/
 echo 'Compiling and minifying JS'
 npx babel src/voters.js | \
