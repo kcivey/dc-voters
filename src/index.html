@@ -663,9 +663,11 @@
         <% } %>
         <% if (paidCirculators) { %>
           <div class="form-group row">
-            <label class="col-form-label col-sm-2" for="circulator-pay-per-signature">$/sig</label>
+            <label class="col-form-label col-sm-2" for="circulator-volunteer">Volunteer?</label>
             <div class="col-sm-10">
-              <input type="text" class="form-control" name="pay_per_signature" id="circulator-pay-per-signature"/>
+              <div class="form-check">
+                <input type="checkbox" class="form-check-input position-static align-middle" name="admin" id="circulator-volunteer" value="1"/>
+              </div>
             </div>
           </div>
         <% } %>
@@ -758,7 +760,7 @@
                     <td><%- c.status %></td>
                   <% } %>
                   <% if (project.paidCirculators) { %>
-                    <td class="number"><%- c.pay_per_signature %></td>
+                    <td class="number"><%= c.volunteer ? '\u2714' : ''  %></td>
                   <% } %>
                   <td><%- c.notes %></td>
                   <td>
