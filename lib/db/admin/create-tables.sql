@@ -23,7 +23,9 @@ CREATE TABLE IF NOT EXISTS circulators (
   `status` varchar(10) NOT NULL DEFAULT '',
   `notes` TEXT,
   `volunteer` TINYINT(1) UNSIGNED NOT NULL DEFAULT 0,
+  `number` INT UNSIGNED,
   UNIQUE KEY (`project_id`, `name`),
+  UNIQUE KEY (`project_id`, `number`),
   PRIMARY KEY (`id`),
   FOREIGN KEY (`project_id`) REFERENCES `projects` (`id`)
 );

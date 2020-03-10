@@ -663,10 +663,16 @@
         <% } %>
         <% if (paidCirculators) { %>
           <div class="form-group row">
+            <label class="col-form-label col-sm-2" for="circulator-number">Number</label>
+            <div class="col-sm-10">
+              <input type="number" class="form-control" name="number" id="circulator-number"/>
+            </div>
+          </div>
+          <div class="form-group row">
             <label class="col-form-label col-sm-2" for="circulator-volunteer">Volunteer?</label>
             <div class="col-sm-10">
               <div class="form-check">
-                <input type="checkbox" class="form-check-input position-static align-middle" name="admin" id="circulator-volunteer" value="1"/>
+                <input type="checkbox" class="form-check-input position-static align-middle" name="volunteer" id="circulator-volunteer" value="1"/>
               </div>
             </div>
           </div>
@@ -721,7 +727,8 @@
                   <th>Status</th>
                 <% } %>
                 <% if (project.paidCirculators) { %>
-                  <th>$/sig</th>
+                  <th class="number">Number</th>
+                  <th class="text-center">Volunteer?</th>
                 <% } %>
                 <th>Notes</th>
                 <th>Pages</th>
@@ -760,7 +767,8 @@
                     <td><%- c.status %></td>
                   <% } %>
                   <% if (project.paidCirculators) { %>
-                    <td class="number"><%= c.volunteer ? '\u2714' : ''  %></td>
+                    <td class="number"><%- c.number %></td>
+                    <td class="text-center"><%- c.volunteer ? '\u2714' : ''  %></td>
                   <% } %>
                   <td><%- c.notes %></td>
                   <td>
