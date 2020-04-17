@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 const db = require('../lib/db');
-const sampleSize = 10;
+const sampleSize = 1000;
 
 main()
     .catch(console.trace)
@@ -10,6 +10,16 @@ main()
 async function main() {
     const votersTable = await db.getMostRecentVotersTable();
     await markSigners(votersTable);
+    await clearSamples(votersTable);
+    const supervoterCriterion = "h110618g IN ('A','V','Y') AND h110816g IN ('A','V','Y') AND h110414g IN ('A','V','Y')";
+    await markRandom(votersTable, '', 1);
+    await markRandom(votersTable, supervoterCriterion, 2);
+    await markRandom(votersTable, 'i71_signer > 0', 3);
+    await markRandom(
+        votersTable,
+        `i71_signer > 0 AND ${supervoterCriterion}`,
+        4
+    );
 }
 
 async function markSigners(votersTable) {
@@ -39,4 +49,29 @@ async function markSigners(votersTable) {
         votersTable
     );
     console.warn(result.affectedRows, 'marked as signers (unique name at different address)');
+}
+
+function clearSamples(votersTable) {
+    return db.queryPromise('UPDATE ?? SET sample = NULL', votersTable);
+}
+
+async function markRandom(votersTable, criteria, sampleNumber) {
+    const where = 'WHERE sample IS NULL' + (criteria ? ' AND ' + criteria : '');
+    await db.queryPromise(
+        `CREATE TEMPORARY TABLE ids
+        SELECT voter_id
+        FROM ??
+        ${where}
+        ORDER BY RAND()
+        LIMIT ?`,
+        [votersTable, sampleSize]
+    );
+    const result = await db.queryPromise(
+        `UPDATE ??
+        SET sample = ?
+        WHERE voter_id IN (SELECT voter_id FROM ids)`,
+        [votersTable, sampleNumber]
+    );
+    await db.queryPromise('DROP TABLE ids');
+    console.warn(result.affectedRows, `added to sample ${sampleNumber}`);
 }
