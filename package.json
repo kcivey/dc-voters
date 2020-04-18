@@ -34,6 +34,7 @@
     "request": "^2.88.2",
     "terser": "^4.6.10",
     "underscore": "^1.10.2",
+    "usps-webtools": "^1.0.3",
     "yargs": "^15.3.1"
   },
   "devDependencies": {
