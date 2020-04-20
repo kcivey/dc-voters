@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 const db = require('../lib/db');
-const sampleSize = 1000;
+const sampleSize = 10000;
 
 main()
     .catch(console.trace)
@@ -57,22 +57,25 @@ function clearSamples(votersTable) {
 
 async function markRandom(votersTable, criteria, sampleNumber) {
     const where = 'WHERE sample IS NULL' + (criteria ? ' AND ' + criteria : '');
-    await db.queryPromise(
-        `CREATE TEMPORARY TABLE ids
-        SELECT voter_id
-        FROM ??
-        ${where}
-        ORDER BY RAND()
-        LIMIT ?`,
-        [votersTable, sampleSize]
-    );
-    await db.queryPromise('ALTER TABLE ids ADD INDEX (voter_id)');
-    const result = await db.queryPromise(
-        `UPDATE ??
+    const wardSampleSize = Math.ceil(sampleSize / 8);
+    for (let ward = 1; ward <= 8; ward++) {
+        await db.queryPromise(
+            `CREATE TEMPORARY TABLE ids
+            SELECT voter_id
+            FROM ??
+            ${where} AND ward = ?
+            ORDER BY RAND()
+            LIMIT ?`,
+            [votersTable, ward, wardSampleSize]
+        );
+        await db.queryPromise('ALTER TABLE ids ADD INDEX (voter_id)');
+        const result = await db.queryPromise(
+            `UPDATE ??
         SET sample = ?
         WHERE voter_id IN (SELECT voter_id FROM ids)`,
-        [votersTable, sampleNumber]
-    );
-    await db.queryPromise('DROP TABLE ids');
-    console.warn(result.affectedRows, `added to sample ${sampleNumber}`);
+            [votersTable, sampleNumber]
+        );
+        await db.queryPromise('DROP TABLE ids');
+        console.warn(`${result.affectedRows} from ward ${ward} added to sample ${sampleNumber}`);
+    }
 }
