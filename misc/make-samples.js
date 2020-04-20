@@ -66,6 +66,7 @@ async function markRandom(votersTable, criteria, sampleNumber) {
         LIMIT ?`,
         [votersTable, sampleSize]
     );
+    await db.queryPromise('ALTER TABLE ids ADD INDEX (voter_id)');
     const result = await db.queryPromise(
         `UPDATE ??
         SET sample = ?
