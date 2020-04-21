@@ -19,9 +19,9 @@ async function main() {
     const records = await db.queryPromise(
         `SELECT voter_id, res_house, res_frac, res_street, res_apt, res_zip
         FROM ??
-        WHERE i71_signer IS NULL
+        WHERE sample IS NOT NULL
             AND validated_address_1 IS NULL
-        LIMIT 10`,
+        LIMIT 10000`,
         [votersTable]
     );
     for (const r of records) {
@@ -37,16 +37,27 @@ async function main() {
             state: 'DC',
             zip: r.res_zip,
         };
-        const result = await verify(params);
-        console.warn(params, result)
-        const zip = result.zip + '-' + result.zip4;
+        let street1 = null;
+        let street2 = null;
+        let zip = null;
+        try {
+            const result = await verify(params);
+            console.warn(params, result);
+            street1 = result.street1;
+            street2 = result.street2;
+            zip = result.zip + '-' + result.zip4;
+        }
+        catch (err) {
+            console.error(err);
+            street1 = 'ERROR:' + err.message;
+        }
         await db.queryPromise(
             `UPDATE ??
             SET validated_address_1 = ?, validated_address_2 = ?, validated_zip = ?
             WHERE voter_id = ?`,
-            [votersTable, result.street1, result.street2, zip, r.voter_id]
+            [votersTable, street1, street2, zip, r.voter_id]
         );
-        await pause(200);
+        await pause(100);
     }
 }
 
