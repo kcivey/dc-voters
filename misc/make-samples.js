@@ -10,16 +10,14 @@ main()
 async function main() {
     const votersTable = await db.getMostRecentVotersTable();
     await markSigners(votersTable);
+    await markSupervoters(votersTable);
+    await markNewcomers(votersTable);
+    await markGone(votersTable);
     await clearSamples(votersTable);
-    const supervoterCriterion = "h110618g IN ('A','V','Y') AND h110816g IN ('A','V','Y') AND h110414g IN ('A','V','Y')";
     await markRandom(votersTable, '', 1);
-    await markRandom(votersTable, supervoterCriterion, 2);
+    await markRandom(votersTable, 'supervoter > 0', 2);
     await markRandom(votersTable, 'i71_signer > 0', 3);
-    await markRandom(
-        votersTable,
-        `i71_signer > 0 AND ${supervoterCriterion}`,
-        4
-    );
+    await markRandom(votersTable, 'i71_signer > 0 AND supervoter > 0', 4);
 }
 
 async function markSigners(votersTable) {
@@ -51,6 +49,48 @@ async function markSigners(votersTable) {
     console.warn(result.affectedRows, 'marked as signers (unique name at different address)');
 }
 
+async function markSupervoters(votersTable) {
+    await db.queryPromise('UPDATE ?? SET supervoter = 0', votersTable);
+    const result = await db.queryPromise(
+        `UPDATE ??
+        SET supervoter = 1
+        WHERE h110618g IN ('A', 'V', 'Y')
+            AND h110816g IN ('A', 'V', 'Y')
+            AND h110414g IN ('A', 'V', 'Y')`,
+        votersTable
+    );
+    console.warn(result.affectedRows, 'marked as supervoters');
+}
+
+async function markNewcomers(votersTable) {
+    await db.queryPromise('UPDATE ?? SET newcomer = 0', votersTable);
+    const result = await db.queryPromise(
+        `UPDATE ??
+        SET newcomer = 1
+        WHERE registered > '2018-11-06'`,
+        votersTable
+    );
+    console.warn(result.affectedRows, 'marked as newcomers');
+}
+
+async function markGone(votersTable) {
+    await db.queryPromise('UPDATE ?? SET gone = 0', votersTable);
+    const result = await db.queryPromise(
+        `UPDATE ??
+        SET gone = 1
+        WHERE NOT newcomer AND
+            NOT (
+                h120418s IN ('A', 'V', 'Y') OR
+                h110618g IN ('A', 'V', 'Y') OR
+                h061918p IN ('A', 'V', 'Y') OR
+                h110816g IN ('A', 'V', 'Y') OR
+                h061416p IN ('A', 'V', 'Y')
+            )`,
+        votersTable
+    );
+    console.warn(result.affectedRows, 'marked as gone');
+}
+
 function clearSamples(votersTable) {
     return db.queryPromise('UPDATE ?? SET sample = NULL', votersTable);
 }
@@ -63,7 +103,7 @@ async function markRandom(votersTable, criteria, sampleNumber) {
             `CREATE TEMPORARY TABLE ids
             SELECT voter_id
             FROM ??
-            ${where} AND ward = ?
+            ${where} AND ward = ? AND NOT gone
             ORDER BY RAND()
             LIMIT ?`,
             [votersTable, ward, wardSampleSize]
