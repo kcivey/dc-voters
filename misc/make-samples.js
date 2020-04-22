@@ -14,14 +14,14 @@ async function main() {
     await markNewcomers(votersTable);
     await markGone(votersTable);
     await clearSamples(votersTable);
-    await markRandom(votersTable, '', 1);
-    await markRandom(votersTable, 'supervoter > 0', 2);
-    await markRandom(votersTable, 'i71_signer > 0', 3);
-    await markRandom(votersTable, 'i71_signer > 0 AND supervoter > 0', 4);
+    await markRandom({votersTable, criteria: 'i71_signer > 0 AND supervoter > 0', sample: 1, sampleSize: 3000});
+    await markRandom({votersTable, criteria: 'i71_signer > 0 AND supervoter = 0', sample: 2, sampleSize: 3000});
+    await markRandom({votersTable, criteria: 'i71_signer = 0 AND supervoter > 0', sample: 3, sampleSize: 2000});
+    await markRandom({votersTable, criteria: 'i71_signer = 0 AND supervoter = 0', sample: 4, sampleSize: 2000});
 }
 
 async function markSigners(votersTable) {
-    await db.queryPromise('UPDATE ?? SET i71_signer = NULL', votersTable);
+    await db.queryPromise('UPDATE ?? SET i71_signer = 0', votersTable);
     let result = await db.queryPromise(
         `UPDATE ?? v
         SET v.i71_signer = 1
@@ -37,7 +37,7 @@ async function markSigners(votersTable) {
     result = await db.queryPromise(
         `UPDATE ?? v
         SET v.i71_signer = 2
-        WHERE i71_signer IS NULL
+        WHERE i71_signer = 0
             AND name_count = 1
             AND (
                 SELECT COUNT(*) FROM i71 i
@@ -95,7 +95,7 @@ function clearSamples(votersTable) {
     return db.queryPromise('UPDATE ?? SET sample = NULL', votersTable);
 }
 
-async function markRandom(votersTable, criteria, sampleNumber) {
+async function markRandom({votersTable, criteria, sample, sampleSize}) {
     const where = 'WHERE sample IS NULL' + (criteria ? ' AND ' + criteria : '');
     const wardSampleSize = Math.ceil(sampleSize / 8);
     for (let ward = 1; ward <= 8; ward++) {
@@ -103,7 +103,7 @@ async function markRandom(votersTable, criteria, sampleNumber) {
             `CREATE TEMPORARY TABLE ids
             SELECT voter_id
             FROM ??
-            ${where} AND ward = ? AND NOT gone
+            ${where} AND ward = ? AND NOT gone AND not newcomer
             ORDER BY RAND()
             LIMIT ?`,
             [votersTable, ward, wardSampleSize]
@@ -113,9 +113,9 @@ async function markRandom(votersTable, criteria, sampleNumber) {
             `UPDATE ??
         SET sample = ?
         WHERE voter_id IN (SELECT voter_id FROM ids)`,
-            [votersTable, sampleNumber]
+            [votersTable, sample]
         );
         await db.queryPromise('DROP TABLE ids');
-        console.warn(`${result.affectedRows} from ward ${ward} added to sample ${sampleNumber}`);
+        console.warn(`${result.affectedRows} from ward ${ward} added to sample ${sample}`);
     }
 }
