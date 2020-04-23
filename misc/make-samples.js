@@ -1,7 +1,6 @@
 #!/usr/bin/env node
 
 const db = require('../lib/db');
-const sampleSize = 10000;
 
 main()
     .catch(console.trace)
@@ -14,10 +13,10 @@ async function main() {
     await markNewcomers(votersTable);
     await markGone(votersTable);
     await clearSamples(votersTable);
-    await markRandom({votersTable, criteria: 'i71_signer > 0 AND supervoter > 0', sample: 1, sampleSize: 3000});
     await markRandom({votersTable, criteria: 'i71_signer > 0 AND supervoter = 0', sample: 2, sampleSize: 3000});
-    await markRandom({votersTable, criteria: 'i71_signer = 0 AND supervoter > 0', sample: 3, sampleSize: 2000});
+    await markRandom({votersTable, criteria: 'i71_signer > 0 AND supervoter > 0', sample: 1, sampleSize: 3000});
     await markRandom({votersTable, criteria: 'i71_signer = 0 AND supervoter = 0', sample: 4, sampleSize: 2000});
+    await markRandom({votersTable, criteria: 'i71_signer = 0 AND supervoter > 0', sample: 3, sampleSize: 2000});
 }
 
 async function markSigners(votersTable) {
@@ -92,7 +91,7 @@ async function markGone(votersTable) {
 }
 
 function clearSamples(votersTable) {
-    return db.queryPromise('UPDATE ?? SET sample = NULL', votersTable);
+    return db.queryPromise('UPDATE ?? SET sample = NULL, household_in_sample = 0', votersTable);
 }
 
 async function markRandom({votersTable, criteria, sample, sampleSize}) {
@@ -101,9 +100,10 @@ async function markRandom({votersTable, criteria, sample, sampleSize}) {
     for (let ward = 1; ward <= 8; ward++) {
         await db.queryPromise(
             `CREATE TEMPORARY TABLE ids
-            SELECT voter_id
+            SELECT MAX(voter_id) AS voter_id, res_house, res_frac, res_street, res_apt
             FROM ??
-            ${where} AND ward = ? AND NOT gone AND not newcomer
+            ${where} AND ward = ? AND NOT gone AND NOT newcomer AND NOT household_in_sample
+            GROUP BY res_house, res_frac, res_street, res_apt
             ORDER BY RAND()
             LIMIT ?`,
             [votersTable, ward, wardSampleSize]
@@ -111,11 +111,30 @@ async function markRandom({votersTable, criteria, sample, sampleSize}) {
         await db.queryPromise('ALTER TABLE ids ADD INDEX (voter_id)');
         const result = await db.queryPromise(
             `UPDATE ??
-        SET sample = ?
-        WHERE voter_id IN (SELECT voter_id FROM ids)`,
+            SET sample = ?
+            WHERE voter_id IN (SELECT voter_id FROM ids)`,
             [votersTable, sample]
         );
         await db.queryPromise('DROP TABLE ids');
         console.warn(`${result.affectedRows} from ward ${ward} added to sample ${sample}`);
+        await db.queryPromise(
+            `CREATE TEMPORARY TABLE ids
+            SELECT MAX(voter_id) AS voter_id, res_house, res_frac, res_street, res_apt
+            FROM ??
+            WHERE sample = ? AND ward = ?
+            GROUP BY res_house, res_frac, res_street, res_apt`,
+            [votersTable, sample, ward]
+        );
+        await db.queryPromise('ALTER TABLE ids ADD INDEX (res_house, res_frac, res_street, res_apt)');
+        await db.queryPromise(
+            `UPDATE ?? v, ids i
+            SET v.household_in_sample = 1
+            WHERE v.res_house = i.res_house AND
+                v.res_frac = i.res_frac AND
+                v.res_street = i.res_street AND
+                v.res_apt = i.res_apt`,
+            votersTable
+        );
+        await db.queryPromise('DROP TABLE ids');
     }
 }
