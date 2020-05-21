@@ -12,6 +12,7 @@ CREATE TABLE IF NOT EXISTS projects (
   `paid_circulators` TINYINT(1) NOT NULL DEFAULT 0,
   `pay_per_signature` DECIMAL(4,2),
   `voters_table` VARCHAR(32),
+  `lines_per_page` TINYINT UNSIGNED NOT NULL DEFAULT 20,
   PRIMARY KEY (`id`),
   UNIQUE KEY (`code`)
 );

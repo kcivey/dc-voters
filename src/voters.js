@@ -563,7 +563,7 @@
                 const rec = status.lineRecord;
                 let url = apiUrl('mark-blank/' + rec.page + '/' + rec.line);
                 if (rest) {
-                    url += '-' + 20;
+                    url += '-' + project.linesPerPage;
                 }
                 $.ajax({
                     url,

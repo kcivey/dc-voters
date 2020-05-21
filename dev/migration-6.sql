@@ -1,0 +1,1 @@
+ALTER TABLE projects ADD `lines_per_page` TINYINT UNSIGNED NOT NULL DEFAULT 20;

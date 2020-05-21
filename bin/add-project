@@ -71,6 +71,11 @@ function getArgv() {
                 requiresArg: true,
                 defaultDescription: 'no images',
             },
+            'lines-per-page': {
+                type: 'number',
+                describe: 'lines per pages on petitions',
+                requiresArg: true,
+            },
             name: {
                 type: 'string',
                 describe: 'project name',

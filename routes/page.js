@@ -14,13 +14,13 @@ module.exports = {
     },
 
     createOrUpdatePage(req, res, next) {
-        const projectId = req.project.id;
+        const project = req.project;
         const data = req.body;
         const number = req.params.number;
         const id = data.id;
         const checker = data.checker;
         delete data.checker;
-        db.createOrUpdatePage({projectId, data, number, id, checker})
+        db.createOrUpdatePage({project, data, number, id, checker})
             .then(page => res.json(page))
             .catch(next);
     },
