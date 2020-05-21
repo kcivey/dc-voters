@@ -599,7 +599,7 @@
           <label class="col-form-label col-sm-2" for="page-circulator-id">Circulator</label>
           <div class="col-sm-10">
             <select class="form-control" name="circulator_id" id="page-circulator-id">
-              <option value="">-- Select --</option>
+              <option value=""></option>
               <% _.each(circulators, function (c) { %>
                 <option value="<%- c.id %>"><%- c.name %></option>
               <% }); %>
