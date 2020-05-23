@@ -685,7 +685,7 @@
                 $('#bottom-row').html(lineTableTemplate({}))
                     .show();
                 let url = apiUrl('dt-line');
-                if (!user.admin) {
+                if (!user.admin || !$(this).hasClass('admin-only')) {
                     url += '/' + user.username;
                 }
                 const value = $(this).data('value');
