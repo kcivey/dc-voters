@@ -798,6 +798,12 @@
                             orderable: false,
                         },
                         {
+                            data: 'circulator_name',
+                            title: 'Circulator',
+                            searchable: false,
+                            orderable: false,
+                        },
+                        {
                             data: 'notes',
                             title: 'Notes',
                             searchable: true,
