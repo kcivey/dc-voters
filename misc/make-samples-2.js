@@ -48,3 +48,27 @@ async function main() {
         [votersTable, mailingTable]
     );
 }
+
+/*
+    SELECT *,
+        (
+            IF(h120418s IN ('A', 'V', 'Y'), 1, 0) +
+            IF(h110618g IN ('A', 'V', 'Y'), 2, 0) +
+            IF(h061918p IN ('A', 'V', 'Y'), 2, 0) +
+            IF(h110816g IN ('A', 'V', 'Y'), 1, 0) +
+            IF(h061416p IN ('A', 'V', 'Y'), 1, 0)
+        ) AS vote_score
+    FROM voters_20200513
+    WHERE res_street > '' AND
+        (
+            registered > '2018-11-06' OR
+            h120418s IN ('A', 'V', 'Y') OR
+            h110618g IN ('A', 'V', 'Y') OR
+            h061918p IN ('A', 'V', 'Y') OR
+            h110816g IN ('A', 'V', 'Y') OR
+            h061416p IN ('A', 'V', 'Y')
+        )
+    ORDER BY res_house, res_frac, res_street, res_apt,
+        vote_score DESC,
+        registered DESC
+ */
