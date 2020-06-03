@@ -50,16 +50,19 @@ async function main() {
 }
 
 /*
-    SELECT *,
+    SELECT v.*,
         (
             IF(h120418s IN ('A', 'V', 'Y'), 1, 0) +
             IF(h110618g IN ('A', 'V', 'Y'), 2, 0) +
             IF(h061918p IN ('A', 'V', 'Y'), 2, 0) +
             IF(h110816g IN ('A', 'V', 'Y'), 1, 0) +
             IF(h061416p IN ('A', 'V', 'Y'), 1, 0)
-        ) AS vote_score
-    FROM voters_20200513
+        ) AS vote_score,
+        ve.van_id
+    FROM voters_20200513 v
+        INNER JOIN voters_extra ve ON v.voter_id = ve.voter_id
     WHERE res_street > '' AND
+        van_id > '' AND
         (
             registered > '2018-11-06' OR
             h120418s IN ('A', 'V', 'Y') OR
