@@ -815,6 +815,7 @@
                     const row = $(this).closest('tr');
                     const lineData = dataTable.api().row(row[0])
                         .data();
+                    delete lineData.circulator_name; // added only for display
                     status.lineRecord = lineData;
                     $('#top-row').show();
                     $('#bottom-row').hide()
