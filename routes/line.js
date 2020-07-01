@@ -51,7 +51,7 @@ module.exports = {
         db.getLine({projectId, id, page, line})
             .then(function (line) {
                 if (!line) {
-                    throw createError(404, 'Nuch such line');
+                    throw createError(404, 'No such line');
                 }
                 res.json(line);
             })
