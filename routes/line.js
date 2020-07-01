@@ -1,38 +1,21 @@
 const createError = require('http-errors');
 const moment = require('moment');
 const db = require('../lib/db');
+const {getDtParams} = require('../lib/datatables');
 
 module.exports = {
 
     // Return line data in DataTables format
     async dtLine(req, res, next) {
         const projectId = req.project.id;
-        const start = +req.query.start || 0;
-        const length = +req.query.length || 100;
-        const output = {draw: +req.query.draw || 1};
-        const search = req.query.search && req.query.search.value;
-        const columns = req.query.columns || [];
-        const orderFromDataTables = req.query.order || [];
+        const {criteria, search, start, length, order, draw} = getDtParams(req.query);
+        const output = {draw};
         const checker = req.query.checker || req.params.checker;
-        const filterColumn = req.query.filterColumn || '';
-        const filterValue = req.query.filterValue;
-        const criteria = {};
-        const order = [];
         if (checker) {
             criteria.checker = checker;
         }
-        if (/^\w+$/.test(filterColumn)) {
-            criteria[filterColumn] = filterValue;
-        }
-        for (const o of orderFromDataTables) {
-            const index = +o.column || 0;
-            const column = columns[index] ? columns[index].data : '';
-            if (/^\w+$/.test(column) && column !== 'function') {
-                order.push(column + (o.dir === 'desc' ? ' DESC' : ''));
-            }
-        }
+        order.push('check_time DESC', 'id DESC'); // sort newest first if nothing else
         try {
-            order.push('check_time DESC', 'id DESC'); // sort newest first if nothing else
             output.recordsTotal = await db.getProcessedLineCount(projectId);
             output.recordsFiltered = await db.getProcessedLineCount(projectId, criteria);
             output.data = await db.getProcessedLines({projectId, criteria, search, start, length, order});
