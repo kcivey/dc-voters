@@ -701,6 +701,9 @@
                     orderClasses: false,
                     order: [], // no sorting by default
                     deferRender: true,
+                    dom: "<'row'<'col-sm-12 col-md-6'l><'col-sm-12 col-md-6'f><'col-sm-12'p>>" +
+                        "<'row'<'col-sm-12'tr>>" +
+                        "<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
                     initComplete() { // @todo Fix this for Bootstrap 4
                         const button = $('<button type="button"/>')
                             .text('Back to Checking')
