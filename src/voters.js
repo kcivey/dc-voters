@@ -992,7 +992,8 @@
                 .on('click', '.circulator-edit-button', editCirculator)
                 .on('click', '.circulator-delete-button', deleteCirculator)
                 .on('click', '.circulator-totals-button', showCirculatorTotals)
-                .on('click', '.page-edit-button', editPage);
+                .on('click', '.page-edit-button', editPage)
+                .on('click', '.page-view-button', displayPage);
 
             $('#global-modal').on('click', '.circulator-edit-button', editCirculator);
 
@@ -1147,10 +1148,21 @@
                 }
             }
 
-            function openModal(title, body) {
+            function displayPage() {
+                const number = $(this).data('number');
+                $.getJSON(apiUrl('pages' + '/' + number) + '?with_lines=1').then(
+                    function (pageData) {
+                        const template = getTemplate('page-display');
+                        openModal('Page ' + number, template(pageData), true);
+                    }
+                );
+            }
+
+            function openModal(title, body, large = false) {
                 const $modal = $('#global-modal');
                 $('.modal-title', $modal).text(title);
                 $('.modal-body', $modal).html(body);
+                $('.modal-dialog', $modal).toggleClass('modal-lg', large);
                 $modal.modal()
                     .on('shown.bs.modal', function () {
                         $('.modal-body input', $modal).eq(0)

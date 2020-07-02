@@ -30,15 +30,17 @@ module.exports = {
             .catch(next);
     },
 
-    getPage(req, res, next) {
-        db.getPage(req.project.id, +req.params.number)
-            .then(function (page) {
-                if (!page) {
-                    throw createError(404, 'No such page');
-                }
-                res.json(page);
-            })
-            .catch(next);
+    async getPage(req, res, next) {
+        const projectId = req.project.id;
+        const pageNumber = +req.params.number;
+        const page = await db.getPage(projectId, pageNumber);
+        if (!page) {
+            return next(createError(404, 'No such page'));
+        }
+        if (+req.query.with_lines) {
+            page.lines = await db.getLinesForPage(projectId, pageNumber);
+        }
+        return res.json(page);
     },
 
     getPages(req, res, next) {

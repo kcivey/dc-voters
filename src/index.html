@@ -819,9 +819,14 @@
             <% _.each(pages, function (p) { %>
               <tr>
                 <td>
-                  <button type="button" class="btn btn-outline-primary table-button btn-sm page-edit-button" data-number="<%- p.number %>" title="Edit">
-                    <i class="fas fa-pencil-alt fa-fw"></i>
-                  </button>
+                  <div class="btn-group btn-group-sm">
+                    <button type="button" class="btn btn-outline-primary table-button btn-sm page-edit-button" data-number="<%- p.number %>" title="Edit">
+                      <i class="fas fa-pencil-alt fa-fw"></i>
+                    </button>
+                    <button type="button" class="btn btn-outline-success table-button btn-sm page-view-button" data-number="<%- p.number %>" title="View">
+                      <i class="fas fa-eye fa-fw"></i>
+                    </button>
+                  </div>
                 </td>
                 <td class="number"><%- p.number %></td>
                 <td><%- p.circulator_name %></td>
@@ -977,6 +982,34 @@
           </table>
         </div>
       </div>
+    </script>
+    <script type="text/template" id="page-display-template">
+      <p>Circulator: <%- circulator_name %><br>
+      Valid lines: <%- valid_lines %>/<%- total_lines %></p>
+      <table class="table table-sm table-striped">
+        <thead>
+          <tr>
+            <th>Line</th>
+            <th>Finding</th>
+            <th>Signer</th>
+            <th>Address</th>
+            <th>Date</th>
+            <th>Notes</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% _.each(lines, function (l) { %>
+            <tr>
+              <td class="number"><%- l.line %></td>
+              <td><%- l.finding %></td>
+              <td><%- l.voter_name %></td>
+              <td><%- l.address %></td>
+              <td><%- l.date_signed %></td>
+              <td><%- l.notes %></td>
+            </tr>
+          <% }); %>
+        </tbody>
+      </table>
     </script>
   </body>
 </html>
