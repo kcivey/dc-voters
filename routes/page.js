@@ -1,5 +1,6 @@
 const createError = require('http-errors');
 const db = require('../lib/db');
+const {getDtParams} = require('../lib/datatables');
 
 module.exports = {
 
@@ -30,6 +31,23 @@ module.exports = {
             .catch(next);
     },
 
+    // Return page data in DataTables format
+    async dtPages(req, res, next) {
+        const projectId = req.project.id;
+        const {criteria, search, start, length, order, draw} = getDtParams(req.query);
+        const output = {draw};
+        order.push('number'); // sort by page if nothing else
+        try {
+            output.recordsTotal = await db.getPageCount(projectId);
+            output.recordsFiltered = await db.getPageCount(projectId, criteria, search);
+            output.data = await db.getPages({projectId, criteria, search, start, length, order});
+            res.json(output);
+        }
+        catch (err) {
+            next(err); // eslint-disable-line callback-return
+        }
+    },
+
     async getPage(req, res, next) {
         const projectId = req.project.id;
         const pageNumber = +req.params.number;
@@ -44,7 +62,7 @@ module.exports = {
     },
 
     getPages(req, res, next) {
-        db.getPages(req.project.id)
+        db.getPages({projectId: req.project.id})
             .then(rows => res.json(rows))
             .catch(next);
     },

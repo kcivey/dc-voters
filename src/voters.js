@@ -281,7 +281,13 @@
             if (typeof name !== 'string') {
                 name = $(this).data('name');
             }
-            $.getJSON(apiUrl(name)).then(
+            $('#top-row').hide();
+            hideImageRow();
+            if (name === 'pages') {
+                return showPageTable();
+            }
+            $('#bottom-row').hide();
+            return $.getJSON(apiUrl(name)).then(
                 function (data) {
                     const values = {
                         useCirculatorStatus: !!Object.keys(project.circulatorStatuses).length,
@@ -289,8 +295,6 @@
                         today: getToday(),
                     };
                     values[name] = data;
-                    $('#top-row').hide();
-                    hideImageRow();
                     const template = getTemplate(name.replace(/s$/, '') + '-table');
                     const $table = $(template(values));
                     if (!data.length) {
@@ -316,6 +320,103 @@
                     .padStart(2, '0');
                 return month + '/' + day + '/' + year;
             }
+        }
+
+        function showPageTable() {
+            const $table = $('#page-table');
+            if ($table.length) {
+                $('#bottom-row').show();
+                $table.DataTable().ajax.reload(null, false); // eslint-disable-line new-cap
+                return;
+            }
+            const template = getTemplate('page-table');
+            $('#bottom-row').html(template({project, pages: []}))
+                .show();
+            const columns = [
+                {
+                    defaultContent: '<div class="btn-group btn-group-sm">' +
+                        '<button type="button" class="btn btn-outline-primary table-button btn-sm page-edit-button" ' +
+                        'title="Edit"><i class="fas fa-pencil-alt fa-fw"></i></button>' +
+                        '<button type="button" class="btn btn-outline-success table-button btn-sm page-view-button" ' +
+                        'title="View"><i class="fas fa-eye fa-fw"></i></button>' +
+                        '</div>',
+                    title: '',
+                },
+                {
+                    data: 'number',
+                    title: 'Page',
+                    className: 'number',
+                },
+                {
+                    data: 'circulator_name',
+                    title: 'Circulator',
+                },
+                {
+                    data(row) {
+                        return row.date_signed
+                            ? row.date_signed.replace(/^(\d{4})-(\d\d)-(\d\d).*/, '$2/$3')
+                            : '';
+                    },
+                    title: 'Date',
+                },
+                {
+                    data: 'notes',
+                    title: 'Notes',
+                },
+                {
+                    data: 'processed_lines',
+                    title: 'Processed',
+                    className: 'number',
+                },
+                {
+                    data: 'valid_lines',
+                    title: 'Valid',
+                    className: 'number',
+                },
+                {
+                    data: 'checker',
+                    title: 'Checker',
+                },
+            ];
+            for (const c of columns) {
+                if (!c.searchable) {
+                    c.searchable = false;
+                }
+                if (!c.orderable) {
+                    c.orderable = false;
+                }
+            }
+            const m = document.cookie.match(/(?:(?:^|.*;\s*)pageLength\s*=\s*([^;]*).*$)|^.*$/);
+            const pageLength = (m && m[1]) || 250;
+            $('#page-table').dataTable({
+                ajax: apiUrl('pages/dt'),
+                processing: true,
+                serverSide: true,
+                destroy: true,
+                pageLength,
+                lengthMenu: [50, 100, 250, 500, 1000, 2500, 5000, 10000, 25000],
+                orderClasses: false,
+                order: [], // no sorting by default
+                deferRender: true,
+                dom: "<'row'<'col-sm-12 col-md-6'l><'col-sm-12 col-md-6'f><'col-sm-12'p>>" +
+                    "<'row'<'col-sm-12'tr>>" +
+                    "<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
+                initComplete() {
+                    $('#page-table button[title]').tooltip();
+                },
+                columns,
+            });
+            $('#page-table_length select').on('change', function () {
+                document.cookie = 'pageLength=' + $(this).val();
+            });
+            $('#page-table').on('page.dt', function () {
+                $('#page-table').one('draw.dt', function () {
+                    $('#page-table').css('width', 'auto')
+                        .DataTable() // eslint-disable-line new-cap
+                        .columns
+                        .adjust();
+                });
+            });
         }
 
         function getTemplate(name) {
@@ -1135,7 +1236,10 @@
             }
 
             function editPage() {
-                const number = $(this).data('number');
+                const number = $(this).data('number') ||
+                    $(this).closest('td')
+                        .next()
+                        .text();
                 if (number) {
                     $.getJSON(apiUrl('pages' + '/' + number)).then(showForm);
                 }
@@ -1149,7 +1253,10 @@
             }
 
             function displayPage() {
-                const number = $(this).data('number');
+                const number = $(this).data('number') ||
+                    $(this).closest('td')
+                        .next()
+                        .text();
                 $.getJSON(apiUrl('pages' + '/' + number) + '?with_lines=1').then(
                     function (pageData) {
                         const template = getTemplate('page-display');

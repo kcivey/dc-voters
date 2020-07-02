@@ -52,6 +52,7 @@ apiApp.post('/circulators', routes.createOrUpdateCirculator);
 apiApp.get('/circulators/:id', routes.getCirculator);
 apiApp.put('/circulators/:id', routes.createOrUpdateCirculator);
 apiApp.delete('/circulators/:id', routes.deleteCirculator);
+apiApp.get('/pages/dt', routes.dtPages);
 apiApp.get('/pages', routes.getPages);
 apiApp.post('/pages', routes.createOrUpdatePage);
 apiApp.get('/pages/:number', routes.getPage);
