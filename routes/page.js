@@ -20,6 +20,11 @@ module.exports = {
         const id = data.id;
         const checker = data.checker;
         delete data.checker;
+        delete data.circulator_name;
+        delete data.date_paid;
+        delete data.processed_lines;
+        delete data.valid_lines;
+        delete data.total_lines;
         db.createOrUpdatePage({project, data, number, id, checker})
             .then(page => res.json(page))
             .catch(next);
