@@ -943,6 +943,9 @@
                         status.lineRecord = lineRecord;
                         $('#edit-line-form').collapse('hide');
                         $('#admin-dropdown').dropdown('hide');
+                        $('#top-row').show();
+                        $('#bottom-row').hide()
+                            .empty();
                         setStatus(status);
                     },
                     function (jqXhr, textStatus, errorThrown) {
