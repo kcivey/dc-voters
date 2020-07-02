@@ -17,7 +17,7 @@ module.exports = {
         order.push('check_time DESC', 'id DESC'); // sort newest first if nothing else
         try {
             output.recordsTotal = await db.getProcessedLineCount(projectId);
-            output.recordsFiltered = await db.getProcessedLineCount(projectId, criteria);
+            output.recordsFiltered = await db.getProcessedLineCount(projectId, criteria, search);
             output.data = await db.getProcessedLines({projectId, criteria, search, start, length, order});
             res.json(output);
         }
