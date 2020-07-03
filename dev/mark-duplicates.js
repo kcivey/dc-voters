@@ -27,6 +27,7 @@ async function main() {
     const project = await db.getProjectByCode(argv.project);
     assert(project, `No such project "${project}"`);
     const projectId = project.id;
+    await db.removeExtraneousVotersFromLines(projectId);
     const rows = await db.getDuplicateLines(projectId);
     console.warn('%d duplicates found', rows.length);
     if (argv['dry-run']) {
