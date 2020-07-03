@@ -65,6 +65,9 @@ module.exports = {
             updates.date_signed = updates.date_signed
                 .replace(/^(\d+)\/(\d+)\/(\d+)$/, '$3-$1-$2');
         }
+        else if (updates.date_signed === '') {
+            updates.date_signed = null;
+        }
         db.updateLineOrRange({projectId, id, updates})
             .then(function (line) {
                 if (line.date_signed) {
