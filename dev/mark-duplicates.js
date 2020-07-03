@@ -6,7 +6,7 @@ const argv = require('yargs')
     .options({
         'dry-run': {
             type: 'boolean',
-            describe: 'don\'t actually mark, ust say how many would be marked',
+            describe: 'don\'t actually mark, just say how many would be marked',
             default: false,
         },
         project: {
