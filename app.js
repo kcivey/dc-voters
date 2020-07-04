@@ -45,6 +45,7 @@ apiApp.put('/line/:id', routes.updateLine);
 apiApp.get('/status', routes.status);
 apiApp.post('/mark-blank/:page/:line', routes.markLineBlank);
 apiApp.get('/completed.tsv', routes.completedTsv);
+apiApp.get('/address-changes.tsv', routes.completedTsv);
 apiApp.get('/dt-line/:checker', routes.dtLine);
 apiApp.get('/dt-line', routes.dtLine);
 apiApp.get('/circulators', routes.getCirculators);
