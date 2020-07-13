@@ -13,6 +13,7 @@
     "body-parser": "^1.19.0",
     "browserify": "^16.5.1",
     "core-js": "^3.6.5",
+    "csv-parse": "^4.10.1",
     "csv-stringify": "^5.5.0",
     "dotenv": "^8.2.0",
     "emailjs": "^3.2.1",
