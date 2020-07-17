@@ -7,13 +7,13 @@
     "test": "mocha"
   },
   "dependencies": {
-    "@babel/cli": "^7.10.4",
-    "@babel/core": "^7.10.4",
+    "@babel/cli": "^7.10.5",
+    "@babel/core": "^7.10.5",
     "@babel/preset-env": "^7.10.4",
     "body-parser": "^1.19.0",
     "browserify": "^16.5.1",
     "core-js": "^3.6.5",
-    "csv-parse": "^4.10.1",
+    "csv-parse": "^4.11.1",
     "csv-stringify": "^5.5.0",
     "dotenv": "^8.2.0",
     "emailjs": "^3.2.1",
@@ -36,7 +36,7 @@
     "terser": "^4.8.0",
     "underscore": "^1.10.2",
     "usps-webtools": "^1.0.3",
-    "yargs": "^15.4.0"
+    "yargs": "^15.4.1"
   },
   "devDependencies": {
     "chai": "^4.2.0",
