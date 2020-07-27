@@ -28,6 +28,7 @@
     "minimist": "^1.2.5",
     "moment": "^2.27.0",
     "morgan": "^1.10.0",
+    "multer": "^1.4.2",
     "mysql": "^2.18.1",
     "number-list": "^0.2.5",
     "passwordless": "^1.1.3",

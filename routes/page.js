@@ -1,6 +1,13 @@
+const assert = require('assert');
+const fs = require('fs').promises;
+const path = require('path');
+const util = require('util');
+const execFile = util.promisify(require('child_process').execFile);
 const createError = require('http-errors');
 const db = require('../lib/db');
 const {getDtParams} = require('../lib/datatables');
+const convertCommand = '/usr/bin/convert';
+const pdfInfoCommand = '/usr/bin/pdfinfo';
 
 module.exports = {
 
@@ -67,4 +74,77 @@ module.exports = {
             .catch(next);
     },
 
+    async uploadPageImages(req, res, next) {
+        const project = req.project;
+        try {
+            assert(project.imageDpi, createError(400, 'No images for this project'));
+            assert(req.files.length, createError(400, 'No files in request'));
+            const outputDir = path.resolve(__dirname, '../public/page-images/', req.project.code);
+            const twoSided = project.getLinesPerPage > 10;
+            const numbers = req.body.numbers.split(',');
+            res.sendStatus(202);
+            let i = 0;
+            for (const file of req.files) {
+                const inputFile = file.path;
+                const startPage = numbers[i] || 1;
+                const endPage = await createPageImages({
+                    inputFile,
+                    startPage,
+                    mimeType: file.mimetype,
+                    outputDir,
+                    twoSided,
+                });
+                await fs.unlink(inputFile);
+                let range = startPage;
+                if (endPage !== startPage) {
+                    range += '-' + endPage;
+                }
+                await db.createOrUpdatePage({project, data: {}, number: range});
+                i++;
+            }
+        }
+        catch (err) {
+            next(err); // eslint-disable-line callback-return
+        }
+    },
+
 };
+
+async function createPageImages({inputFile, startPage, mimeType, outputDir, twoSided}) {
+    const pageCount = await getPageCount(inputFile, mimeType);
+    let page = 0;
+    for (let i = 0; i < pageCount; i++) {
+        page = +startPage + (twoSided ? Math.floor(i / 2) : i);
+        const side = twoSided ? (i % 2 ? 'b' : 'a') : '';
+        const outputFile = outputDir + '/' + page.toString().padStart(4, '0') + side + '.jpeg';
+        const args = [
+            '-density',
+            '200',
+            inputFile + '[' + i + ']',
+            '-resize',
+            '1700x', // equivalent to 200 dpi for 8.5in paper
+            '-strip',
+            '+profile',
+            '*',
+            '-interlace',
+            'plane',
+            '-gaussian-blur',
+            '0.05',
+            '-quality',
+            '75%',
+            outputFile,
+        ];
+        await execFile(convertCommand, args);
+    }
+    return page;
+}
+
+async function getPageCount(inputFile, mimeType) {
+    if (mimeType !== 'application/pdf') {
+        return 1;
+    }
+    const output = (await execFile(pdfInfoCommand, [inputFile])).stdout;
+    const m = output.match(/Pages:\s+(\d+)/);
+    assert(m, `No pages in ${inputFile}`);
+    return +m[1];
+}

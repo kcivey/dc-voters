@@ -1,13 +1,14 @@
 #!/usr/bin/env node
 
 require('dotenv').config();
+const path = require('path');
 const express = require('express');
 const bodyParser = require('body-parser');
 const morgan = require('morgan');
 const errorHandler = require('errorhandler');
 const createError = require('http-errors');
-const path = require('path');
 const db = require('./lib/db');
+const uploadHandler = require('./lib/upload-handler');
 const env = process.env.NODE_ENV || 'development';
 const staticDir = 'development' === env ? 'src' : 'public';
 const apiUrlBase = '/api';
@@ -54,6 +55,7 @@ apiApp.get('/circulators/:id', routes.getCirculator);
 apiApp.put('/circulators/:id', routes.createOrUpdateCirculator);
 apiApp.delete('/circulators/:id', routes.deleteCirculator);
 apiApp.get('/pages/dt', routes.dtPages);
+apiApp.post('/pages/images', uploadHandler.array('images'), routes.uploadPageImages);
 apiApp.get('/pages', routes.getPages);
 apiApp.post('/pages', routes.createOrUpdatePage);
 apiApp.get('/pages/:number', routes.getPage);

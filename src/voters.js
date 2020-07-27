@@ -437,15 +437,11 @@
                 $imageRow.slideUp();
                 return;
             }
-            page = page.toString();
-            if (page.length < 4) {
-                page = '0000'.substr(0, 4 - page.length) + page;
-            }
-            const imageUrl = '/' + project.code + '/page-images/' + page + (+line <= 10 ? 'a' : 'b') + '.jpeg';
+            const imageUrl = makeImageUrl(project, page, line);
             $imageRow.slideDown();
             const divWidth = $imageDiv.innerWidth();
             const ratio = divWidth / (8.5 * project.imageDpi);
-            const top = -((line <= 10 ? 902 : -956) + 104 * line) * ratio;
+            const top = -((line <= 10 ? 902 : -956) + 104 * (line - (project.linesPerPage > 10 ? 0 : 2))) * ratio;
             $imageDiv.css({height: (120 * ratio) + 'px'})
                 .html(
                     $('<a/>').attr({href: imageUrl, target: '_blank'})
@@ -461,6 +457,15 @@
                         )
                 )
                 .resizable({handles: 's'});
+        }
+
+        function makeImageUrl(project, page, line) {
+            page = page.toString();
+            if (page.length < 4) {
+                page = '0000'.substr(0, 4 - page.length) + page;
+            }
+            return '/' + project.code + '/page-images/' + page +
+                (project.linesPerPage > 10 ? (+line <= 10 ? 'a' : 'b') : '') + '.jpeg';
         }
 
         function showTotals(circulatorId, circulatorName) {
@@ -1097,6 +1102,7 @@
                 .on('click', '.circulator-delete-button', deleteCirculator)
                 .on('click', '.circulator-totals-button', showCirculatorTotals)
                 .on('click', '.page-edit-button', editPage)
+                .on('click', '.page-upload-show-button', showPageUploadForm)
                 .on('click', '.page-view-button', displayPage);
 
             $('#global-modal').on('click', '.circulator-edit-button', editCirculator);
@@ -1266,6 +1272,31 @@
                         openModal('Page ' + number, template(pageData), true);
                     }
                 );
+            }
+
+            function showPageUploadForm() {
+                const template = getTemplate('page-upload-form');
+                openModal('Upload Page Images', template({}));
+                $('#page-upload-images').on('change', function () {
+                    const numbers = [];
+                    for (let i = 0; i < this.files.length; i++) {
+                        const m = this.files[i].name.match(/\d+/);
+                        numbers.push(m ? m[0] : '');
+                    }
+                    $('#page-upload-numbers').val(numbers.join(','));
+                });
+                $('#page-upload-form').on('submit', function (evt) {
+                    evt.preventDefault();
+                    $('#page-upload-form button').prop('disabled', true);
+                    fetch(apiUrl('pages/images'), {method: 'post', body: new FormData(this)})
+                        .then(function () {
+                            $(alertTemplate({
+                                successful: true,
+                                text: 'Conversion has started. Pages will be available soon.',
+                            })).insertAfter('#page-upload-form');
+                            setTimeout(() => $('#global-modal').modal('hide'), 1000);
+                        });
+                });
             }
 
             function openModal(title, body, large = false) {
