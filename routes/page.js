@@ -121,6 +121,7 @@ async function createPageImages({inputFile, startPage, mimeType, outputDir, twoS
             '-density',
             '200',
             inputFile + '[' + i + ']',
+            '-auto-orient',
             '-resize',
             '1700x', // equivalent to 200 dpi for 8.5in paper
             '-strip',
