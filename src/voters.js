@@ -441,7 +441,7 @@
             $imageRow.slideDown();
             const divWidth = $imageDiv.innerWidth();
             const ratio = divWidth / (8.5 * project.imageDpi);
-            const top = -((line <= 10 ? 902 : -956) + 104 * (line - (project.linesPerPage > 10 ? 0 : 2))) * ratio;
+            const top = getLineTop(project, line) * ratio;
             $imageDiv.css({height: (120 * ratio) + 'px'})
                 .html(
                     $('<a/>').attr({href: imageUrl, target: '_blank'})
@@ -457,6 +457,16 @@
                         )
                 )
                 .resizable({handles: 's'});
+        }
+
+        function getLineTop(project, line) {
+            if (project.linesPerPage > 10) { // 2-sided
+                if (line <= 10) {
+                    return -902 - 104 * line;
+                }
+                return -84 - 104 * (line - 10);
+            }
+            return -703 - 70 * line;
         }
 
         function makeImageUrl(project, page, line) {
