@@ -466,7 +466,7 @@
                 }
                 return -84 - 104 * (line - 10);
             }
-            return -703 - 70 * line;
+            return -715 - 70 * line;
         }
 
         function makeImageUrl(project, page, line) {
