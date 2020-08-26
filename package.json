@@ -24,6 +24,7 @@
     "express-session": "^1.17.1",
     "find-config": "^1.0.0",
     "generate-password": "^1.5.1",
+    "googleapis": "^59.0.0",
     "http-errors": "^1.8.0",
     "js-yaml": "^3.14.0",
     "minimist": "^1.2.5",
