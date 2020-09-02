@@ -44,16 +44,16 @@ getVoters()
 async function getVoters() {
     const criteria = getCriteria();
     const votersTable = await getVotersTable();
-    const length = 10000;
+    const limit = 10000;
     let offset = 0;
     while (true) {
-        const voterRecords = await db.getVoters({criteria, offset, length, votersTable});
+        const voterRecords = await db.getVoters({criteria, offset, limit, votersTable});
         const csv = stringify(voterRecords, {headers: true});
         process.stdout.write(csv);
-        if (voterRecords.length < length) {
+        if (voterRecords.length < limit) {
             break;
         }
-        offset += length;
+        offset += limit;
     }
 }
 
