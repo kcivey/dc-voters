@@ -115,7 +115,7 @@ function getArgv() {
             'path to YAML config file',
             function (configFile) {
                 const content = fs.readFileSync(configFile, 'utf8');
-                return yaml.safeLoad(content);
+                return yaml.load(content);
             }
         )
         .check(function (argv) {
