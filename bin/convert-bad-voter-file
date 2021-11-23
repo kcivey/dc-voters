@@ -1,0 +1,111 @@
+#!/usr/bin/env node
+
+const assert = require('assert');
+const fs = require('fs');
+const csvParse = require('csv-parse');
+const stringify = require('csv-stringify/lib/sync');
+
+main()
+    .catch(function (err) {
+        console.error(err);
+        process.exit(64);
+    });
+
+async function main() {
+    const infile = process.argv[2];
+    assert(infile, 'Input file required');
+    const parser = fs.createReadStream(infile)
+        .pipe(csvParse({columns: headers => headers.map(columnNameFromHeader)}));
+    let headers = true;
+    for await (const oldRecord of parser) {
+        const newRecord = makeNewRecord(oldRecord);
+        if (headers) {
+            process.stdout.write(stringify([Object.keys(newRecord)]));
+        }
+        process.stdout.write(stringify([newRecord]));
+        headers = false;
+    }
+
+    function columnNameFromHeader(h) {
+        return h.toLowerCase()
+            .replace(/^v?(?=\d)/, 'h')
+            .replace(' ', '_')
+            .replace('-', '');
+    }
+
+    function makeNewRecord(r) {
+        return {
+            REGISTERED: r.registration_date.replace(/\//g, '-'),
+            LASTNAME: r.last_name.substr(0, 20),
+            FIRSTNAME: r.first_name,
+            MIDDLE: r.middle_name.substr(0, 1),
+            SUFFIX: r.name_style,
+            STATUS: r.voter_status,
+            PARTY: r.party,
+            RES_HOUSE: r.house_number,
+            RES_FRAC: r.street_number_suffix,
+            RES_APT: (r.unit_type ? (r.unit_type + ' ') : '') + r.apartment_number,
+            RES_STREET: (r.street_name + ' ' + r.street_type + ' ' + r.street_dir_suffix).substr(0, 25),
+            RES_CITY: r.city_name,
+            RES_STATE: r.dc,
+            RES_ZIP: r.zip_code.substr(0, 5),
+            RES_ZIP4: '',
+            PRECINCT: r.precinct_split.replace(/\..*$/, ''), // remove fractional part
+            WARD: r.city_ward,
+            ANC: r.anc,
+            SMD: r.smd,
+            V110320G: '',
+            V061620S: '',
+            V060220P: '',
+            V120418S: '',
+            V110618G: '',
+            V061918P: '',
+            V110816G: '',
+            V061416P: '',
+            V042815S: '',
+            V110414G: '',
+            V071514S: '',
+            V040114P: '',
+            V042313S: '',
+            V112012G: '',
+            V052012S: '',
+            V042012P: '',
+            V022012S: '',
+            V042011S: '',
+            V112010G: '',
+            V092010P: '',
+            V112008G: '',
+            V092008P: '',
+            V022008P: '',
+            V082007S: '',
+            V052007S: '',
+            V112006G: '',
+            V092006P: '',
+            V112004G: '',
+            V092004P: '',
+            V042004S: '',
+            V012004P: '',
+            V112002G: '',
+            V092002P: '',
+            V112000G: '',
+            V092000P: '',
+            V082000P: '',
+            V012000S: '',
+            V111999G: '',
+            V111998G: '',
+            V091998P: '',
+            V081998P: '',
+            V111997G: '',
+            V091997P: '',
+            V11997S: '',
+            V111996G: '',
+            V091996P: '',
+            V081996P: '',
+            V111995G: '',
+            V091995P: '',
+            V011995S: '',
+            V111994G: '',
+        };
+    }
+}
+
