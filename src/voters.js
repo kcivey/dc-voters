@@ -671,6 +671,10 @@
                     formData.finding = 'WW';
                     formData.notes = 'Ward ' + voterData.ward;
                 }
+                else if (voterData.duplicate_line) {
+                    formData.finding = 'D';
+                    formData.notes = `Duplicate of page ${voterData.duplicate_page}, line ${voterData.duplicate_line}`;
+                }
                 editLine(formData);
             }
 

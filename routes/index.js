@@ -16,6 +16,7 @@ module.exports = function (/* app */) {
         search(req, res, next) {
             const options = req.query;
             options.votersTable = req.project.votersTable;
+            options.projectId = req.project.id; // when set, will search for duplicates
             db.searchForVoter(options)
                 .then(function (results) {
                     res.set('Cache-Control', 'max-age=600'); // cache for 10 min

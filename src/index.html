@@ -447,6 +447,8 @@
               Wrong Party
             <% } else if (wantedWard && wantedWard !== ward) { %>
               Wrong Ward
+            <% } else if (duplicate_line) { %>
+              Duplicate
             <% } else { %>
               Match
             <% } %>
