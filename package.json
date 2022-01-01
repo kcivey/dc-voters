@@ -7,9 +7,9 @@
     "test": "mocha"
   },
   "dependencies": {
-    "@babel/cli": "^7.16.0",
-    "@babel/core": "^7.16.5",
-    "@babel/preset-env": "^7.16.5",
+    "@babel/cli": "^7.16.7",
+    "@babel/core": "^7.16.7",
+    "@babel/preset-env": "^7.16.7",
     "body-parser": "^1.19.1",
     "browserify": "^17.0.0",
     "core-js": "^3.20.1",
@@ -39,7 +39,7 @@
     "terser": "^5.10.0",
     "underscore": "^1.13.2",
     "usps-webtools": "^1.0.7",
-    "yargs": "^17.3.0"
+    "yargs": "^17.3.1"
   },
   "devDependencies": {
     "chai": "^4.2.0",
