@@ -7,12 +7,12 @@
     "test": "mocha"
   },
   "dependencies": {
-    "@babel/cli": "^7.16.7",
+    "@babel/cli": "^7.16.8",
     "@babel/core": "^7.16.7",
-    "@babel/preset-env": "^7.16.7",
+    "@babel/preset-env": "^7.16.8",
     "body-parser": "^1.19.1",
     "browserify": "^17.0.0",
-    "core-js": "^3.20.1",
+    "core-js": "^3.20.3",
     "csv-parse": "^4.16.3",
     "csv-stringify": "^5.6.5",
     "dc-mar": "^0.5.4",
