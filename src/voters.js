@@ -562,7 +562,11 @@
         }
 
         function makeAddress(v) {
-            let address = v.res_house + v.res_frac + ' ' + v.res_street;
+            let address = v.res_house;
+            if (v.res_frac) {
+                address += '-' + v.res_frac;
+            }
+            address += ' ' + v.res_street;
             if (v.res_apt) {
                 address += ' #' + v.res_apt;
             }
