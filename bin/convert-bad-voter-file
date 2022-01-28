@@ -19,6 +19,9 @@ async function main() {
     let headers = true;
     for await (const oldRecord of parser) {
         const newRecord = makeNewRecord(oldRecord);
+        if (newRecord.STATUS === 'I') {
+            continue;
+        }
         if (headers) {
             process.stdout.write(stringify([Object.keys(newRecord)]));
         }
@@ -36,21 +39,21 @@ async function main() {
     function makeNewRecord(r) {
         return {
             REGISTERED: r.registration_date.replace(/\//g, '-'),
-            LASTNAME: r.last_name.substr(0, 20),
+            LASTNAME: r.last_name,
             FIRSTNAME: r.first_name,
-            MIDDLE: r.middle_name.substr(0, 1),
+            MIDDLE: r.middle_name,
             SUFFIX: r.name_style,
-            STATUS: r.voter_status,
+            STATUS: r.voter_status.substr(0, 1),
             PARTY: r.party,
-            RES_HOUSE: r.house_number,
+            RES_HOUSE: (r.house_number || r.street_number),
             RES_FRAC: r.street_number_suffix,
-            RES_APT: (r.unit_type ? (r.unit_type + ' ') : '') + r.apartment_number,
-            RES_STREET: (r.street_name + ' ' + r.street_type + ' ' + r.street_dir_suffix).substr(0, 25),
+            RES_APT: r.apartment_number,
+            RES_STREET: (r.street_name + ' ' + r.street_type + ' ' + r.street_dir_suffix),
             RES_CITY: r.city_name,
             RES_STATE: r.dc,
             RES_ZIP: r.zip_code.substr(0, 5),
             RES_ZIP4: '',
-            PRECINCT: r.precinct_split.replace(/\..*$/, ''), // remove fractional part
+            PRECINCT: (r.precinct_split || r.precinct).replace(/\..*$/, ''), // remove fractional part
             WARD: r.city_ward,
             ANC: r.anc,
             SMD: r.smd,
