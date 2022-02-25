@@ -4,6 +4,7 @@
 Description=Website for petition verification
 
 [Service]
+User=www-data
 Environment=NODE_ENV=production
 Environment=PORT=3000
 WorkingDirectory=/var/www/dc-voters
