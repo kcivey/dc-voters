@@ -325,7 +325,6 @@
                 <th id="party-column-head">Party</th>
                 <th class="text-center">Ward</th>
                 <th>Date</th>
-                <th>Status</th>
                 <th></th>
               </tr>
             </thead>
@@ -440,7 +439,6 @@
         <% if (wantedParty) { %><td><%- partyDisplay %></td><% } else { %><td style="display: none;"></td><% } %>
         <td class="text-center"><%- ward %></td>
         <td><%- registered %></td>
-        <td><%- status %></td>
         <td>
           <button class="btn btn-secondary btn-sm match">
             <% if (wantedParty && wantedParty !== party) { %>
