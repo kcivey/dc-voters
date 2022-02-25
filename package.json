@@ -1,6 +1,6 @@
 {
   "name": "dc-voters",
-  "version": "2.19.3",
+  "version": "2.19.4",
   "private": true,
   "scripts": {
     "start": "node app",
