@@ -111,6 +111,14 @@ module.exports = {
 };
 
 async function createPageImages({inputFile, startPage, mimeType, outputDir, twoSided}) {
+    try {
+        await fs.mkdir(outputDir);
+    }
+    catch (err) {
+        if (err.code !== 'EEXIST') {
+            throw err;
+        }
+    }
     const pageCount = await getPageCount(inputFile, mimeType);
     let page = 0;
     for (let i = 0; i < pageCount; i++) {
