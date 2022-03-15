@@ -8,7 +8,7 @@
   },
   "dependencies": {
     "@babel/cli": "^7.17.6",
-    "@babel/core": "^7.17.5",
+    "@babel/core": "^7.17.7",
     "@babel/preset-env": "^7.16.11",
     "body-parser": "^1.19.2",
     "browserify": "^17.0.0",
@@ -35,7 +35,7 @@
     "passwordless": "^1.1.3",
     "passwordless-mysql": "github:billstron/passwordless-mysql#dependabot/npm_and_yarn/bcrypt-5.0.0",
     "request": "^2.88.2",
-    "terser": "^5.11.0",
+    "terser": "^5.12.1",
     "underscore": "^1.13.2",
     "usps-webtools": "^1.0.7",
     "yargs": "^17.3.1"
