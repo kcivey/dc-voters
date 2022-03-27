@@ -1313,6 +1313,13 @@
                                 text: 'Conversion has started. Pages will be available soon.',
                             })).insertAfter('#page-upload-form');
                             setTimeout(() => $('#global-modal').modal('hide'), 1000);
+                        })
+                        .catch(function (err) {
+                            $(alertTemplate({
+                                successful: false,
+                                text: err.message,
+                            })).insertAfter('#page-upload-form');
+                            console.error(err);
                         });
                 });
             }
