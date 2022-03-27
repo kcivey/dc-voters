@@ -28,6 +28,9 @@ async function main() {
     if (argv['image-dpi']) {
         properties.image_dpi = argv['image-dpi'];
     }
+    if (argv['lines-per-page']) {
+        properties.lines_per_page = argv['lines-per-page'];
+    }
     const project = await db.addProject(properties);
     assert(project, `Project "${argv.project}" does not exist`);
     properties = {
