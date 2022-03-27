@@ -543,7 +543,7 @@
 
         function makeName(v, reversed) {
             let name = v.firstname;
-            if (v.middle) {
+            if (v.middle && reversed) {
                 name += ' ' + v.middle;
             }
             if (reversed) {
