@@ -14,7 +14,7 @@ const staticDir = 'development' === env ? 'src' : 'public';
 const apiUrlBase = '/api';
 
 // Override unused remote-user
-morgan.token('remote-user', (req, res) => (req.user ? req.user.username : ''));
+morgan.token('remote-user', req => (req.user ? req.user.username : ''));
 const app = express();
 app.set('port', process.env.PORT || 3000);
 app.set('trust proxy', 'loopback');
