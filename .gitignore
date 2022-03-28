@@ -12,3 +12,5 @@
 *~
 *.zip
 *.keys.json
+*.gz
+.~lock*
