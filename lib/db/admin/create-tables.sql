@@ -9,10 +9,11 @@ CREATE TABLE IF NOT EXISTS projects (
   `image_dpi` SMALLINT UNSIGNED,
   `challenge_header` VARCHAR(128),
   `type` ENUM('petition', 'challenge', 'response') NOT NULL DEFAULT 'petition',
-  `paid_circulators` TINYINT(1) NOT NULL DEFAULT 0,
+  `paid_circulators` TINYINT(1) UNSIGNED NOT NULL DEFAULT 0,
   `pay_per_signature` DECIMAL(4,2),
   `voters_table` VARCHAR(32),
   `lines_per_page` TINYINT UNSIGNED NOT NULL DEFAULT 20,
+  `archived` TINYINT(1) UNSIGNED NOT NULL DEFAULT 0
   PRIMARY KEY (`id`),
   UNIQUE KEY (`code`)
 );
