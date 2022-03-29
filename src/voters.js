@@ -334,12 +334,19 @@
                 .show();
             const columns = [
                 {
-                    defaultContent: '<div class="btn-group btn-group-sm">' +
-                        '<button type="button" class="btn btn-outline-primary table-button btn-sm page-edit-button" ' +
-                        'title="Edit"><i class="fas fa-pencil-alt fa-fw"></i></button>' +
-                        '<button type="button" class="btn btn-outline-success table-button btn-sm page-view-button" ' +
-                        'title="View"><i class="fas fa-eye fa-fw"></i></button>' +
-                        '</div>',
+                    render(data, type, row) {
+                        let html = '<div class="btn-group btn-group-sm">' +
+                            '<button type="button" title="Edit" ' +
+                            'class="btn btn-outline-primary table-button btn-sm page-edit-button">' +
+                            '<i class="fas fa-pencil-alt fa-fw"></i></button>';
+                        if (row.processed_lines) {
+                            html += '<button type="button" title="Summary" ' +
+                                'class="btn btn-outline-success table-button btn-sm page-view-button">' +
+                                '<i class="fas fa-list-ol fa-fw"></i></button>';
+                        }
+                        html += '</div>';
+                        return html;
+                    },
                     title: '',
                 },
                 {
@@ -378,6 +385,12 @@
                     title: 'Checker',
                 },
             ];
+            if (project.paidCirculators) {
+                columns.push({
+                    data: 'date_paid',
+                    title: 'Paid',
+                });
+            }
             for (const c of columns) {
                 if (!c.searchable) {
                     c.searchable = false;

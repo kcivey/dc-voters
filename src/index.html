@@ -803,51 +803,7 @@
             Upload Page Images
           </button>
         <% } %>
-        <div>
-          <table id="page-table" class="table table-sm table-striped table-hover">
-            <thead>
-            <tr>
-              <th></th>
-              <th class="number">Page</th>
-              <th>Circulator</th>
-              <th>Date</th>
-              <th>Notes</th>
-              <th class="text-right">Processed</th>
-              <th class="text-right">Valid</th>
-              <th>Checker</th>
-              <% if (project.paidCirculators) { %>
-                <th>Paid</th>
-              <% } %>
-            </tr>
-            </thead>
-            <tbody>
-            <% _.each(pages, function (p) { %>
-              <tr>
-                <td>
-                  <div class="btn-group btn-group-sm">
-                    <button type="button" class="btn btn-outline-primary table-button btn-sm page-edit-button" data-number="<%- p.number %>" title="Edit">
-                      <i class="fas fa-pencil-alt fa-fw"></i>
-                    </button>
-                    <button type="button" class="btn btn-outline-success table-button btn-sm page-view-button" data-number="<%- p.number %>" title="View">
-                      <i class="fas fa-eye fa-fw"></i>
-                    </button>
-                  </div>
-                </td>
-                <td class="number"><%- p.number %></td>
-                <td><%- p.circulator_name %></td>
-                <td><%- p.date_signed ? p.date_signed.replace(/^(\d{4})-(\d\d)-(\d\d).*/, '$2/$3') : '' %></td>
-                <td><%- p.notes || '' %></td>
-                <td class="text-right"><%- p.processed_lines %></td>
-                <td class="text-right"><%- p.valid_lines %></td>
-                <td><%- p.checker || '' %></td>
-                <% if (project.paidCirculators) { %>
-                  <td><%- p.date_paid || '' %></td>
-                <% } %>
-              </tr>
-            <% }); %>
-            </tbody>
-          </table>
-        </div>
+        <table id="page-table" class="table table-sm table-striped table-hover"></table>
       </div>
     </script>
     <script type="text/template" id="invoice-table-template">
