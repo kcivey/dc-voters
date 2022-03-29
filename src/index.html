@@ -140,13 +140,6 @@
       </div>
     </div>
 
-    <div id="project-menu-card" class="card bg-light">
-      <div class="card-body">
-        <h4 class="card-title">Select Project</h4>
-        <ul id="project-menu" class="list-unstyled"></ul>
-      </div>
-    </div>
-
     <nav id="top-nav" class="navbar navbar-expand-lg navbar-light fixed-top" style="display: none;">
       <a class="navbar-brand" href="/"></a>
       <div class="navbar-nav" id="status">
@@ -240,7 +233,7 @@
           </div>
         </div>
         <div class="nav-item">
-          <button type="button" id="log-out" class="nav-link btn btn-link">Log Out</button>
+          <button type="button" class="nav-link btn btn-link log-out">Log Out</button>
         </div>
       </div>
     </nav>
@@ -428,9 +421,20 @@
       integrity="sha512-RlGrSmkje9EE/FXpJKWf0fvOlg4UULy/blvNsviBX9LFwMj/uewXVoanRbxTIRDXy/0A3fBQppTmJ/qOboJzmA==" crossorigin="anonymous"></script>
     <script src="/voters.js"></script>
     <script type="text/template" id="project-menu-template">
-      <% _.each(projects, function (p) { %>
-        <button type="button" class="btn btn-primary btn-lg btn-block" value="<%- p.code %>"><%- p.name %></button>
-      <% }) %>
+      <div class="nav-item dropdown">
+        <button class="nav-link dropdown-toggle btn btn-link" type="button" data-toggle="dropdown">
+          Switch / Log Out
+        </button>
+        <div class="dropdown-menu dropdown-menu-right">
+          <% _.each(projects, function (p) { %>
+            <button type="button" class="dropdown-item btn btn-link project-button" value="<%- p.code %>">
+              <%- p.name %>
+            </button>
+          <% }) %>
+          <div class="dropdown-divider"></div>
+          <button type="button" class="dropdown-item btn btn-link log-out">Log Out</button>
+        </div>
+      </div>
     </script>
     <script type="text/template" id="voter-row-template">
       <tr>

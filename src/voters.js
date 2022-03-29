@@ -94,30 +94,24 @@
             },
         });
 
+        setUpProjectMenu();
         setUpHandlers();
         start();
 
         function start() {
-            if (!user) {
-                $('#top-nav,#main-container,#project-menu-card').hide();
+            if (!user || !projects.length) {
+                $('#top-nav,#main-container').hide();
                 $('#send-token-card').show();
                 return;
             }
             if (!project) {
                 const m = document.cookie.match(/(?:(?:^|.*;\s*)project\s*=\s*([^;]*).*$)|^.*$/);
                 const projectCode = m[1];
-                if (projects.length === 1) {
-                    project = projects[0];
-                }
-                else if (projectCode) {
+                if (projectCode) {
                     project = projects.find(p => p.code === projectCode);
                 }
                 if (!project) {
-                    $('#top-nav,#main-container,#send-token-card').hide();
-                    $('#project-menu-card').show();
-                    const template = getTemplate('project-menu');
-                    $('#project-menu').html(template({projects}));
-                    return;
+                    project = projects[0];
                 }
             }
             getStatus(function (err, status) {
@@ -129,7 +123,7 @@
                     $('#check-form-name').val('')
                         .focus();
                     $('#check-form-address').val('');
-                    $('#send-token-card,#project-menu-card').hide();
+                    $('#send-token-card').hide();
                     if (!user.admin) {
                         $('.admin-only').hide();
                     }
@@ -595,21 +589,19 @@
             });
         }
 
+        function setUpProjectMenu() {
+            if (!projects || projects.length < 2) {
+                return;
+            }
+            const template = getTemplate('project-menu');
+            $('button.log-out').closest('.nav-item')
+                .replaceWith(template({projects}));
+        }
+
         function setUpHandlers() {
-            setUpProjectMenuHandler();
             setUpNavHandlers();
             setUpTopRowHandlers();
             setUpBottomRowHandlers();
-        }
-
-        function setUpProjectMenuHandler() {
-            $('#project-menu-card')
-                .on('click', 'button', function () {
-                    const projectCode = $(this).attr('value');
-                    document.cookie = 'project=' + projectCode;
-                    project = projects.find(p => p.code === projectCode);
-                    start();
-                });
         }
 
         function setUpTopRowHandlers() {
@@ -780,10 +772,17 @@
                     evt.preventDefault();
                     window.open(apiUrl($(this).attr('href')));
                 })
-                .on('click', '.table-link', showTable);
+                .on('click', '.table-link', showTable)
+                .on('click', '.log-out', logout)
+                .on('click', '.project-button', function () {
+                    const projectCode = $(this).attr('value');
+                    document.cookie = 'project=' + projectCode;
+                    project = projects.find(p => p.code === projectCode);
+                    backToChecking();
+                });
+
             $('#totals-link')
                 .on('click', () => showTotals());
-            $('#log-out').on('click', logout);
             $('#review-links').on('click', 'button', displayReviewTable);
             $('#edit-line-link').on('click', function () {
                 const selector = $(this).data('target');
@@ -1193,13 +1192,6 @@
                 $('#assign-pages-modal .username').text(username);
             }
 
-            function backToChecking() {
-                $('#top-row').show();
-                $('#bottom-row').hide()
-                    .empty();
-                start();
-            }
-
             function showCirculatorTotals() {
                 const id = $(this).data('id');
                 const name = $(this).data('name');
@@ -1349,6 +1341,14 @@
                     });
             }
         }
+
+        function backToChecking() {
+            $('#top-row').show();
+            $('#bottom-row').hide()
+                .empty();
+            start();
+        }
+
     }
 
 })(jQuery);
