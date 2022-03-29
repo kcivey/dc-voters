@@ -19,6 +19,9 @@ async function main() {
         name: argv.name,
         voters_table: await getVotersTable(),
     };
+    if (argv.type) {
+        properties.type = argv.type;
+    }
     if (argv.party) {
         properties.party = argv.party.toUpperCase();
     }
