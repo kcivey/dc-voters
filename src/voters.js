@@ -414,7 +414,7 @@
                 columns,
             });
             $('#page-table_length select').on('change', function () {
-                document.cookie = 'pageLength=' + $(this).val();
+                document.cookie = 'pageLength=' + $(this).val() + '; SameSite=Strict';
             });
             $('#page-table').on('page.dt', function () {
                 $('#page-table').one('draw.dt', function () {
@@ -776,7 +776,7 @@
                 .on('click', '.log-out', logout)
                 .on('click', '.project-button', function () {
                     const projectCode = $(this).attr('value');
-                    document.cookie = 'project=' + projectCode;
+                    document.cookie = 'project=' + projectCode + '; SameSite=Strict';
                     project = projects.find(p => p.code === projectCode);
                     backToChecking();
                 });
@@ -807,8 +807,8 @@
                     .then(
                         function () {
                             // Delete login cookie
-                            document.cookie = 'connect.sid=;expires=Thu, 01 Jan 1970 00:00:00 GMT';
-                            document.cookie = 'project=;expires=Thu, 01 Jan 1970 00:00:00 GMT';
+                            document.cookie = 'connect.sid=;expires=Thu, 01 Jan 1970 00:00:00 GMT;SameSite=Strict';
+                            document.cookie = 'project=;expires=Thu, 01 Jan 1970 00:00:00 GMT;SameSite=Strict';
                         }
                     );
             }
