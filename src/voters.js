@@ -124,15 +124,9 @@
                         .focus();
                     $('#check-form-address').val('');
                     $('#send-token-card').hide();
-                    if (!user.admin) {
-                        $('.admin-only').hide();
-                    }
-                    if (project.type !== 'challenge') {
-                        $('#challenge-link').hide();
-                    }
-                    if (!project.paidCirculators) {
-                        $('#invoices-link').hide();
-                    }
+                    $('.admin-only').toggle(!!user.admin);
+                    $('#challenge-link').toggle(project.type === 'challenge');
+                    $('#invoices-link').toggle(project.paidCirculators);
                     setStatus(status);
                 }
             });
