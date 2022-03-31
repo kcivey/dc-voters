@@ -23,6 +23,7 @@
         let lineView;
         let searchTimeout;
         let project;
+        let imageAdjustment = 0;
 
         const Line = Backbone.Model.extend({
             initialize() {
@@ -442,7 +443,7 @@
             $imageRow.slideDown();
             const divWidth = $imageDiv.innerWidth();
             const ratio = divWidth / (8.5 * project.imageDpi);
-            const top = getLineTop(project, line) * ratio;
+            const top = getLineTop(project, line) * ratio + imageAdjustment;
             $imageDiv.css({height: (120 * ratio) + 'px'})
                 .html(
                     $('<a/>').attr({href: imageUrl, target: '_blank'})
@@ -454,10 +455,17 @@
                                     height: (divWidth * 11 / 8.5) + 'px',
                                     top: top + 'px',
                                 })
-                                .draggable({axis: 'y'})
+                                .draggable({
+                                    axis: 'y',
+                                    stop: saveImageAdjustment,
+                                })
                         )
                 )
                 .resizable({handles: 's'});
+
+            function saveImageAdjustment(evt, ui) {
+                imageAdjustment += ui.position.top - ui.originalPosition.top;
+            }
         }
 
         function getLineTop(project, line) {
