@@ -22,15 +22,19 @@ async function main() {
     const parser = fs.createReadStream(infile)
         .pipe(csvParse({columns: true}));
     for await (const r of parser) {
-        let circulatorId = circulatorIdByName[r.Collector];
+        const pageNumber = +r['Page #'];
+        const circulatorName = r.Collector;
+        console.warn([pageNumber, circulatorName]);
+        let circulatorId = circulatorIdByName[circulatorName];
         if (!circulatorId) {
-            const circulator = await db.createOrUpdateCirculator(project.id, null, {name: r.Collector});
+            const circulator = await db.createOrUpdateCirculator(project.id, null, {name: circulatorName});
+            console.warn(circulator);
             circulatorId = circulator.id;
-            circulatorIdByName[r.Collector] = circulatorId;
+            circulatorIdByName[circulatorName] = circulatorId;
         }
-        const page = await db.getPage(project.id, r['Page #']);
-        assert(page, `Page ${r['Page #']} not found`);
-        await db.createOrUpdatePage({project, id: page.id, data: {circulator_id: circulatorId}, number: r['Page #']});
+        const page = await db.getPage(project.id, pageNumber);
+        assert(page, `Page ${pageNumber} not found`);
+        await db.createOrUpdatePage({project, id: page.id, data: {circulator_id: circulatorId}, number: pageNumber});
     }
 }
 
