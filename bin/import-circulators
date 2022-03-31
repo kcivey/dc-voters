@@ -26,6 +26,7 @@ async function main() {
         if (!circulatorId) {
             const circulator = await db.createOrUpdateCirculator(project.id, null, {name: r.Collector});
             circulatorId = circulator.id;
+            circulatorIdByName[r.Collector] = circulatorId;
         }
         const page = await db.getPage(project.id, r['Page #']);
         assert(page, `Page ${r['Page #']} not found`);
