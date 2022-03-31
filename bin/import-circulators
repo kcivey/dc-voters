@@ -1,0 +1,65 @@
+#!/usr/bin/env node
+
+const assert = require('assert');
+const fs = require('fs');
+const csvParse = require('csv-parse');
+const yargs = require('yargs');
+const db = require('../lib/db/admin');
+const argv = getArgv();
+
+main()
+    .catch(function (err) {
+        console.error(err);
+        process.exit(64);
+    })
+    .finally(() => db.close());
+
+async function main() {
+    const project = await db.getProjectByCode(argv.project);
+    const circulatorIdByName = await getCirculators(project.id);
+    const infile = argv.file;
+    assert(infile, 'Input file required');
+    const parser = fs.createReadStream(infile)
+        .pipe(csvParse({columns: true}));
+    for await (const r of parser) {
+        let circulatorId = circulatorIdByName[r.Collector];
+        if (!circulatorId) {
+            const circulator = await db.createOrUpdateCirculator(project.id, null, {name: r.Collector});
+            circulatorId = circulator.id;
+        }
+        const page = await db.getPage(project.id, r['Page #']);
+        assert(page, `Page ${r['Page #']} not found`);
+        await db.createOrUpdatePage({project, id: page.id, data: {circulator_id: circulatorId}, number: r['Page #']});
+    }
+}
+
+async function getCirculators(projectId) {
+    const circulatorIdByName = {};
+    for (const c of await db.getCirculatorsForProject(projectId)) {
+        circulatorIdByName[c.name] = c.id;
+    }
+    return circulatorIdByName;
+}
+
+function getArgv() {
+    return yargs
+        .options({
+            project: {
+                type: 'string',
+                describe: 'code for project',
+                required: true,
+            },
+        })
+        .usage('$0 <file>', 'import circulators from CSV file', function (yargs) {
+            yargs.positional('file', {
+                type: 'string',
+                describe: 'CSV file',
+            });
+        })
+        .check(function (argv) {
+            assert.strictEqual(argv._.length, 0, 'Unexpected arguments after filename');
+            return true;
+        })
+        .strict(true)
+        .argv;
+}
