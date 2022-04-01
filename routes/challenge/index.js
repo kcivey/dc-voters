@@ -30,7 +30,7 @@ function challenge(req, res, next) {
     if (project.type !== 'challenge') {
         throw createError(404, 'No challenge report for this project');
     }
-    db.getChallengeLines(project.id)
+    db.getChallengeLines(project.id, req.query.p)
         .then(function (rows) {
             const challengeInfo = getChallengeInfo(rows, project);
             res.send(challengeTemplate(challengeInfo));
