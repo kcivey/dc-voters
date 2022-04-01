@@ -86,13 +86,7 @@ function getChallengeInfo(rows, project) {
             let m;
             if (row.notes && (m = row.notes.match(/(Duplicate of page \d+, line \d+)/))) {
                 explanation += '; ' + (/1607\.1\(c\)/.test(explanation) ? '' : '1607.1(c) ') +
-                    m[1].replace('Duplicate', 'duplicate')
-                        .replace(
-                            /(duplicate of page )(\d+)/g,
-                            function (match, p1, p2) {
-                                return p1 + (+p2 < 300 ? p2 : p2 - 299) + ' of ' + (+p2 < 300 ? 299 : 37);
-                            }
-                        );
+                    m[1].replace('Duplicate', 'duplicate');
             }
         }
         data[row.page][row.line - 1] = {signer, explanation};
