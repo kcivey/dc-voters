@@ -264,6 +264,7 @@
             }
             $('#result-div > *').hide();
             lineForm.show();
+            $('#voter_name').focus();
         }
 
         function showTable(name) {
