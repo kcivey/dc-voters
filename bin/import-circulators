@@ -22,8 +22,8 @@ async function main() {
     const parser = fs.createReadStream(infile)
         .pipe(csvParse({columns: true}));
     for await (const r of parser) {
-        const pageNumber = +r['Page #'];
-        const circulatorName = r.Collector;
+        const pageNumber = +r.Page;
+        const circulatorName = r.Circulator;
         console.warn([pageNumber, circulatorName]);
         let circulatorId = circulatorIdByName[circulatorName];
         if (!circulatorId) {
