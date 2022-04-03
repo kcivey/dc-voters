@@ -24,6 +24,7 @@ const challengeTemplate = _.template(
 
 function challenge(req, res, next) {
     const project = req.project;
+    const includeNotes = +(req.query.notes || 0) !== 0;
     if (!project) {
         throw createError(404, 'No project set');
     }
@@ -32,13 +33,13 @@ function challenge(req, res, next) {
     }
     db.getChallengeLines(project.id, req.query.p)
         .then(function (rows) {
-            const challengeInfo = getChallengeInfo(rows, project);
+            const challengeInfo = getChallengeInfo(rows, project, includeNotes);
             res.send(challengeTemplate(challengeInfo));
         })
         .catch(next);
 }
 
-function getChallengeInfo(rows, project) {
+function getChallengeInfo(rows, project, includeNotes = false) {
     const circulators = {};
     const data = {};
     rows.forEach(function (row) {
@@ -83,10 +84,15 @@ function getChallengeInfo(rows, project) {
                 // explanation = project.findingCodes[row.finding] || row.finding;
                 explanation += regulations[row.finding] || row.finding;
             }
-            let m;
-            if (row.notes && (m = row.notes.match(/(Duplicate of page \d+, line \d+)/))) {
-                explanation += '; ' + (/1607\.1\(c\)/.test(explanation) ? '' : '1607.1(c) ') +
-                    m[1].replace('Duplicate', 'duplicate');
+            if (row.notes) {
+                const m = row.notes.match(/(Duplicate of page \d+, line \d+)/);
+                if (m) {
+                    explanation += '; ' + (/1607\.1\(c\)/.test(explanation) ? '' : '1607.1(c) ') +
+                        m[1].replace('Duplicate', 'duplicate');
+                }
+                else {
+                    explanation += '<br>(' + row.notes + ')';
+                }
             }
         }
         data[row.page][row.line - 1] = {signer, explanation};
