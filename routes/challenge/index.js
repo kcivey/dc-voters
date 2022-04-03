@@ -24,7 +24,6 @@ const challengeTemplate = _.template(
 
 function challenge(req, res, next) {
     const project = req.project;
-    const includeNotes = +(req.query.notes || 0) !== 0;
     if (!project) {
         throw createError(404, 'No project set');
     }
@@ -33,13 +32,13 @@ function challenge(req, res, next) {
     }
     db.getChallengeLines(project.id, req.query.p)
         .then(function (rows) {
-            const challengeInfo = getChallengeInfo(rows, project, includeNotes);
+            const challengeInfo = getChallengeInfo(rows, project);
             res.send(challengeTemplate(challengeInfo));
         })
         .catch(next);
 }
 
-function getChallengeInfo(rows, project, includeNotes = false) {
+function getChallengeInfo(rows, project) {
     const circulators = {};
     const data = {};
     rows.forEach(function (row) {
