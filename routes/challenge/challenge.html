@@ -42,8 +42,16 @@
     <% _.each(data, function (rows, page) { %>
         <table>
             <caption>
-                <%- challengeHeader %>,
-                Page <%- page %>
+                <%- project.challengeHeader %>,
+                <% if (project.code === 'trayon') { %>
+                    <% if (page > 442) { %>
+                        Supplemental Page <%- page - 442 %> of 3
+                    <% } else { %>
+                        Page <%- page %> of 442
+                    <% } %>
+                <% } else { %>
+                    Page <%- page %>
+                <% } %>
             </caption>
             <thead>
                 <tr>

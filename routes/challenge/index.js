@@ -97,7 +97,7 @@ function getChallengeInfo(rows, project) {
         data[row.page][row.line - 1] = {signer, explanation};
     });
     return {
-        challengeHeader: project.challengeHeader,
+        project,
         circulators,
         data,
     };
