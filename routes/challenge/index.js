@@ -50,12 +50,15 @@ function getChallengeInfo(rows, project) {
         let circulatorExplanation = '';
         if (!circulators[row.page]) {
             if (row.circulator_status) {
-                circulatorExplanation = project.circulatorStatuses[row.circulator_status] || row.circulator_status;
+                circulatorExplanation = regulations[row.circulator_status] || row.circulator_status;
             }
             if (row.circulator_notes) {
                 if (circulatorExplanation) {
-                    circulatorExplanation += '; ';
+                    circulatorExplanation += ' (' + row.circulator_notes + ')';
                 }
+                else {
+                    circulatorExplanation = row.circulator_notes
+                };
             }
             circulators[row.page] = {
                 name: row.circulator_name,
@@ -78,7 +81,7 @@ function getChallengeInfo(rows, project) {
             }
             else { // if (row.finding !== 'D') { // "Duplicate" is already in the notes
                 if (explanation) {
-                    explanation += '; ';
+                    explanation += '<br>';
                 }
                 // explanation = project.findingCodes[row.finding] || row.finding;
                 explanation += regulations[row.finding] || row.finding;
