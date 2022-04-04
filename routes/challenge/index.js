@@ -67,6 +67,9 @@ function getChallengeInfo(rows, project) {
         }
         if (row.circulator_status === 'CU') {
             explanation = regulations.CU;
+            if (row.circulator_notes) {
+                explanation += ' (' + row.circulator_notes + ')';
+            }
         }
         if (['', 'S', 'OK'].indexOf(row.finding) === -1) {
             signer = row.voter_name || '';
