@@ -93,7 +93,10 @@ function getChallengeInfo(rows, project) {
             if (row.notes) {
                 const m = row.notes.match(/(Duplicate of page \d+, line \d+)/);
                 if (m) {
-                    explanation += '; ' + (/1607\.1\(c\)/.test(explanation) ? '' : '1607.1(c) ') +
+                    if (explanation) {
+                        explanation += '<br>';
+                    }
+                    explanation += (/1607\.1\(c\)/.test(explanation) ? '' : '1607.1(c) ') +
                         m[1].replace('Duplicate', 'duplicate');
                 }
                 else {
