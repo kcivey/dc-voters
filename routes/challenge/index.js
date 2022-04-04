@@ -71,7 +71,7 @@ function getChallengeInfo(rows, project) {
                 explanation += ' (' + row.circulator_notes + ')';
             }
         }
-        if (['', 'S', 'OK'].indexOf(row.finding) === -1) {
+        if (!['', 'S', 'OK'].includes(row.finding) || explanation) {
             signer = row.voter_name || '';
             if (row.address) {
                 if (signer) {
@@ -83,7 +83,7 @@ function getChallengeInfo(rows, project) {
                 signer = '(blank)';
                 explanation = '';
             }
-            else { // if (row.finding !== 'D') { // "Duplicate" is already in the notes
+            else if (!['', 'S', 'OK', 'D'].includes(row.finding)) { // "Duplicate" is already in the notes
                 if (explanation) {
                     explanation += '<br>';
                 }
