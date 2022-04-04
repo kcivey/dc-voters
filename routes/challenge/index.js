@@ -57,8 +57,8 @@ function getChallengeInfo(rows, project) {
                     circulatorExplanation += ' (' + row.circulator_notes + ')';
                 }
                 else {
-                    circulatorExplanation = row.circulator_notes
-                };
+                    circulatorExplanation = row.circulator_notes;
+                }
             }
             circulators[row.page] = {
                 name: row.circulator_name,
