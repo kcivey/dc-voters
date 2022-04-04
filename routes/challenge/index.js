@@ -81,6 +81,7 @@ function getChallengeInfo(rows, project) {
             }
             if (row.finding === 'B') {
                 signer = '(blank)';
+                explanation = '';
             }
             else { // if (row.finding !== 'D') { // "Duplicate" is already in the notes
                 if (explanation) {
