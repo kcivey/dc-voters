@@ -602,6 +602,7 @@
         }
 
         function setUpHandlers() {
+            $('.modal-dialog').draggable({handle: '.modal-header'});
             setUpNavHandlers();
             setUpTopRowHandlers();
             setUpBottomRowHandlers();
