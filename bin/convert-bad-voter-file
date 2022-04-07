@@ -17,23 +17,30 @@ async function main() {
     const parser = fs.createReadStream(infile)
         .pipe(csvParse({columns: true}));
     let headers = true;
+    let i = 1;
     for await (const oldRecord of parser) {
         const newRecord = makeNewRecord(oldRecord);
+        i++;
+        assert(newRecord.LASTNAME, `Missing last name (line ${i})`);
+        // assert(newRecord.FIRSTNAME, `Missing first name (line ${i})`);
+        assert(newRecord.PARTY, `Missing party (line ${i})`);
+        assert(newRecord.PARTY, `Missing party (line ${i})`);
+        assert(newRecord.RES_HOUSE, `Missing house number (line ${i})`);
+        assert(newRecord.RES_HOUSE.match(/^\d+$/), `Invalid house number (line ${i})`);
+        assert(newRecord.PARTY, `Missing street (line ${i})`);
+        // assert(newRecord.PRECINCT, `Missing precinct (line ${i})`);
+        // assert(newRecord.PRECINCT.match(/^1?\d\d?$/), `Invalid precinct (line ${i})`);
+        // assert(newRecord.WARD, `Missing ward (line ${i})`);
+        // assert(newRecord.WARD.match(/^[1-8]$/), `Invalid ward (line ${i})`);
         if (newRecord.STATUS === 'I') {
             continue;
         }
+        assert(newRecord.STATUS === 'A', `Wrong status (line ${i})`);
         if (headers) {
             process.stdout.write(stringify([Object.keys(newRecord)]));
         }
         process.stdout.write(stringify([newRecord]));
         headers = false;
-    }
-
-    function columnNameFromHeader(h) {
-        return h.toLowerCase()
-            .replace(/^v?(?=\d)/, 'h')
-            .replace(' ', '_')
-            .replace('-', '');
     }
 
     function makeNewRecord(r) {
@@ -42,9 +49,9 @@ async function main() {
             LASTNAME: r.Last_Name,
             FIRSTNAME: r.First_Name,
             MIDDLE: r.Middle_Name,
-            SUFFIX: r.Name_Style,
+            SUFFIX: r.Name_Style.replace('/R$/', 'r'),
             STATUS: r['Voter Status'].substr(0, 1),
-            PARTY: r.Party,
+            PARTY: r.Party.toUpperCase(),
             RES_HOUSE: r.Street_Number,
             RES_FRAC: (r.Street_Number_Suffix || '').replace(/^20\d\d\/01\/02$/, '1/2'),
             RES_APT: r.Apartment_Number.replace(/^20\d\d\/01\/02$/, '1/2'),
@@ -56,7 +63,7 @@ async function main() {
             RES_ZIP: r.Zip_Code.substr(0, 5),
             RES_ZIP4: '',
             PRECINCT: r.Precinct.replace(/\..*$/, ''), // remove fractional part
-            WARD: r.WARD,
+            WARD: r.WARD || r.City_Ward,
             ANC: r.ANC,
             SMD: r.SMD
                 ? r.SMD.replace(/^(\d)(0+)$/, (m, m1, m2) => m1 + 'E' + m2.length.toString().padStart(2, '0'))
