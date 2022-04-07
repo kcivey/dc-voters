@@ -332,21 +332,6 @@
           </table>
           <pre id="explanation" style="display: none;"></pre>
           <form action="/" id="line-form" style="display: none;"></form>
-          <table id="skipped-table" class="table table-condensed" style="display: none;">
-            <thead>
-              <tr>
-                <td colspan="3">
-                  We're skipping these lines because the Board of Elections has already ruled them valid.
-                </td>
-              </tr>
-              <tr>
-                <th>Page</th>
-                <th>Line</th>
-                <th>Signed By</th>
-              </tr>
-            </thead>
-            <tbody></tbody>
-          </table>
         </div>
       </div>
       <div id="bottom-row" class="row" style="display: none;"></div>
@@ -456,13 +441,6 @@
             <% } %>
           </button>
         </td>
-      </tr>
-    </script>
-    <script type="text/template" id="skipped-row-template">
-      <tr>
-        <td class="number"><%- page %></td>
-        <td class="number"><%- line %></td>
-        <td><%- signed_by %></td>
       </tr>
     </script>
     <script type="text/template" id="user-form-template">
