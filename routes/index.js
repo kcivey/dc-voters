@@ -36,7 +36,7 @@ module.exports = function (/* app */) {
                 res.json(status);
                 return;
             }
-            db.getStatus(project.id, req.user.username)
+            db.getStatus(project, req.user.username)
                 .then(function (partialStatus) {
                     Object.assign(status, partialStatus);
                     return res.json(status);
