@@ -602,6 +602,10 @@
         }
 
         function setUpHandlers() {
+            $('.modal').on('shown.bs.modal', function (evt) {
+                $('.modal-body input', evt.target).eq(0)
+                    .focus();
+            });
             $('.modal-dialog').draggable({handle: '.modal-header'});
             setUpNavHandlers();
             setUpTopRowHandlers();
@@ -791,6 +795,7 @@
             $('#edit-line-link').on('click', function () {
                 const selector = $(this).data('target');
                 $(selector).collapse('toggle');
+                $('#edit-line-form-page').focus();
                 return false;
             });
             $('#edit-line-form').on('submit', handleAdminLineEdit);
@@ -1338,11 +1343,7 @@
                 $('.modal-title', $modal).text(title);
                 $('.modal-body', $modal).html(body);
                 $('.modal-dialog', $modal).toggleClass('modal-lg', large);
-                $modal.modal()
-                    .on('shown.bs.modal', function () {
-                        $('.modal-body input', $modal).eq(0)
-                            .focus();
-                    });
+                $modal.modal();
             }
         }
 
