@@ -1,0 +1,76 @@
+#!/usr/bin/env node
+
+const assert = require('assert');
+const fs = require('fs');
+const csvParse = require('csv-parse');
+const yargs = require('yargs');
+const db = require('../lib/db/admin');
+const argv = getArgv();
+const findingByRegulationLetter = {
+    b: 'NR',
+    c: 'D',
+    d: 'MD',
+    e: 'MA',
+    f: 'I',
+    g: 'CU',
+    h: 'CA',
+    i: 'MS',
+    m: 'WW',
+    n: 'WP',
+};
+
+main()
+    .catch(function (err) {
+        console.error(err);
+        process.exit(64);
+    })
+    .finally(() => db.close());
+
+async function main() {
+    const project = await db.getProjectByCode(argv.project);
+    const infile = argv.file;
+    assert(infile, 'Input file required');
+    const parser = fs.createReadStream(infile)
+        .pipe(csvParse({columns: true}));
+    for await (const r of parser) {
+        const pageNumber = +r['Page/Sheet Number'].replace(/ of \d+$/, '');
+        assert(pageNumber >= 1 && pageNumber <= 311, `Invalid page number "${r['Page/Sheet Number']}"`);
+        const lineNumber = +r['Line Number'];
+        assert(lineNumber >= 1 && lineNumber <= 10, `Invalid line number "${r['Line Number']}"`);
+        const description = r.Description.split(/\s*,\s*/)
+            .map(letter => findingByRegulationLetter[letter] || letter)
+            .map(finding => project.findingCodes[finding] || finding)
+            .join('; ');
+        console.warn([pageNumber, lineNumber, description]);
+        const line = await db.updateLineOrRange({
+            projectId: project.id,
+            page: pageNumber,
+            line: lineNumber,
+            updates: {challenged: 1, challenge_reason: description},
+        });
+        assert(line, `Page ${pageNumber}, line ${lineNumber} not found`);
+    }
+}
+
+function getArgv() {
+    return yargs
+        .options({
+            project: {
+                type: 'string',
+                describe: 'code for project',
+                required: true,
+            },
+        })
+        .usage('$0 <file>', 'import challenged lines from CSV file', function (yargs) {
+            yargs.positional('file', {
+                type: 'string',
+                describe: 'CSV file',
+            });
+        })
+        .check(function (argv) {
+            assert.strictEqual(argv._.length, 0, 'Unexpected arguments after filename');
+            return true;
+        })
+        .strict(true)
+        .argv;
+}
