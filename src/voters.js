@@ -360,6 +360,15 @@
                     data: 'notes',
                     title: 'Notes',
                 },
+            ];
+            if (project.type === 'response') {
+                columns.push({
+                    data: 'challenged_lines',
+                    title: 'Challenged',
+                    className: 'number',
+                });
+            }
+            columns.push(
                 {
                     data: 'processed_lines',
                     title: 'Processed',
@@ -373,8 +382,8 @@
                 {
                     data: 'checker',
                     title: 'Checker',
-                },
-            ];
+                }
+            );
             if (project.paidCirculators) {
                 columns.push({
                     data: 'date_paid',
