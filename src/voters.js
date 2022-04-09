@@ -853,6 +853,123 @@
                 if (value) {
                     url += '?filterColumn=finding&filterValue=' + value;
                 }
+                const columns = [
+                    {
+                        defaultContent: '<button type="button" class="btn btn-outline-primary btn-sm edit-button ' +
+                            'table-button" title="Edit"><i class="fas fa-pencil-alt fa-fw"></i></button>',
+                        title: '',
+                        width: 33,
+                        searchable: false,
+                        orderable: false,
+                    },
+                    {
+                        data: 'page',
+                        title: 'Page',
+                        className: 'number',
+                        orderData: [0, 1],
+                        searchable: false,
+                        orderable: false,
+                    },
+                    {
+                        data: 'line',
+                        title: 'Line',
+                        className: 'number',
+                        orderData: [0, 1],
+                        searchable: false,
+                        orderable: false,
+                    },
+                    {
+                        data: 'checker',
+                        title: 'Checker',
+                        width: 60,
+                        searchable: false,
+                        orderable: false,
+                    },
+                    {
+                        data: 'check_time',
+                        title: 'Check Time',
+                        width: 164,
+                        className: 'text-nowrap',
+                        searchable: false,
+                        orderable: false,
+                        createdCell(cell, cellData) {
+                            $(cell).wrapInner('<time datetime="' + cellData + 'Z"></time>')
+                                .find('time')
+                                .timeago();
+                        },
+                    },
+                    {
+                        data: 'finding',
+                        title: 'Finding',
+                        className: 'text-center',
+                        width: 30,
+                        searchable: false,
+                        orderable: false,
+                    },
+                    {
+                        data: 'voter_name',
+                        title: 'Name',
+                        className: 'text-nowrap',
+                        searchable: true,
+                        orderable: false,
+                    },
+                    {
+                        data: 'address',
+                        title: 'Address',
+                        className: 'text-nowrap',
+                        searchable: true,
+                        orderable: false,
+                    },
+                    {
+                        data: 'ward',
+                        className: 'text-right',
+                        title: 'Ward',
+                        width: 30,
+                        searchable: true,
+                        orderable: false,
+                    },
+                    {
+                        data(row) {
+                            return row.date_signed
+                                ? row.date_signed.replace(/^(\d{4})-(\d\d)-(\d\d).*/, '$2/$3')
+                                : '';
+                        },
+                        title: 'Date',
+                        width: 60,
+                        searchable: true,
+                        orderable: false,
+                    },
+                ];
+                if (project.type === 'response') {
+                    columns.push(
+                        {
+                            data: 'challenge_reason',
+                            title: 'Challenge Reason',
+                            searchable: true,
+                            orderable: false,
+                        },
+                        {
+                            data: 'rebuttal',
+                            title: 'Rebuttal',
+                            searchable: true,
+                            orderable: false,
+                        }
+                    );
+                }
+                columns.push(
+                    {
+                        data: 'circulator_name',
+                        title: 'Circulator',
+                        searchable: false,
+                        orderable: false,
+                    },
+                    {
+                        data: 'notes',
+                        title: 'Notes',
+                        searchable: true,
+                        orderable: false,
+                    }
+                );
                 const dataTable = $('#line-table').dataTable({
                     ajax: url,
                     processing: true,
@@ -875,105 +992,7 @@
                         $('#line-table button[title]').tooltip();
                         $('.dt-top-left').html(button);
                     },
-                    columns: [
-                        {
-                            defaultContent: '<button type="button" class="btn btn-outline-primary btn-sm edit-button ' +
-                                'table-button" title="Edit"><i class="fas fa-pencil-alt fa-fw"></i></button>',
-                            title: '',
-                            width: 33,
-                            searchable: false,
-                            orderable: false,
-                        },
-                        {
-                            data: 'page',
-                            title: 'Page',
-                            className: 'number',
-                            orderData: [0, 1],
-                            searchable: false,
-                            orderable: false,
-                        },
-                        {
-                            data: 'line',
-                            title: 'Line',
-                            className: 'number',
-                            orderData: [0, 1],
-                            searchable: false,
-                            orderable: false,
-                        },
-                        {
-                            data: 'checker',
-                            title: 'Checker',
-                            width: 60,
-                            searchable: false,
-                            orderable: false,
-                        },
-                        {
-                            data: 'check_time',
-                            title: 'Check Time',
-                            width: 164,
-                            className: 'text-nowrap',
-                            searchable: false,
-                            orderable: false,
-                            createdCell(cell, cellData) {
-                                $(cell).wrapInner('<time datetime="' + cellData + 'Z"></time>')
-                                    .find('time')
-                                    .timeago();
-                            },
-                        },
-                        {
-                            data: 'finding',
-                            title: 'Finding',
-                            className: 'text-center',
-                            width: 30,
-                            searchable: false,
-                            orderable: false,
-                        },
-                        {
-                            data: 'voter_name',
-                            title: 'Name',
-                            className: 'text-nowrap',
-                            searchable: true,
-                            orderable: false,
-                        },
-                        {
-                            data: 'address',
-                            title: 'Address',
-                            className: 'text-nowrap',
-                            searchable: true,
-                            orderable: false,
-                        },
-                        {
-                            data: 'ward',
-                            className: 'text-right',
-                            title: 'Ward',
-                            width: 30,
-                            searchable: true,
-                            orderable: false,
-                        },
-                        {
-                            data(row) {
-                                return row.date_signed
-                                    ? row.date_signed.replace(/^(\d{4})-(\d\d)-(\d\d).*/, '$2/$3')
-                                    : '';
-                            },
-                            title: 'Date',
-                            width: 60,
-                            searchable: true,
-                            orderable: false,
-                        },
-                        {
-                            data: 'circulator_name',
-                            title: 'Circulator',
-                            searchable: false,
-                            orderable: false,
-                        },
-                        {
-                            data: 'notes',
-                            title: 'Notes',
-                            searchable: true,
-                            orderable: false,
-                        },
-                    ],
+                    columns,
                 });
                 $('#line-table').on('click', '.edit-button', function () {
                     const row = $(this).closest('tr');
