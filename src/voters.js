@@ -208,9 +208,16 @@
             $('.total', statusDiv).text(commify(total));
             $('#complete-bar').width(total ? (100 * status.complete / total) + '%' : 0);
             const rec = status.lineRecord || {};
+            $('#challenge-reason-alert').hide();
             if (rec.line) {
                 $('#page-line').html('Petition Page ' + rec.page + ', Line ' + rec.line)
                     .show();
+                if (rec.challenged) {
+                    $('#challenge-reason-alert').text(
+                        rec.challenge_reason ? 'Challenge reason: ' + rec.challenge_reason : 'Challenged'
+                    )
+                        .show();
+                }
                 showImageRow(rec.page, rec.line);
             }
             else {
