@@ -27,7 +27,7 @@ module.exports = {
     },
 
     getUsers(req, res, next) {
-        db.getUsersForProject(req.project.id)
+        db.getUsersForProject(req.project)
             .then(rows => res.json(rows))
             .catch(next);
     },
