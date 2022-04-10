@@ -49,7 +49,7 @@ async function main() {
             LASTNAME: r.Last_Name,
             FIRSTNAME: r.First_Name,
             MIDDLE: r.Middle_Name,
-            SUFFIX: r.Name_Style.replace('/R$/', 'r'),
+            SUFFIX: r.Name_Style.replace(/(?<=^[JS])R$/, 'r'),
             STATUS: r['Voter Status'].slice(0, 1),
             PARTY: r.Party.toUpperCase(),
             RES_HOUSE: r.Street_Number,
