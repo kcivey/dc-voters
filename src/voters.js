@@ -496,11 +496,7 @@
         }
 
         function makeImageUrl(project, page, line) {
-            page = page.toString();
-            if (page.length < 4) {
-                page = '0000'.substr(0, 4 - page.length) + page;
-            }
-            return '/' + project.code + '/page-images/' + page +
+            return '/' + project.code + '/page-images/' + page.toString().padStart(4, '0') +
                 (project.linesPerPage > 10 ? (+line <= 10 ? 'a' : 'b') : '') + '.jpeg';
         }
 
@@ -771,7 +767,7 @@
                     $.each(results, function (i, v) {
                         v.name = makeName(v, true); // reversed
                         v.address = makeAddress(v);
-                        v.partyDisplay = v.party ? v.party.substr(0, 3) : '';
+                        v.partyDisplay = v.party ? v.party.slice(0, 3) : '';
                         v.wantedParty = project.party;
                         v.wantedWard = project.ward;
                         const tr = $(voterRowTemplate(v)).data('voterData', v);
@@ -1209,7 +1205,7 @@
                     const numbers = [];
                     let m;
                     while ((m = s.match(/^\s*([1-9]\d*)(?:\s*-\s*([1-9]\d*))?(?:,\s*|\s+|$)/))) {
-                        s = s.substr(m[0].length);
+                        s = s.slice(m[0].length);
                         let n = +m[1];
                         const end = m[2] == null ? n : +m[2];
                         if (n > end) {

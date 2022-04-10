@@ -50,17 +50,17 @@ async function main() {
             FIRSTNAME: r.First_Name,
             MIDDLE: r.Middle_Name,
             SUFFIX: r.Name_Style.replace('/R$/', 'r'),
-            STATUS: r['Voter Status'].substr(0, 1),
+            STATUS: r['Voter Status'].slice(0, 1),
             PARTY: r.Party.toUpperCase(),
             RES_HOUSE: r.Street_Number,
             RES_FRAC: (r.Street_Number_Suffix || '').replace(/^20\d\d\/01\/02$/, '1/2'),
             RES_APT: r.Apartment_Number.replace(/^20\d\d\/01\/02$/, '1/2'),
             RES_STREET: r.Street_Name.replace(/^\d+(?:ST|ND|RD|TH)$/i, m => m.toLowerCase()) + ' ' +
-                r.Street_Type.substr(0, 1) + r.Street_Type.substr(1).toLowerCase() + ' ' +
+                r.Street_Type.slice(0, 1) + r.Street_Type.slice(1).toLowerCase() + ' ' +
                 (r.Street_Dir || r.Street_Dir_Suffix),
-            RES_CITY: r.City_Name.substr(0, 25),
+            RES_CITY: r.City_Name.slice(0, 25),
             RES_STATE: 'DC',
-            RES_ZIP: r.Zip_Code.substr(0, 5),
+            RES_ZIP: r.Zip_Code.slice(0, 5),
             RES_ZIP4: '',
             PRECINCT: r.Precinct.replace(/\..*$/, ''), // remove fractional part
             WARD: r.WARD || r.City_Ward,
