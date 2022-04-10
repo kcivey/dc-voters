@@ -33,14 +33,34 @@ async function main() {
     const parser = fs.createReadStream(infile)
         .pipe(csvParse({columns: true}));
     for await (const r of parser) {
-        const pageNumber = +r['Page/Sheet Number'].replace(/ of \d+$/, '');
+        let pageNumber = r['Page/Sheet Number'];
+        let m = pageNumber.match(/^(\d+)(?: of (\d+))?\ufeff?$/);
+        if (m) {
+            pageNumber = +m[1];
+            if (m[2] === '43') {
+                pageNumber += 268; // kluge (need to handle supplementals properly
+            }
+        }
+        else {
+            throw new Error(`Invalid page number "${r['Page/Sheet Number']}"`);
+        }
         assert(pageNumber >= 1 && pageNumber <= 311, `Invalid page number "${r['Page/Sheet Number']}"`);
-        const lineNumber = +r['Line Number'];
+        const problems = [];
+        let lineNumber = r['Line Number'];
+        m = lineNumber.match(/\s*\(.+\)\.?$/);
+        if (m) {
+            problems.push(m[1]);
+            lineNumber = lineNumber.slice(0, -m[0].length);
+        }
+        assert(/^\d+$/.test(lineNumber), `Nonnumeric line number "${r['Line Number']}"`);
+        lineNumber = +lineNumber;
         assert(lineNumber >= 1 && lineNumber <= 10, `Invalid line number "${r['Line Number']}"`);
-        const description = r.Description.split(/\s*,\s*/)
-            .map(letter => findingByRegulationLetter[letter] || letter)
-            .map(finding => project.findingCodes[finding] || finding)
-            .join('; ');
+        problems.push(
+            ...r.Description.split(/\s*,\s*/)
+                .map(letter => findingByRegulationLetter[letter] || letter)
+                .map(finding => project.findingCodes[finding] || finding)
+        );
+        const description = problems.join('; ');
         console.warn([pageNumber, lineNumber, description]);
         const line = await db.updateLineOrRange({
             projectId: project.id,
