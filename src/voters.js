@@ -127,6 +127,7 @@
                     $('#send-token-card').hide();
                     $('.admin-only').toggle(!!user.admin);
                     $('#challenge-link').toggle(project.type === 'challenge');
+                    $('.response-link').toggle(project.type === 'response');
                     $('#invoices-link').toggle(project.paidCirculators);
                     setStatus(status);
                 }

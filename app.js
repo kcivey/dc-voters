@@ -49,6 +49,8 @@ apiApp.get('/status', routes.status);
 apiApp.post('/mark-blank/:page/:line', routes.markLineBlank);
 apiApp.get('/completed.tsv', routes.completedTsv);
 apiApp.get('/address-changes.tsv', routes.completedTsv);
+apiApp.get('/response-voters.tsv', routes.responseVotersTsv);
+apiApp.get('/response-address-changes.tsv', routes.responseAddressChangesTsv);
 apiApp.get('/dt-line/:checker', routes.dtLine);
 apiApp.get('/dt-line', routes.dtLine);
 apiApp.get('/circulators', routes.getCirculators);
