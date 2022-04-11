@@ -200,6 +200,20 @@
             return '/api/' + (project ? project.code + '/' : '') + path;
         }
 
+        function formatPageNumber(internalPageNumber) {
+            let pageNumber = internalPageNumber;
+            // let i = 0;
+            for (const b of project.batches || []) {
+                if (pageNumber <= b) {
+                    // const prefix = i === 0 ? '' : (project.batches.length < 3 ? 'S-' : 'S' + i + '-');
+                    return internalPageNumber + ' (' + pageNumber + ' of ' + b + ')';
+                }
+                pageNumber -= b;
+                // i++;
+            }
+            return internalPageNumber;
+        }
+
         function setStatus(status) {
             const statusDiv = $('#status');
             $('#username', statusDiv).text(user.username || '(anonymous)');
@@ -210,7 +224,7 @@
             const rec = status.lineRecord || {};
             $('#challenge-reason-alert').hide();
             if (rec.line) {
-                $('#page-line').html('Petition Page ' + rec.page + ', Line ' + rec.line)
+                $('#page-line').html('Page ' + formatPageNumber(rec.page) + ', Line ' + rec.line)
                     .show();
                 if (rec.challenged) {
                     $('#challenge-reason-alert').text(

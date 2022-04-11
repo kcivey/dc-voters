@@ -13,7 +13,8 @@ CREATE TABLE IF NOT EXISTS projects (
   `pay_per_signature` DECIMAL(4,2),
   `voters_table` VARCHAR(32),
   `lines_per_page` TINYINT UNSIGNED NOT NULL DEFAULT 20,
-  `archived` TINYINT(1) UNSIGNED NOT NULL DEFAULT 0
+  `archived` TINYINT(1) UNSIGNED NOT NULL DEFAULT 0,
+  `batches` TEXT,
   PRIMARY KEY (`id`),
   UNIQUE KEY (`code`)
 );
