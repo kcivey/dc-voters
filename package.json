@@ -12,7 +12,7 @@
     "@babel/preset-env": "^7.16.11",
     "body-parser": "^1.20.0",
     "browserify": "^17.0.0",
-    "core-js": "^3.21.1",
+    "core-js": "^3.22.0",
     "csv-parse": "^4.16.3",
     "csv-stringify": "^5.6.5",
     "dc-mar": "^0.5.4",
@@ -38,7 +38,7 @@
     "terser": "^5.12.1",
     "underscore": "^1.13.2",
     "usps-webtools": "^1.0.7",
-    "yargs": "^17.4.0"
+    "yargs": "^17.4.1"
   },
   "devDependencies": {
     "chai": "^4.3.6",
