@@ -12,16 +12,16 @@
     "@babel/preset-env": "^7.17.10",
     "body-parser": "^1.20.0",
     "browserify": "^17.0.0",
-    "core-js": "^3.22.3",
+    "core-js": "^3.22.5",
     "csv-parse": "^4.16.3",
     "csv-stringify": "^5.6.5",
     "dc-mar": "^0.5.4",
-    "dotenv": "^16.0.0",
+    "dotenv": "^16.0.1",
     "emailjs": "^3.8.1",
     "errorhandler": "^1.5.1",
     "express": "^4.18.1",
     "express-mysql-session": "^2.1.8",
-    "express-session": "^1.17.2",
+    "express-session": "^1.17.3",
     "find-config": "^1.0.0",
     "generate-password": "^1.7.0",
     "googleapis": "^100.0.0",
@@ -38,7 +38,7 @@
     "terser": "^5.13.1",
     "underscore": "^1.13.3",
     "usps-webtools": "^1.0.7",
-    "yargs": "^17.4.1"
+    "yargs": "^17.5.0"
   },
   "devDependencies": {
     "chai": "^4.3.6",
