@@ -58,15 +58,16 @@ async function main() {
             RES_STREET: r.Street_Name.replace(/^\d+(?:ST|ND|RD|TH)$/i, m => m.toLowerCase()) + ' ' +
                 r.Street_Type.slice(0, 1) + r.Street_Type.slice(1).toLowerCase() + ' ' +
                 (r.Street_Dir || r.Street_Dir_Suffix),
-            RES_CITY: r.City_Name.slice(0, 25),
+            RES_CITY: (r.City_Name || r.City).slice(0, 25),
             RES_STATE: 'DC',
             RES_ZIP: r.Zip_Code.slice(0, 5),
             RES_ZIP4: '',
             PRECINCT: (r.Precinct || '0').replace(/\..*$/, ''), // remove fractional part
-            WARD: r.WARD || r.City_Ward,
+            WARD: r.WARD || r.City_Ward || r.WRD,
             ANC: r.ANC.replace(/^3\/4/, '3'),
             SMD: (r.SMD || r.House_District || '').replace(/^3\/4/, '3')
                 .replace(/^(\d)(0+)$/, (m, m1, m2) => m1 + 'E' + m2.length.toString().padStart(2, '0')),
+            V110823G: r['2022 GENERAL ELECTION(Nov/08/2022)'],
             V062122P: r['2022 PRIMARY ELECTION(Jun/21/2022)'],
             V110320G: r['2020 DC PRESIDENTIAL GENERAL ELECTI(Nov/03/2020)'],
             V061620S: r['2020 SPECIAL ELECTION WARD 2(Jun/16/2020)'],
