@@ -34,7 +34,6 @@
     "number-list": "^0.2.6",
     "passwordless": "^1.1.3",
     "passwordless-mysql": "github:billstron/passwordless-mysql#dependabot/npm_and_yarn/bcrypt-5.0.0",
-    "request": "^2.88.2",
     "terser": "^5.26.0",
     "underscore": "^1.13.6",
     "usps-webtools": "^1.0.7",
