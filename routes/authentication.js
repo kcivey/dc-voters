@@ -46,7 +46,7 @@ function setUser(req, res, next) {
 }
 
 module.exports = function (app, apiApp) {
-    const sessionStore = new SessionMySqlStore({}, db.getConnection());
+    const sessionStore = new SessionMySqlStore({}, db.getPool());
     app.use(session({secret, store: sessionStore, resave: false, saveUninitialized: false}));
     app.use(passwordless.sessionSupport());
     app.use(passwordless.acceptToken({successRedirect: '/'}));

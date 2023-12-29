@@ -26,7 +26,7 @@ async function main() {
     if (!argv['load-voters-only']) {
         config.database = '';
     }
-    await db.establishConnection(config);
+    await db.establishPool(config);
     if (!argv['load-voters-only']) {
         const {database, user, password} = argv;
         if (argv.drop) {
