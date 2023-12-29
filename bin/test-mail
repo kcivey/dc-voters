@@ -1,0 +1,21 @@
+#!/usr/bin/env node
+
+const sendEmail = require('../lib/send-email');
+const senderEmail = process.env.SENDER_EMAIL;
+
+sendEmail(
+    {
+        text: 'This is a test of the dcvoters email.',
+        from: senderEmail,
+        to: 'keith@iveys.org',
+        subject: 'dcvoters test',
+    },
+    function (err) {
+        if (err) {
+            console.log(err);
+            process.exit(1);
+        }
+        console.log('Sent')
+        process.exit();
+    }
+);
