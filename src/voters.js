@@ -22,6 +22,7 @@
         let status = {};
         let lineView;
         let searchTimeout;
+        let searchCount = 0;
         let project;
         let imageAdjustment = 0;
 
@@ -662,7 +663,8 @@
                         clearTimeout(searchTimeout);
                         searchTimeout = null;
                     }
-                    searchTimeout = setTimeout(doSearch, 200);
+                    searchCount++;
+                    searchTimeout = setTimeout(() => doSearch(false, searchCount), 200);
                 });
             $('#check-instructions')
                 .on('show.bs.collapse', () => $('#check-instructions-toggle').html('&times;'))
@@ -736,16 +738,18 @@
                 }).then(start);
             }
 
-            function doSearch(more) {
+            function doSearch(more, searchNumber) {
                 const searchData = {};
+                let searchLength = 0;
                 $.each(['q', 'name', 'address'], function (i, name) {
                     const value = $.trim($('#check-form-' + name).val());
                     if (value) {
                         searchData[name] = value;
+                        searchLength += value.length;
                     }
                 });
-                if ($.isEmptyObject(searchData)) {
-                    return; // don't search if no search terms
+                if (searchLength < 2) {
+                    return; // don't search if no search terms or too short
                 }
                 const button = $('#search-button');
                 button.text('Please Wait').prop('disabled', true);
@@ -773,6 +777,9 @@
                     );
 
                 function handleResults(data) {
+                    if (searchNumber && searchNumber < searchCount) {
+                        return; // don't process late-returning results
+                    }
                     $('#result-div > *').hide();
                     $('#party-column-head').toggle(!!project.party);
                     $('#voter-table').show();
