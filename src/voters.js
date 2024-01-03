@@ -796,7 +796,10 @@
                     }
                     $('#result-div > *').hide();
                     $('#party-column-head').toggle(!!project.party);
+                    const pagesLeft = !!(status.lineRecord && status.lineRecord.line);
+                    $('#match-button-head').toggle(pagesLeft);
                     $('#voter-table').show();
+                    $('#voter-table tr:first').toggle(pagesLeft);
                     const results = data.results;
                     const voterRowTemplate = getTemplate('voter-row');
                     const tbody = $('#voter-table tbody').empty();
@@ -806,6 +809,7 @@
                         v.partyDisplay = v.party ? v.party.slice(0, 3) : '';
                         v.wantedParty = project.party;
                         v.wantedWard = project.ward;
+                        v.pagesLeft = pagesLeft;
                         const tr = $(voterRowTemplate(v)).data('voterData', v);
                         tbody.append(tr);
                     });

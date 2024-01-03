@@ -329,8 +329,8 @@
                 <th>Address</th>
                 <th id="party-column-head">Party</th>
                 <th class="text-center">Ward</th>
-                <th>Date</th>
-                <th></th>
+                <th>Registered</th>
+                <th id="match-button-head"></th>
               </tr>
             </thead>
             <tfoot>
@@ -449,19 +449,21 @@
         <% if (wantedParty) { %><td><%- partyDisplay %></td><% } else { %><td style="display: none;"></td><% } %>
         <td class="text-center"><%- ward %></td>
         <td><%- registered %></td>
-        <td>
-          <button class="btn btn-secondary btn-sm match">
-            <% if (wantedParty && wantedParty !== party) { %>
-              Wrong Party
-            <% } else if (wantedWard && wantedWard !== ward) { %>
-              Wrong Ward
-            <% } else if (duplicate_line) { %>
-              Duplicate
-            <% } else { %>
-              Match
-            <% } %>
-          </button>
-        </td>
+        <% if (pagesLeft) { %>
+          <td>
+            <button class="btn btn-secondary btn-sm match">
+              <% if (wantedParty && wantedParty !== party) { %>
+                Wrong Party
+              <% } else if (wantedWard && wantedWard !== ward) { %>
+                Wrong Ward
+              <% } else if (duplicate_line) { %>
+                Duplicate
+              <% } else { %>
+                Match
+              <% } %>
+            </button>
+          </td>
+        <% } else { %><td style="display: none;"></td><% } %>
       </tr>
     </script>
     <script type="text/template" id="user-form-template">
