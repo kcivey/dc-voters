@@ -130,6 +130,9 @@
                     $('#challenge-link').toggle(project.type === 'challenge');
                     $('.response-link').toggle(project.type === 'response');
                     $('#invoices-link').toggle(project.paidCirculators);
+                    const voterFileDate = new Date(project.votersTable.replace(/.*(\d{4})(\d\d)(\d\d).*/, '$1-$2-$3'));
+                    const options = {month: 'long', day: 'numeric', year: 'numeric'};
+                    $('#voter-file-date').text(voterFileDate.toLocaleDateString('en-US', options));
                     setStatus(status);
                 }
             });
