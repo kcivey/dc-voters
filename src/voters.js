@@ -671,11 +671,21 @@
                     searchTimeout = setTimeout(() => doSearch(false, searchCount), 200);
                 });
             $('#check-instructions')
-                .on('show.bs.collapse', () => $('#check-instructions-toggle').html('&times;'))
-                .on(
-                    'hide.bs.collapse',
-                    () => $('#check-instructions-toggle').html('<i class="fas fa-question-circle"></i>')
-                );
+                .on('show.bs.collapse', function () {
+                    $('#check-instructions-toggle').html('&times;');
+                    $('#check-form-name').width('');
+                    $('#check-form .form-text').show();
+                    $('#check-form .form-group:has(#search-button)').show();
+                    $('#check-form p:has(#voter-file-date)').show();
+                })
+                .on('hide.bs.collapse', function () {
+                    $('#check-form-name')
+                        .width($('#check-form-name').width() - $('#check-instructions-toggle').width() - 20);
+                    $('#check-instructions-toggle').html('<i class="fas fa-question-circle"></i>');
+                    $('#check-form .form-text').hide();
+                    $('#check-form .form-group:has(#search-button)').hide();
+                    $('#check-form p:has(#voter-file-date)').hide();
+                });
 
             function sendTokenFromForm(evt) {
                 const form = $(this);
