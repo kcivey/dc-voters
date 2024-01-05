@@ -516,6 +516,74 @@
         </div>
       </form>
     </script>
+    <script type="text/template" id="project-form-template">
+      <form action="/" id="project-form">
+        <div class="form-group row">
+          <label class="col-form-label col-sm-2" for="project-name">Name</label>
+          <div class="col-sm-10">
+            <input type="text" class="form-control" name="name" id="project-name"/>
+          </div>
+        </div>
+        <div class="form-group row">
+          <label class="col-form-label col-sm-2" for="project-code">Code</label>
+          <div class="col-sm-10">
+            <input type="text" class="form-control" name="code" id="project-code"/>
+          </div>
+        </div>
+        <div class="form-group row">
+          <label class="col-form-label col-sm-2" for="project-type">Type</label>
+          <div class="col-sm-10">
+            <select class="form-control" name="type" id="project-type">
+              <option>petition</option>
+              <option>challenge</option>
+              <option>response</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group row">
+          <label class="col-form-label col-sm-2" for="project-party">Party</label>
+          <div class="col-sm-10">
+            <select class="form-control" name="party" id="project-party">
+              <option></option>
+              <option>DEM</option>
+              <option>LIB</option>
+              <option>REP</option>
+              <option>STG</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group row">
+          <label class="col-form-label col-sm-2" for="project-ward">Ward</label>
+          <div class="col-sm-10">
+            <select class="form-control" name="ward" id="project-ward">
+              <option></option>
+              <option>1</option>
+              <option>2</option>
+              <option>3</option>
+              <option>4</option>
+              <option>5</option>
+              <option>6</option>
+              <option>7</option>
+              <option>8</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group row">
+          <label class="col-form-label col-sm-2" for="project-paid_circulators">Paid Circulators?</label>
+          <div class="col-sm-10">
+            <div class="form-check">
+              <input type="checkbox" class="form-check-input position-static align-middle" name="paid_circulators" id="project-paid_circulators" value="1"/>
+            </div>
+          </div>
+        </div>
+        <div class="form-group row">
+          <div class="col-12">
+            <input type="hidden" name="id"/>
+            <button type="submit" class="btn btn-primary btn save">Save</button>
+          </div>
+        </div>
+      </form>
+    </script>
     <script type="text/template" id="line-form-template">
       <div class="form-group row">
         <label class="col-form-label col-sm-2" for="finding">Finding</label>
