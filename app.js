@@ -41,6 +41,7 @@ app.get(
 );
 apiApp.use(setProject);
 apiApp.get('/project', routes.getProject);
+apiApp.put('/project', routes.updateProject);
 apiApp.get('/search', routes.search);
 apiApp.get('/line/:page/:line', routes.getLine);
 apiApp.get('/line/:id', routes.getLine);

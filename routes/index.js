@@ -5,6 +5,7 @@ const circulatorRoutes = require('./circulator');
 const invoiceRoutes = require('./invoice');
 const lineRoutes = require('./line');
 const pageRoutes = require('./page');
+const projectRoutes = require('./project');
 const tsvRoutes = require('./tsv');
 const userRoutes = require('./user');
 const challenge = require('./challenge');
@@ -50,16 +51,13 @@ module.exports = function (/* app */) {
                 .catch(next);
         },
 
-        getProject(req, res) {
-            res.json(req.project);
-        },
-
         challenge,
 
         ...circulatorRoutes,
         ...invoiceRoutes,
         ...lineRoutes,
         ...pageRoutes,
+        ...projectRoutes,
         ...tsvRoutes,
         ...userRoutes,
 
