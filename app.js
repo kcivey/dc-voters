@@ -54,6 +54,7 @@ apiApp.get('/response-address-changes.tsv', routes.responseAddressChangesTsv);
 apiApp.get('/dt-line/:checker', routes.dtLine);
 apiApp.get('/dt-line', routes.dtLine);
 apiApp.get('/circulators', routes.getCirculators);
+apiApp.get('/circulators/next', routes.getNextCirculatorNumber);
 apiApp.post('/circulators', routes.createOrUpdateCirculator);
 apiApp.get('/circulators/:id', routes.getCirculator);
 apiApp.put('/circulators/:id', routes.createOrUpdateCirculator);

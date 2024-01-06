@@ -40,4 +40,10 @@ module.exports = {
             .catch(next);
     },
 
+    getNextCirculatorNumber(req, res, next) {
+        db.getNextCirculatorNumber(req.project.id)
+            .then(number => res.json({number}))
+            .catch(next);
+    },
+
 };
