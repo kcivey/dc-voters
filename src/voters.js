@@ -1277,6 +1277,14 @@
         async function editCirculator() {
             const id = $(this).data('id');
             const data = id ? await getJson(apiUrl('circulators' + '/' + id)) : {};
+            if (project.paidCirculators && !data.number) {
+                try {
+                    data.number = (await getJson(apiUrl('circulators/next'))).number;
+                }
+                catch (e) {
+                    // ignore error (just getting default for number)
+                }
+            }
             const view = new CirculatorView({model: new Circulator(data)});
             openModal('Circulator', view.$el);
         }
