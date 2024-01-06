@@ -1269,14 +1269,14 @@
 
         async function editUser() {
             const id = $(this).data('id');
-            const data = id ? await getJson(apiUrl('users' + '/' + id)) : {};
+            const data = id ? await getJson(apiUrl('users/' + id)) : {};
             const view = new UserView({model: new User(data)});
             openModal('User', view.$el);
         }
 
         async function editCirculator() {
             const id = $(this).data('id');
-            const data = id ? await getJson(apiUrl('circulators' + '/' + id)) : {};
+            const data = id ? await getJson(apiUrl('circulators/' + id)) : {};
             if (project.paidCirculators && !data.number) {
                 try {
                     data.number = (await getJson(apiUrl('circulators/next'))).number;
@@ -1293,7 +1293,7 @@
             const date = $('#invoice-through-date').val()
                 .replace(/^(\d\d)\/(\d\d)\/(\d{4})$/, '$3-$1-$2');
             await $.ajax({
-                url: apiUrl('invoices/create' + '/' + date),
+                url: apiUrl('invoices/create/' + date),
                 dataType: 'json',
                 type: 'POST',
             });
@@ -1304,7 +1304,7 @@
             const id = $(this).data('id');
             if (id) {
                 await $.ajax({
-                    url: apiUrl('circulators' + '/' + id),
+                    url: apiUrl('circulators/' + id),
                     dataType: 'json',
                     type: 'DELETE',
                 });
@@ -1317,7 +1317,7 @@
                 $(this).closest('td')
                     .next()
                     .text();
-            const data = number ? await getJson(apiUrl('pages' + '/' + number)) : status.defaultPage;
+            const data = number ? await getJson(apiUrl('pages/' + number)) : status.defaultPage;
             const view = new PageView({model: new Page(data)});
             openModal('Page', view.$el);
         }
@@ -1327,7 +1327,7 @@
                 $(this).closest('td')
                     .next()
                     .text();
-            const pageData = await getJson(apiUrl('pages' + '/' + number) + '?with_lines=1');
+            const pageData = await getJson(apiUrl('pages/' + number) + '?with_lines=1');
             const template = getTemplate('page-display');
             openModal('Page ' + number, template(pageData), true);
         }
