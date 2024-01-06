@@ -129,7 +129,7 @@
                     $('.admin-only').toggle(!!user.admin);
                     $('#challenge-link').toggle(project.type === 'challenge');
                     $('.response-link').toggle(project.type === 'response');
-                    $('#invoices-link').toggle(project.paidCirculators);
+                    $('#invoices-link').toggle(!!project.paidCirculators);
                     const voterFileDate =
                         new Date(project.votersTable.replace(/.*(\d{4})(\d\d)(\d\d).*/, '$1-$2-$3') + 'T12:00Z');
                     const options = {month: 'long', day: 'numeric', year: 'numeric'};
