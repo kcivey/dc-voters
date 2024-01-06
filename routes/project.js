@@ -6,7 +6,7 @@ module.exports = {
         const id = req.project.id;
         const projectData = req.body;
         delete projectData.id;
-        db.updateProject(id, projectData)
+        db.createOrUpdateProject(id, projectData)
             .then(project => res.json(project))
             .catch(next);
     },
