@@ -841,8 +841,7 @@
                     backToChecking();
                 });
 
-            $('#totals-link')
-                .on('click', () => showTotals());
+            $('#totals-link').on('click', () => showTotals());
             $('#review-links').on('click', 'button', displayReviewTable);
             $('#edit-line-link').on('click', function () {
                 const selector = $(this).data('target');
@@ -1185,6 +1184,23 @@
                 },
             });
 
+            const Project = Backbone.Model.extend({
+                url: () => apiUrl('project'),
+            });
+
+            const ProjectView = CirculatorView.extend({
+                template: getTemplate('project-form'),
+                tableName: 'projects',
+                events: {
+                    'submit': 'save',
+                },
+                render() {
+                    this.$el.html(this.template());
+                    this.modelBinder.bind(this.model, this.el);
+                    return this;
+                },
+            });
+
             const User = Backbone.Model.extend({
                 urlRoot: () => apiUrl('users'),
             });
@@ -1216,9 +1232,8 @@
                 .on('click', '.page-view-button', displayPage);
 
             $('#global-modal').on('click', '.circulator-edit-button', editCirculator);
-
-            $('#assign-pages-modal')
-                .on('click', '.assign-send-button', assignPages);
+            $('#edit-project-link').on('click', editProject);
+            $('#assign-pages-modal').on('click', '.assign-send-button', assignPages);
 
             function assignPages() {
                 const modal = $('#assign-pages-modal');
@@ -1295,6 +1310,15 @@
                 function restoreButton() {
                     button.html(originalButtonContent)
                         .removeClass('btn-success btn-danger');
+                }
+            }
+
+            function editProject() {
+                $.getJSON(apiUrl('project')).then(showForm);
+
+                function showForm(data) {
+                    const view = new ProjectView({model: new Project(data)});
+                    openModal('Project', view.$el);
                 }
             }
 
