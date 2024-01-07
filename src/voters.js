@@ -666,7 +666,7 @@
             .on('click', '#search-button', doSearch)
             .on('click', '#blank-button, #rest-blank-button', markBlankLines)
             .on('click', '#illegible-button', () => editLine({finding: 'I'}))
-            .on('change input', 'input[type=text]', function () {
+            .on('change input', 'input[type=search]', function () {
                 if (searchTimeout) {
                     clearTimeout(searchTimeout);
                     searchTimeout = null;
