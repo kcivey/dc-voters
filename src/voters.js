@@ -19,6 +19,29 @@
     let imageAdjustment = 0;
     let circulatorMode = false;
 
+    const BaseView = Backbone.View.extend({
+        initialize() {
+            this.modelBinder = new Backbone.ModelBinder();
+            this.render();
+        },
+        events: {
+            'submit': 'save',
+        },
+        render() {
+            this.$el.html(this.template(project));
+            this.modelBinder.bind(this.model, this.el);
+            return this;
+        },
+        showAlert(successful, text = '') {
+            const alert = $(alertTemplate({successful, text}));
+            // remove any earlier alerts
+            while (this.$el.prev().hasClass('alert')) {
+                this.$el.prev().remove();
+            }
+            return alert.insertBefore(this.$el);
+        },
+    });
+
     const Line = Backbone.Model.extend({
         initialize() {
             const line = this; // save to use in inner function
@@ -36,30 +59,13 @@
         },
     });
 
-    const LineView = Backbone.View.extend({
+    const LineView = BaseView.extend({
         template: getTemplate('line-form'),
-        initialize() {
-            this.modelBinder = new Backbone.ModelBinder();
-            this.render();
-        },
         events: {
             'submit': 'save',
             'change #date_signed': 'checkDateSigned',
         },
         checkDateSigned,
-        render() {
-            this.$el.html(this.template(project));
-            this.modelBinder.bind(this.model, this.el);
-            return this;
-        },
-        showAlert(successful, text = '') {
-            const alert = $(alertTemplate({successful, text}));
-            // remove any earlier alerts
-            while (this.$el.prev().hasClass('alert')) {
-                this.$el.prev().remove();
-            }
-            return alert.insertBefore(this.$el);
-        },
         save(evt) {
             evt.preventDefault();
             const error = this.check();
@@ -1069,31 +1075,12 @@
             urlRoot: () => apiUrl('circulators'),
         });
 
-        const CirculatorView = Backbone.View.extend({
+        const CirculatorView = BaseView.extend({
             template: getTemplate('circulator-form'),
             tableName: 'circulators',
             initialize() {
                 this.modelBinder = new Backbone.ModelBinder();
                 this.render();
-            },
-            events: {
-                'submit': 'save',
-            },
-            render() {
-                this.$el.html(this.template({
-                    circulatorStatuses: project.circulatorStatuses,
-                    paidCirculators: project.paidCirculators,
-                }));
-                this.modelBinder.bind(this.model, this.el);
-                return this;
-            },
-            showAlert(successful, text = '') {
-                const alert = $(alertTemplate({successful, text}));
-                // remove any earlier alerts
-                while (this.$el.prev().hasClass('alert')) {
-                    this.$el.prev().remove();
-                }
-                return alert.insertBefore(this.$el);
             },
             save(evt) {
                 evt.preventDefault();
@@ -1171,14 +1158,6 @@
         const UserView = CirculatorView.extend({
             template: getTemplate('user-form'),
             tableName: 'users',
-            events: {
-                'submit': 'save',
-            },
-            render() {
-                this.$el.html(this.template());
-                this.modelBinder.bind(this.model, this.el);
-                return this;
-            },
         });
 
         $('#bottom-row')
