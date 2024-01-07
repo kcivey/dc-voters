@@ -663,7 +663,6 @@
             doSearch(true);
         });
         $('#check-form')
-            .on('click', '#search-button', doSearch)
             .on('click', '#blank-button, #rest-blank-button', markBlankLines)
             .on('click', '#illegible-button', () => editLine({finding: 'I'}))
             .on('change input', 'input[type=search]', function () {
@@ -679,7 +678,6 @@
                 $('#check-instructions-toggle').html('&times;');
                 $('#check-form-name').width('');
                 $('#check-form .form-text').show();
-                $('#check-form .form-group:has(#search-button)').show();
                 $('#check-form p:has(#voter-file-date)').show();
             })
             .on('hide.bs.collapse', function () {
@@ -687,7 +685,6 @@
                     .width($('#check-form-name').width() - $('#check-instructions-toggle').width() - 20);
                 $('#check-instructions-toggle').html('<i class="fas fa-question-circle"></i>');
                 $('#check-form .form-text').hide();
-                $('#check-form .form-group:has(#search-button)').hide();
                 $('#check-form p:has(#voter-file-date)').hide();
             });
 
@@ -769,16 +766,10 @@
             if (searchLength < 2) {
                 return; // don't search if no search terms or too short
             }
-            const button = $('#search-button');
-            button.text('Please Wait').prop('disabled', true);
             $('#result-div > *').hide();
-            const resetButton = () => button.text('Search').prop('disabled', false);
-            // Use a timeout because JSONP calls don't always raise error
-            // events when there's a problem.
             const timeoutHandle = setTimeout(
                 function () {
                     alert('Something unexpected went wrong with the search request. Trying again might work.');
-                    resetButton();
                 },
                 10000
             );
@@ -787,7 +778,6 @@
             }
             handleResults(await getJson(apiUrl('search'), searchData));
             clearTimeout(timeoutHandle);
-            resetButton();
 
             function handleResults(data) {
                 if (searchNumber && searchNumber < searchCount) {
