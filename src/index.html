@@ -302,6 +302,10 @@
                     <button id="search-button" type="button" class="btn btn-primary">Search</button>
                     <button id="reset-button" type="reset" class="btn btn-secondary">Clear</button>
                   </div>
+                  <div class="custom-control custom-switch float-right">
+                    <input type="checkbox" class="custom-control-input" id="circulator-mode">
+                    <label class="custom-control-label" for="circulator-mode">Circulator mode</label>
+                  </div>
                 </div>
                 <div class="form-group pages-left">
                   <div class="btn-group">
@@ -337,7 +341,7 @@
             <tfoot>
               <tr>
                 <td colspan="8">
-                  <button id="more-button" class="btn btn-secondary btn-sm">More</button>
+                  <button type="button" id="more-button" class="btn btn-secondary btn-sm">More</button>
                 </td>
               </tr>
             </tfoot>
@@ -450,19 +454,25 @@
         <% if (wantedParty) { %><td><%- partyDisplay %></td><% } else { %><td style="display: none;"></td><% } %>
         <td class="text-center"><%- ward %></td>
         <td><%- registered %></td>
-        <% if (pagesLeft) { %>
+        <% if (showButtons) { %>
           <td>
-            <button class="btn btn-secondary btn-sm match">
-              <% if (wantedParty && wantedParty !== party) { %>
-                Wrong Party
-              <% } else if (wantedWard && wantedWard !== ward) { %>
-                Wrong Ward
-              <% } else if (duplicate_line) { %>
-                Duplicate
-              <% } else { %>
-                Match
-              <% } %>
-            </button>
+            <% if (circulatorMode) { %>
+              <button type="button" class="btn btn-secondary btn-sm">
+                Add Note
+              </button>
+            <% } else { %>
+              <button type="button" class="btn btn-secondary btn-sm match">
+                <% if (wantedParty && wantedParty !== party) { %>
+                  Wrong Party
+                <% } else if (wantedWard && wantedWard !== ward) { %>
+                  Wrong Ward
+                <% } else if (duplicate_line) { %>
+                  Duplicate
+                <% } else { %>
+                  Match
+                <% } %>
+              </button>
+            <% } %>
           </td>
         <% } else { %><td style="display: none;"></td><% } %>
       </tr>

@@ -17,6 +17,7 @@
     let searchCount = 0;
     let project;
     let imageAdjustment = 0;
+    let circulatorMode = false;
 
     const Line = Backbone.Model.extend({
         initialize() {
@@ -246,8 +247,8 @@
             editLine(rec);
             return;
         }
-        $('.pages-left').toggle(!!rec.line);
-        $('.no-pages-left').toggle(!rec.line);
+        $('.pages-left').toggle(!!rec.line && !circulatorMode);
+        $('.no-pages-left').toggle(!rec.line && !circulatorMode);
         $('.pages-completed').toggle(!!status.complete);
         $('.no-pages-completed').toggle(!status.complete);
         $('#check-form').show()
@@ -630,6 +631,10 @@
                 .focus();
         });
         $('.modal-dialog').draggable({handle: '.modal-header'});
+        $('#circulator-mode').on('change', function () {
+            circulatorMode = this.checked;
+            start();
+        });
         setUpNavHandlers();
         setUpTopRowHandlers();
         setUpBottomRowHandlers();
@@ -782,10 +787,10 @@
                 }
                 $('#result-div > *').hide();
                 $('#party-column-head').toggle(!!project.party);
-                const pagesLeft = !!(status.lineRecord && status.lineRecord.line);
-                $('#match-button-head').toggle(pagesLeft);
+                const showButtons = !!(status.lineRecord && status.lineRecord.line) || circulatorMode;
+                $('#match-button-head').toggle(showButtons);
                 $('#voter-table').show();
-                $('#voter-table tr:first').toggle(pagesLeft);
+                $('#voter-table tr:first').toggle(showButtons && !circulatorMode);
                 const results = data.results;
                 const voterRowTemplate = getTemplate('voter-row');
                 const tbody = $('#voter-table tbody').empty();
@@ -795,7 +800,8 @@
                     v.partyDisplay = v.party ? v.party.slice(0, 3) : '';
                     v.wantedParty = project.party;
                     v.wantedWard = project.ward;
-                    v.pagesLeft = pagesLeft;
+                    v.showButtons = showButtons;
+                    v.circulatorMode = circulatorMode;
                     const tr = $(voterRowTemplate(v)).data('voterData', v);
                     tbody.append(tr);
                 });
