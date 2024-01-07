@@ -675,7 +675,8 @@
             });
         $('#check-instructions')
             .on('show.bs.collapse', function () {
-                $('#check-instructions-toggle').html('&times;');
+                $('#check-instructions-toggle span').html('&times;')
+                    .attr('title', 'Hide instructions');
                 $('#check-form-name').width('');
                 $('#check-form .form-text').show();
                 $('#check-form p:has(#voter-file-date)').show();
@@ -683,7 +684,8 @@
             .on('hide.bs.collapse', function () {
                 $('#check-form-name')
                     .width($('#check-form-name').width() - $('#check-instructions-toggle').width() - 20);
-                $('#check-instructions-toggle').html('<i class="fas fa-question-circle"></i>');
+                $('#check-instructions-toggle span').html('<i class="fas fa-question-circle"></i>')
+                    .attr('title', 'Show instructions');
                 $('#check-form .form-text').hide();
                 $('#check-form p:has(#voter-file-date)').hide();
             });
