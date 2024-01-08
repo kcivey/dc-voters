@@ -95,6 +95,45 @@
         },
     });
 
+    const Note = Backbone.Model.extend({
+        urlRoot: () => apiUrl('notes'),
+    });
+
+    const NoteView = BaseView.extend({
+        template: getTemplate('note-form'),
+        tableName: 'notes',
+        save(evt) {
+            evt.preventDefault();
+            const error = this.check();
+            const that = this; // save to use in inner functions
+            let jqXhr;
+            if (!error && (jqXhr = this.model.save())) {
+                jqXhr
+                    .done(function () {
+                        const message = 'Record saved';
+                        const alert = that.showAlert(true, message);
+                        const timeoutHandle = setTimeout(() => alert.alert('close'), 1000);
+                        alert.on('closed.bs.alert', function () {
+                            clearTimeout(timeoutHandle);
+                            that.$el.closest('.modal').modal('hide');
+                        });
+                        showTable(that.tableName);
+                    })
+                    .fail(function (err) {
+                        console.log(err);
+                        that.showAlert(false);
+                    });
+            }
+            else {
+                this.showAlert(false, error);
+            }
+        },
+        check() {
+            // @todo Add some checks
+            // const circulator = this.model;
+            return null;
+        },
+    });
     setCirculatorModeFromCookie();
     setUpProjectMenu();
     setUpHandlers();
@@ -1078,10 +1117,6 @@
         const CirculatorView = BaseView.extend({
             template: getTemplate('circulator-form'),
             tableName: 'circulators',
-            initialize() {
-                this.modelBinder = new Backbone.ModelBinder();
-                this.render();
-            },
             save(evt) {
                 evt.preventDefault();
                 const error = this.check();
