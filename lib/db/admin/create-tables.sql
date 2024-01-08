@@ -15,6 +15,7 @@ CREATE TABLE IF NOT EXISTS projects (
   `lines_per_page` TINYINT UNSIGNED NOT NULL DEFAULT 20,
   `archived` TINYINT(1) UNSIGNED NOT NULL DEFAULT 0,
   `batches` TEXT,
+  `use_circulator_mode` TINYINT(1) UNSIGNED NOT NULL DEFAULT 0,
   PRIMARY KEY (`id`),
   UNIQUE KEY (`code`)
 );
@@ -75,6 +76,7 @@ CREATE TABLE IF NOT EXISTS users (
   `admin` TINYINT(1) NOT NULL DEFAULT 0,
   `blocked` TINYINT(1) NOT NULL DEFAULT 0,
   `notes` TEXT,
+  `circulator` TINYINT(1) UNSIGNED NOT NULL DEFAULT 0,
   PRIMARY KEY (`id`),
   UNIQUE KEY (`email`),
   UNIQUE KEY (`username`)

@@ -134,7 +134,6 @@
             return null;
         },
     });
-    setCirculatorModeFromCookie();
     setUpProjectMenu();
     setUpHandlers();
     start();
@@ -159,6 +158,7 @@
                 project = projects[0];
             }
         }
+        setCirculatorModeFromCookie();
         getStatus(function (err, status) {
             if (err) {
                 alert(err);
@@ -173,6 +173,7 @@
                 $('#challenge-link').toggle(project.type === 'challenge');
                 $('.response-link').toggle(project.type === 'response');
                 $('#invoices-link').toggle(!!project.paidCirculators);
+                $('#circulator-mode-container').toggle(!!(project.useCirculatorMode && user.circulator));
                 const voterFileDate =
                     new Date(project.votersTable.replace(/.*(\d{4})(\d\d)(\d\d).*/, '$1-$2-$3') + 'T12:00Z');
                 const options = {month: 'long', day: 'numeric', year: 'numeric'};
@@ -691,9 +692,11 @@
     }
 
     function setCirculatorModeFromCookie() {
-        const m = document.cookie.match(/(?:(?:^|.*;\s*)circulatorMode\s*=\s*([^;]*).*$)|^.*$/);
-        circulatorMode = (m && m[1]) === 'true';
-        $('#circulator-mode').prop('checked', circulatorMode);
+        if (project.useCirculatorMode && user.circulator) {
+            const m = document.cookie.match(/(?:(?:^|.*;\s*)circulatorMode\s*=\s*([^;]*).*$)|^.*$/);
+            circulatorMode = (m && m[1]) === 'true';
+            $('#circulator-mode').prop('checked', circulatorMode);
+        }
     }
 
     function setUpProjectMenu() {
