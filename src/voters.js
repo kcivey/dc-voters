@@ -271,6 +271,7 @@
         const total = status.incomplete + status.complete;
         $('.total', statusDiv).text(commify(total));
         $('#complete-bar').width(total ? (100 * status.complete / total) + '%' : 0);
+        $('#complete-container').toggle(total > 0 && !circulatorMode);
         const rec = status.lineRecord || {};
         $('#challenge-reason-alert').hide();
         if (rec.line) {

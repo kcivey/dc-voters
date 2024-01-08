@@ -72,6 +72,9 @@
       .progress-bar {
         height: 1rem;
       }
+      #complete-container {
+          display: inline-block;
+      }
       #status .navbar-item {
         margin-right: 1rem;
       }
@@ -156,12 +159,14 @@
       <div class="navbar-nav" id="status">
         <div class="navbar-item navbar-text d-none d-sm-inline-block">
           <strong id="username" class="username"></strong>
-          <div class="progress">
-            <div id="complete-bar" class="progress-bar" style="width: 0;"></div>
+          <div id="complete-container">
+            <div class="progress">
+              <div id="complete-bar" class="progress-bar" style="width: 0;"></div>
+            </div>
+            <small>
+              <span class="complete">0</span> of <span class="total">0</span>
+            </small>
           </div>
-          <small>
-            <span class="complete">0</span> of <span class="total">0</span>
-          </small>
         </div>
       </div>
       <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#nav-dropdowns"
