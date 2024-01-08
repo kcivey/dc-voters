@@ -746,16 +746,14 @@
                 $('#check-instructions-toggle span').html('&times;')
                     .attr('title', 'Hide instructions');
                 $('#check-form-name').width('');
-                $('#check-form .form-text').show();
-                $('#check-form p:has(#voter-file-date)').show();
+                $('#check-form .instruction-like').show();
             })
             .on('hide.bs.collapse', function () {
                 $('#check-form-name')
                     .width($('#check-form-name').width() - $('#check-instructions-toggle').width() - 20);
                 $('#check-instructions-toggle span').html('<i class="fas fa-question-circle"></i>')
                     .attr('title', 'Show instructions');
-                $('#check-form .form-text').hide();
-                $('#check-form p:has(#voter-file-date)').hide();
+                $('#check-form .instruction-like').hide();
             });
 
         async function sendTokenFromForm(evt) {
