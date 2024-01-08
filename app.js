@@ -100,7 +100,7 @@ function setProject(req, res, next) {
                 req.url = req.url.replace('/' + projectCode, '');
                 return next();
             }
-            throw createError(404, 'No such project');
+            return next(createError(404, 'No such project'));
         })
         .catch(next);
 }
