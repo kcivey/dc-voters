@@ -13,15 +13,20 @@ module.exports = {
             .catch(next);
     },
 
-    getNote(req, res, next) {
-        db.getNote(req.project.id, +req.params.id)
-            .then(function (note) {
-                if (!note) {
-                    throw createError(404, 'No such note');
-                }
-                res.json(note);
-            })
-            .catch(next);
+    async getNote(req, res, next) {
+        const projectId = req.project.id;
+        try {
+            const note = req.params.voter_id
+                ? await db.getNoteByVoterAndUser(projectId, +req.params.voter_id, +req.params.user_id)
+                : await db.getNote(projectId, +req.params.id);
+            if (!note) {
+                throw createError(404, 'No such note');
+            }
+            return res.json(note);
+        }
+        catch (e) {
+            return next(e);
+        }
     },
 
     deleteNote(req, res, next) {

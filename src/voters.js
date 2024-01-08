@@ -337,7 +337,7 @@
         $('#voter_name').focus();
     }
 
-    function editNote() {
+    async function editNote() {
         const voterData = $(this).closest('tr')
             .data('voterData');
         const formData = {
@@ -345,8 +345,14 @@
             user_id: user.id,
             name: makeName(voterData),
             address: makeAddress(voterData),
+            note_text: '',
         };
-        // @todo get data if existing
+        await getJson(apiUrl('notes/' + voterData.voter_id + '/' + user.id))
+            .then(function (noteData) {
+                for (const key of ['id', 'name', 'address', 'note_text']) {
+                    formData[key] = noteData[key];
+                }
+            });
         const view = new NoteView({model: new Note(formData)});
         openModal('Note', view.$el);
     }

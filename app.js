@@ -61,6 +61,7 @@ apiApp.put('/circulators/:id', routes.createOrUpdateCirculator);
 apiApp.delete('/circulators/:id', routes.deleteCirculator);
 apiApp.post('/notes', routes.createOrUpdateNote);
 apiApp.get('/notes/:id', routes.getNote);
+apiApp.get('/notes/:voter_id/:user_id', routes.getNote);
 apiApp.put('/notes/:id', routes.createOrUpdateNote);
 apiApp.delete('/notes/:id', routes.deleteNote);
 apiApp.get('/pages/dt', routes.dtPages);
