@@ -454,7 +454,7 @@
         <% if (showButtons) { %>
           <td>
             <% if (circulatorMode) { %>
-              <button type="button" class="btn btn-secondary btn-sm">
+              <button type="button" class="btn btn-secondary btn-sm add-note">
                 Add Note
               </button>
             <% } else { %>
@@ -687,6 +687,36 @@
         <div class="form-group row">
           <div class="col-12">
             <input type="hidden" name="id"/>
+            <button type="submit" class="btn btn-primary save">Save</button>
+          </div>
+        </div>
+      </form>
+    </script>
+    <script type="text/template" id="note-form-template">
+      <form action="/" id="note-form">
+        <div class="form-group row">
+          <label class="col-form-label col-sm-2" for="note-name">Name</label>
+          <div class="col-sm-10">
+            <input type="text" class="form-control" name="name" id="note-name"/>
+          </div>
+        </div>
+        <div class="form-group row">
+          <label class="col-form-label col-sm-2" for="note-address">Address</label>
+          <div class="col-sm-10">
+            <input type="text" class="form-control" name="address" id="note-address"/>
+          </div>
+        </div>
+        <div class="form-group row">
+          <label class="col-form-label col-sm-2" for="note-note_text">Text</label>
+          <div class="col-sm-10">
+            <textarea name="note_text" id="note-note_text" class="form-control"></textarea>
+          </div>
+        </div>
+        <div class="form-group row">
+          <div class="col-12">
+            <input type="hidden" name="id"/>
+            <input type="hidden" name="voter_id"/>
+            <input type="hidden" name="user_id"/>
             <button type="submit" class="btn btn-primary save">Save</button>
           </div>
         </div>

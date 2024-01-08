@@ -117,7 +117,7 @@
                             clearTimeout(timeoutHandle);
                             that.$el.closest('.modal').modal('hide');
                         });
-                        showTable(that.tableName);
+                        start();
                     })
                     .fail(function (err) {
                         console.log(err);
@@ -335,6 +335,28 @@
         $('#result-div > *').hide();
         lineForm.show();
         $('#voter_name').focus();
+    }
+
+    function editNote() {
+        const voterData = $(this).closest('tr')
+            .data('voterData');
+        const formData = {
+            voter_id: voterData.voter_id,
+            user_id: user.id,
+            name: makeName(voterData),
+            address: makeAddress(voterData),
+        };
+        // @todo get data if existing
+        const view = new NoteView({model: new Note(formData)});
+        openModal('Note', view.$el);
+    }
+
+    function openModal(title, body, large = false) {
+        const $modal = $('#global-modal');
+        $('.modal-title', $modal).text(title);
+        $('.modal-body', $modal).html(body);
+        $('.modal-dialog', $modal).toggleClass('modal-lg', large);
+        $modal.modal();
     }
 
     async function showTable(name) {
@@ -696,7 +718,8 @@
     function setUpTopRowHandlers() {
         $('#voter-table')
             .on('click', '.match', handleMatch)
-            .on('click', '.not-found', () => editLine({finding: 'NR'}));
+            .on('click', '.not-found', () => editLine({finding: 'NR'}))
+            .on('click', '.add-note', editNote);
         $('#send-token-form')
             .on('submit', sendTokenFromForm);
         $('#more-button').on('click', function () {
@@ -1382,14 +1405,6 @@
                         console.error(err);
                     });
             });
-        }
-
-        function openModal(title, body, large = false) {
-            const $modal = $('#global-modal');
-            $('.modal-title', $modal).text(title);
-            $('.modal-body', $modal).html(body);
-            $('.modal-dialog', $modal).toggleClass('modal-lg', large);
-            $modal.modal();
         }
     }
 

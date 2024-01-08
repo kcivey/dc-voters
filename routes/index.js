@@ -4,6 +4,7 @@ const authentication = require('./authentication');
 const circulatorRoutes = require('./circulator');
 const invoiceRoutes = require('./invoice');
 const lineRoutes = require('./line');
+const noteRoutes = require('./note');
 const pageRoutes = require('./page');
 const tsvRoutes = require('./tsv');
 const userRoutes = require('./user');
@@ -59,6 +60,7 @@ module.exports = function (/* app */) {
         ...circulatorRoutes,
         ...invoiceRoutes,
         ...lineRoutes,
+        ...noteRoutes,
         ...pageRoutes,
         ...tsvRoutes,
         ...userRoutes,
