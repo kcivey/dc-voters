@@ -4,7 +4,8 @@
  * https://dcgeekery.com
  */
 /* global Backbone _ jQuery */
-/* eslint-disable no-restricted-properties */
+/* eslint-disable no-restricted-properties, no-invalid-this */
+'use strict';
 (async function ($) {
 
     let user = await getJson('/user');
