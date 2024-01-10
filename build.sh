@@ -5,7 +5,6 @@ echo 'Copying files from src to public'
 cp -au src/* public/
 echo 'Compiling and minifying JS'
 npx babel src/voters.js | \
-    npx browserify - | \
     npx terser -c -m --toplevel --comments /Copyright/ \
     > public/voters.js
 echo 'Tidying HTML'
