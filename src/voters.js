@@ -715,8 +715,11 @@
 
     function setUpHandlers() {
         $('.modal').on('shown.bs.modal', function (evt) {
-            $('.modal-body input', evt.target).eq(0)
-                .focus();
+            let focusEl = $('.modal-body .initial-focus', evt.target);
+            if (!focusEl.length) {
+                focusEl = $('.modal-body input', evt.target);
+            }
+            focusEl.eq(0).focus();
         });
         $('.modal-dialog').draggable({handle: '.modal-header'});
         $('#circulator-mode').on('change', function () {
