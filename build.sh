@@ -11,4 +11,4 @@ echo 'Tidying HTML'
 tidy -m -w 120 -q --drop-empty-elements false --show-warnings false public/*.html \
     || [[ $? -lt 2 ]] # to avoid stopping because of warnings, just errors
 # Remove end-of-line spaces tidy puts in plus beginning spaces from embedded JS templates
-perl -pi -e's/^ +| +$//gm' public/*.html
+perl -0777 -pi -e's/^ +| +$//gm;s/\n\n+/\n/g' public/*.html
