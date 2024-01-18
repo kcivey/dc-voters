@@ -350,12 +350,15 @@
             address: makeAddress(voterData),
             note_text: '',
         };
-        await getJson(apiUrl('notes/' + voterData.voter_id + '/' + user.id))
-            .then(function (noteData) {
-                for (const key of ['id', 'name', 'address', 'note_text']) {
-                    formData[key] = noteData[key];
-                }
-            });
+        try {
+            const noteData = await getJson(apiUrl('notes/' + voterData.voter_id + '/' + user.id));
+            for (const key of ['id', 'name', 'address', 'note_text']) {
+                formData[key] = noteData[key];
+            }
+        }
+        catch (e) {
+            // not found
+        }
         const view = new NoteView({model: new Note(formData)});
         openModal('Note', view.$el);
     }
