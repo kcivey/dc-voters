@@ -700,8 +700,11 @@
         if (project.useCirculatorMode && user.circulator) {
             const m = document.cookie.match(/(?:(?:^|.*;\s*)circulatorMode\s*=\s*([^;]*).*$)|^.*$/);
             circulatorMode = (m && m[1]) === 'true';
-            $('#circulator-mode').prop('checked', circulatorMode);
         }
+        else {
+            circulatorMode = false;
+        }
+        $('#circulator-mode').prop('checked', circulatorMode);
     }
 
     function setUpProjectMenu() {
