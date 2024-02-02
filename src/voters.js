@@ -1242,6 +1242,7 @@
             .on('click', '.send-token-button', sendTokenFromUserTable)
             .on('click', '.user-edit-button', editUser)
             .on('click', '#create-invoices-button', createInvoices)
+            .on('click', '#print-invoices-button', printInvoices)
             .on('click', '.circulator-edit-button', editCirculator)
             .on('click', '.circulator-delete-button', deleteCirculator)
             .on('click', '.circulator-totals-button', showCirculatorTotals)
@@ -1359,6 +1360,10 @@
                 type: 'POST',
             });
             showTable('invoices');
+        }
+
+        function printInvoices() {
+            window.open(apiUrl('invoices.html'));
         }
 
         async function deleteCirculator() {

@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8"/>
+    <title>Circulator Invoice</title>
+    <style>
+        body {
+            font-size: 11pt;
+        }
+        h1 {
+            page-break-before: always;
+        }
+        h1:first-of-type {
+            page-break-before: avoid;
+        }
+    </style>
+</head>
+<body>
+    <% _.each(invoices, function (invoice) { %>
+        <h1><%- project.name %></h1>
+        <h2>Invoice <%- invoice.number %></h2>
+        <table>
+            <tr>
+                <th>Date</th>
+                <td><%- invoice.date_created %></td>
+            </tr>
+            <tr>
+                <th>Circulator</th>
+                <td><%- invoice.circulator.name %></td>
+            </tr>
+            <tr>
+                <th>Amount</th>
+                <td>$<%- invoice.amount %></td>
+            </tr>
+        </table>
+        <table>
+            <thead>
+                <tr>
+                    <th>Page</th>
+                    <th>Date Signed</th>
+                    <th>Valid Signatures</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% _.each(invoice.pages, function (page) { %>
+                    <tr>
+                        <td><%- page.number %></td>
+                        <td><%- page.date_signed %></td>
+                        <td><%- page.valid_lines %></td>
+                    </tr>
+                <% }) %>
+            </tbody>
+        </table>
+    <% }) %>
+</body>
+</html>

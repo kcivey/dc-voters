@@ -1,7 +1,13 @@
+const fs = require('fs');
 const createError = require('http-errors');
 const moment = require('moment');
 const numberList = require('number-list');
-const db = require('../lib/db');
+const db = require('../../lib/db');
+const _ = require('underscore');
+const invoiceTemplate = _.template(
+    fs.readFileSync(__dirname + '/invoice.html', {encoding: 'utf8'})
+        .replace(/^\s+/gm, '')
+);
 
 module.exports = {
 
@@ -53,6 +59,28 @@ module.exports = {
         db.getInvoices(req.project.id)
             .then(rows => res.json(rows))
             .catch(next);
+    },
+
+    async htmlInvoices(req, res) {
+        const project = req.project;
+        if (!project.paidCirculators) {
+            throw createError(404, 'No invoices for this project');
+        }
+        let invoiceNumbers;
+        if (req.query.i) {
+            invoiceNumbers = numberList.parse(req.query.i);
+        }
+        else {
+            invoiceNumbers = await db.getInvoiceNumbersToPrint(project.id);
+        }
+        const invoices = [];
+        for (const n of invoiceNumbers) {
+            const invoice = await db.getInvoice(project.id, n);
+            invoice.circulator = await db.getCirculator(project.id, invoice.circulator_id);
+            invoice.pages = await db.getPages({projectId: project.id, criteria: {invoice_id: invoice.id}});
+            invoices.push(invoice);
+        }
+        res.send(invoiceTemplate({project, invoices}));
     },
 
 };
