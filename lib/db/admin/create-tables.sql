@@ -39,7 +39,7 @@ CREATE TABLE IF NOT EXISTS invoices (
     `project_id` SMALLINT UNSIGNED NOT NULL,
     `number` MEDIUMINT UNSIGNED NOT NULL,
     `date_created` DATE NOT NULL,
-    `date_paid` DATE NOT NULL,
+    `date_paid` DATE DEFAULT NULL,
     `circulator_id` MEDIUMINT UNSIGNED NOT NULL,
     `amount` DECIMAL(7,2),
     `notes` TEXT,

@@ -877,7 +877,7 @@
                 <td><%- i.date_created ? i.date_created.replace(/^(\d{4})-(\d\d)-(\d\d).*/, '$2/$3') : '' %></td>
                 <td><%- i.date_paid ? i.date_paid.replace(/^(\d{4})-(\d\d)-(\d\d).*/, '$2/$3') : '' %></td>
                 <td class="number"><%- i.amount %></td>
-                <td><%- p.notes || '' %></td>
+                <td><%- i.notes || '' %></td>
               </tr>
             <% }); %>
             </tbody>

@@ -1,0 +1,1 @@
+ALTER TABLE invoices MODIFY date_paid DATE DEFAULT NULL;
