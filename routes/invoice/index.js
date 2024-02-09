@@ -1,7 +1,5 @@
 const fs = require('fs');
 const createError = require('http-errors');
-const moment = require('moment');
-const numberList = require('number-list');
 const db = require('../../lib/db');
 const _ = require('underscore');
 const invoiceTemplate = _.template(
@@ -10,21 +8,6 @@ const invoiceTemplate = _.template(
 );
 
 module.exports = {
-
-    createInvoices(req, res, next) {
-        if (!req.project.paidCirculators) {
-            throw createError(404, 'No invoices for this project');
-        }
-        const project = req.project;
-        const date = req.params.date;
-        const mDate = moment(date, 'YYYY-MM-DD');
-        if (!/^\d{4}-\d\d-\d\d$/.test(date) || !mDate.isValid()) {
-            throw createError(400, 'Invalid date');
-        }
-        db.createInvoices(project, date)
-            .then(numbers => res.json({created: numberList.stringify(numbers)}))
-            .catch(next);
-    },
 
     createOrUpdateInvoice(req, res, next) {
         if (!req.project.paidCirculators) {
@@ -67,8 +50,8 @@ module.exports = {
             throw createError(404, 'No invoices for this project');
         }
         let invoiceNumbers;
-        if (req.query.i) {
-            invoiceNumbers = numberList.parse(req.query.i);
+        if (req.params.number) {
+            invoiceNumbers = [+req.params.number];
         }
         else {
             invoiceNumbers = await db.getInvoiceNumbersToPrint(project.id);

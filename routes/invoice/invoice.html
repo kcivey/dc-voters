@@ -25,6 +25,10 @@
                 <td><%- invoice.date_created %></td>
             </tr>
             <tr>
+                <th>Covers</th>
+                <td><%- invoice.start_date %> to <%- invoice.end_date %></td>
+            </tr>
+            <tr>
                 <th>Circulator</th>
                 <td><%- invoice.circulator.name %></td>
             </tr>
@@ -32,6 +36,12 @@
                 <th>Amount</th>
                 <td>$<%- invoice.amount %></td>
             </tr>
+            <% if (invoice.notes) { %>
+                <tr>
+                    <th>Notes</th>
+                    <td>$<%- invoice.notes %></td>
+                </tr>
+            <% } %>
         </table>
         <table>
             <thead>

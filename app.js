@@ -71,10 +71,10 @@ apiApp.post('/pages/images', uploadHandler.array('images'), routes.uploadPageIma
 apiApp.get('/pages', routes.getPages);
 apiApp.post('/pages', routes.createOrUpdatePage);
 apiApp.get('/pages/:number', routes.getPage);
-apiApp.post('/invoices/create/:date', routes.createInvoices);
 apiApp.put('/pages/:number', routes.createOrUpdatePage);
 apiApp.get('/invoices', routes.getInvoices);
 apiApp.post('/invoices', routes.createOrUpdateInvoice);
+apiApp.get('/invoices/invoice-:number.html', routes.htmlInvoices);
 apiApp.get('/invoices/:number', routes.getInvoice);
 apiApp.put('/invoices/:number', routes.createOrUpdateInvoice);
 apiApp.get('/users', routes.getUsers);
@@ -85,7 +85,6 @@ apiApp.put('/users/:id', routes.createOrUpdateUser);
 apiApp.post('/users/:username/pages', routes.assignPages);
 apiApp.get('/totals', routes.getTotals);
 apiApp.get('/challenge.html', routes.challenge);
-apiApp.get('/invoices.html', routes.htmlInvoices);
 
 app.listen(app.get('port'), function () {
     console.log('Express server listening on port ' + app.get('port'));

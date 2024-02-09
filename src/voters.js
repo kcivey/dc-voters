@@ -1245,11 +1245,14 @@
             .on('click', '.circulator-delete-button', deleteCirculator)
             .on('click', '.circulator-totals-button', showCirculatorTotals)
             .on('click', '.circulator-invoice-button', showInvoiceForm)
+            .on('click', '.invoice-print-button', printInvoice)
             .on('click', '.page-edit-button', editPage)
             .on('click', '.page-upload-show-button', showPageUploadForm)
             .on('click', '.page-view-button', displayPage);
 
         $('#global-modal').on('click', '.circulator-edit-button', editCirculator)
+            .on('change', '#create-invoice-rate', fixInvoiceRate)
+            .on('click', '#create-invoice-button', createInvoice)
             .on(
                 'change input',
                 '#create-invoice-start, #create-invoice-end, #create-invoice-rate',
@@ -1397,11 +1400,38 @@
             $('#create-invoice-button').prop('disabled', validLines === 0);
         }
 
-        /*
-        function printInvoices() {
-            window.open(apiUrl('invoices.html'));
+        function fixInvoiceRate() {
+            const $input = $(this);
+            const rate = +$input.val().replace('$', '');
+            $input.val(rate.toFixed(2));
         }
-         */
+
+        async function createInvoice() {
+            const now = new Date();
+            const today = (new Date(Date.now() - now.getTimezoneOffset())).toISOString()
+                .slice(0, 10);
+            const pages = [];
+            $('#create-invoice-table tbody tr:visible').each(function () {
+                pages.push(+$('td:nth-of-type(2)', this).text());
+            });
+            const data = {
+                date_created: today,
+                circulator_id: +$('#create-invoice-circulator-id').val(),
+                start_date: $('#create-invoice-start').val(),
+                end_date: $('#create-invoice-end').val(),
+                notes: $('#create-invoice-notes').val(),
+                amount: $('#create-invoice-total').val(),
+                pages,
+            };
+            const invoice = await $.ajax({url: apiUrl('invoices'), data, dataType: 'json', type: 'POST'});
+            window.open(apiUrl('invoices/invoice-' + invoice.number + '.html'));
+            $('#global-modal').modal('hide');
+        }
+
+        function printInvoice() {
+            const number = $(this).data('number');
+            window.open(apiUrl('invoices/invoice-' + number + '.html'));
+        }
 
         async function deleteCirculator() {
             const id = $(this).data('id');
