@@ -59,6 +59,7 @@ apiApp.post('/circulators', routes.createOrUpdateCirculator);
 apiApp.get('/circulators/:id', routes.getCirculator);
 apiApp.put('/circulators/:id', routes.createOrUpdateCirculator);
 apiApp.delete('/circulators/:id', routes.deleteCirculator);
+apiApp.get('/circulators/:id/line-counts', routes.getLineCountsForCirculator);
 apiApp.post('/notes', routes.createOrUpdateNote);
 apiApp.get('/notes/:id', routes.getNote);
 apiApp.get('/notes/:voter_id/:user_id', routes.getNote);

@@ -736,6 +736,44 @@
         </div>
       </form>
     </script>
+    <script type="text/template" id="create-invoice-form-template">
+      <form action="/" id="create-invoice-form">
+        <input type="hidden" name="circulator_id" id="create-invoice-circulator-id" value="<%- circulatorId %>"/>
+        <div class="form-group row">
+          <label class="col-form-label col-sm-4" for="create-invoice-start">Start</label>
+          <div class="col-sm-8">
+            <input type="date" class="form-control" name="start" id="create-invoice-start" value="<%- startDate %>"/>
+          </div>
+        </div>
+        <div class="form-group row">
+          <label class="col-form-label col-sm-4" for="create-invoice-end">End</label>
+          <div class="col-sm-8">
+            <input type="date" class="form-control" name="end" id="create-invoice-end" value="<%- endDate %>"/>
+          </div>
+        </div>
+        <div class="form-group row">
+          <label class="col-form-label col-sm-4" for="create-invoice-rate">Rate per signature</label>
+          <div class="col-sm-8">
+            <input type="number" class="form-control" name="rate" id="create-invoice-rate" min="0" step="0.01" value="<%- rate %>"/>
+          </div>
+        </div>
+        <div class="form-group row">
+          <button type="button" class="btn btn-primary" id="get-invoice-data-button">Get Invoice Data</button>
+        </div>
+        <div class="form-group row">
+          <label class="col-form-label col-sm-4" for="create-invoice-valid">Valid signatures for period</label>
+          <div class="col-sm-8">
+            <input type="text" class="form-control" name="valid" id="create-invoice-valid" readonly/>
+          </div>
+        </div>
+        <div class="form-group row">
+          <label class="col-form-label col-sm-4" for="create-invoice-total">Total due for period</label>
+          <div class="col-sm-8">
+            <input type="text" class="form-control" name="total" id="create-invoice-total" readonly/>
+          </div>
+        </div>
+      </form>
+    </script>
     <script type="text/template" id="alert-template">
       <div class="alert fade show <%- successful ? 'alert-success' : 'alert-danger' %>">
         <button type="button" class="close" data-dismiss="alert">&times;</button>
@@ -772,7 +810,7 @@
                   <th>Status</th>
                 <% } %>
                 <% if (project.paidCirculators) { %>
-                  <th class="number">Number</th>
+                  <th class="number">Circulator Number</th>
                   <th class="text-center">Volunteer?</th>
                 <% } %>
                 <th>Notes</th>
@@ -794,6 +832,11 @@
                       <% } else { %>
                         <button type="button" class="btn btn-outline-danger table-button circulator-delete-button" data-id="<%- c.id %>" title="Delete">
                           <i class="fas fa-trash fa-fw"></i>
+                        </button>
+                      <% } %>
+                      <% if (project.paidCirculators && c.valid_lines) { %>
+                        <button type="button" class="btn btn-outline-info table-button circulator-invoice-button" data-id="<%- c.id %>" data-name="<%- c.name %>" title="Invoice">
+                          <i class="fas fa-file-invoice-dollar fa-fw"></i>
                         </button>
                       <% } %>
                     </div>
@@ -852,14 +895,6 @@
     <script type="text/template" id="invoice-table-template">
       <div class="col">
         <button type="button" class="btn btn-link back-button">Back to Checking</button>
-        <button type="button" id="create-invoices-button" class="btn btn-primary">
-          <i class="fas fa-plus"></i>
-          Create Invoices through
-        </button>
-        <input type="text" id="invoice-through-date" name="through_date" value="<%- today %>"/>
-        <button type="button" id="print-invoices-button" class="btn btn-secondary">
-          Print Invoices
-        </button>
         <div>
           <table id="invoice-table" class="table table-sm table-striped table-hover">
             <thead>

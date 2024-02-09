@@ -35,7 +35,8 @@ module.exports = {
     },
 
     getCirculators(req, res, next) {
-        db.getCirculatorsForProject(req.project.id)
+        db.updateProcessedLines(req.project)
+            .then(() => db.getCirculatorsForProject(req.project.id))
             .then(rows => res.json(rows))
             .catch(next);
     },
@@ -43,6 +44,17 @@ module.exports = {
     getNextCirculatorNumber(req, res, next) {
         db.getNextCirculatorNumber(req.project.id)
             .then(number => res.json({number}))
+            .catch(next);
+    },
+
+    getLineCountsForCirculator(req, res, next) {
+        db.getLineCountsForCirculator({
+            project: req.project,
+            circulatorId: +req.params.id,
+            startDate: req.query.start,
+            endDate: req.query.end,
+        })
+            .then(rows => res.json(rows[0]))
             .catch(next);
     },
 

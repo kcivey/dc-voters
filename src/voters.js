@@ -1241,16 +1241,16 @@
             .on('click', '.back-button', backToChecking)
             .on('click', '.send-token-button', sendTokenFromUserTable)
             .on('click', '.user-edit-button', editUser)
-            .on('click', '#create-invoices-button', createInvoices)
-            .on('click', '#print-invoices-button', printInvoices)
             .on('click', '.circulator-edit-button', editCirculator)
             .on('click', '.circulator-delete-button', deleteCirculator)
             .on('click', '.circulator-totals-button', showCirculatorTotals)
+            .on('click', '.circulator-invoice-button', showInvoiceForm)
             .on('click', '.page-edit-button', editPage)
             .on('click', '.page-upload-show-button', showPageUploadForm)
             .on('click', '.page-view-button', displayPage);
 
-        $('#global-modal').on('click', '.circulator-edit-button', editCirculator);
+        $('#global-modal').on('click', '.circulator-edit-button', editCirculator)
+            .on('click', '#get-invoice-data-button', updateInvoiceForm);
 
         $('#assign-pages-modal')
             .on('click', '.assign-send-button', assignPages);
@@ -1351,20 +1351,38 @@
             openModal('Circulator', view.$el);
         }
 
-        async function createInvoices() {
-            const date = $('#invoice-through-date').val()
-                .replace(/^(\d\d)\/(\d\d)\/(\d{4})$/, '$3-$1-$2');
-            await $.ajax({
-                url: apiUrl('invoices/create/' + date),
-                dataType: 'json',
-                type: 'POST',
-            });
-            showTable('invoices');
+        function showInvoiceForm() {
+            const circulatorId = $(this).data('id');
+            const circulatorName = $(this).data('name');
+            const startDate = '2024-01-01';
+            const endDate = (new Date()).toISOString()
+                .slice(0, 10);
+            const rate = project.payPerSignature;
+            const template = getTemplate('create-invoice-form');
+            openModal(
+                'Invoice for ' + circulatorName,
+                template({circulatorId, circulatorName, startDate, endDate, rate})
+            );
         }
 
+        async function updateInvoiceForm() {
+            const circulatorId = $('#create-invoice-circulator-id').val();
+            const rate = $('#create-invoice-rate').val();
+            const startDate = $('#create-invoice-start').val();
+            const endDate = $('#create-invoice-end').val();
+            const url = apiUrl('circulators/' + circulatorId + '/line-counts') +
+                '?start=' + startDate + '&end=' + endDate;
+            const counts = await getJson(url);
+            const validLines = counts.valid || 0;
+            $('#create-invoice-valid').val(validLines);
+            $('#create-invoice-total').val((rate * validLines).toFixed(2));
+        }
+
+        /*
         function printInvoices() {
             window.open(apiUrl('invoices.html'));
         }
+         */
 
         async function deleteCirculator() {
             const id = $(this).data('id');
