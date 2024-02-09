@@ -1250,10 +1250,12 @@
             .on('click', '.page-view-button', displayPage);
 
         $('#global-modal').on('click', '.circulator-edit-button', editCirculator)
-            .on('click', '#get-invoice-data-button', updateInvoiceForm);
-
-        $('#assign-pages-modal')
-            .on('click', '.assign-send-button', assignPages);
+            .on(
+                'change input',
+                '#create-invoice-start, #create-invoice-end, #create-invoice-rate',
+                recalculateInvoiceForm
+            );
+        $('#assign-pages-modal').on('click', '.assign-send-button', assignPages);
 
         async function assignPages() {
             const modal = $('#assign-pages-modal');
@@ -1351,31 +1353,48 @@
             openModal('Circulator', view.$el);
         }
 
-        function showInvoiceForm() {
+        async function showInvoiceForm() {
             const circulatorId = $(this).data('id');
             const circulatorName = $(this).data('name');
-            const startDate = '2024-01-01';
-            const endDate = (new Date()).toISOString()
-                .slice(0, 10);
+            const pages = await getJson(apiUrl('circulators/' + circulatorId + '/unpaid-pages'));
+            const minDate = pages[0] ? pages[0].date_checked : '';
+            const maxDate = pages[0] ? pages[pages.length - 1].date_checked : '';
+            const startDate = minDate;
+            const endDate = maxDate;
             const rate = project.payPerSignature;
             const template = getTemplate('create-invoice-form');
             openModal(
                 'Invoice for ' + circulatorName,
-                template({circulatorId, circulatorName, startDate, endDate, rate})
+                template({circulatorId, circulatorName, pages, minDate, maxDate, startDate, endDate, rate, formatDate})
             );
+            setTimeout(recalculateInvoiceForm, 200);
+
+            function formatDate(date) {
+                return date ? date.replace(/(\d{4})-(\d\d)-(\d\d)/, '$2/$3') : '';
+            }
         }
 
-        async function updateInvoiceForm() {
-            const circulatorId = $('#create-invoice-circulator-id').val();
+        function recalculateInvoiceForm() {
             const rate = $('#create-invoice-rate').val();
             const startDate = $('#create-invoice-start').val();
             const endDate = $('#create-invoice-end').val();
-            const url = apiUrl('circulators/' + circulatorId + '/line-counts') +
-                '?start=' + startDate + '&end=' + endDate;
-            const counts = await getJson(url);
-            const validLines = counts.valid || 0;
+            let validLines = 0;
+            $('#create-invoice-table tbody tr').each(function () {
+                const $tr = $(this);
+                const date = $tr.data('date');
+                if (date >= startDate && date <= endDate) {
+                    $tr.show();
+                    validLines += +$('td:last', $tr).text();
+                }
+                else {
+                    $tr.hide();
+                }
+            });
             $('#create-invoice-valid').val(validLines);
             $('#create-invoice-total').val((rate * validLines).toFixed(2));
+            $('#create-invoice-table').toggle(validLines > 0);
+            $('#create-invoice-no-lines').toggle(validLines === 0);
+            $('#create-invoice-button').prop('disabled', validLines === 0);
         }
 
         /*

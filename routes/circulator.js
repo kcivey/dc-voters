@@ -58,4 +58,15 @@ module.exports = {
             .catch(next);
     },
 
+    getUnpaidPagesForCirculator(req, res, next) {
+        db.getUnpaidPagesForCirculator({
+            project: req.project,
+            circulatorId: +req.params.id,
+            startDate: req.query.start,
+            endDate: req.query.end,
+        })
+            .then(rows => res.json(rows))
+            .catch(next);
+    },
+
 };

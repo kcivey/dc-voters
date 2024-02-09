@@ -742,13 +742,15 @@
         <div class="form-group row">
           <label class="col-form-label col-sm-4" for="create-invoice-start">Start</label>
           <div class="col-sm-8">
-            <input type="date" class="form-control" name="start" id="create-invoice-start" value="<%- startDate %>"/>
+            <input type="date" class="form-control" name="start" id="create-invoice-start" value="<%- startDate %>"
+              min="<%- minDate %>" max="<%- maxDate %>"/>
           </div>
         </div>
         <div class="form-group row">
           <label class="col-form-label col-sm-4" for="create-invoice-end">End</label>
           <div class="col-sm-8">
-            <input type="date" class="form-control" name="end" id="create-invoice-end" value="<%- endDate %>"/>
+            <input type="date" class="form-control" name="end" id="create-invoice-end" value="<%- endDate %>"
+              min="<%- minDate %>" max="<%- maxDate %>"/>
           </div>
         </div>
         <div class="form-group row">
@@ -756,9 +758,6 @@
           <div class="col-sm-8">
             <input type="number" class="form-control" name="rate" id="create-invoice-rate" min="0" step="0.01" value="<%- rate %>"/>
           </div>
-        </div>
-        <div class="form-group row">
-          <button type="button" class="btn btn-primary" id="get-invoice-data-button">Get Invoice Data</button>
         </div>
         <div class="form-group row">
           <label class="col-form-label col-sm-4" for="create-invoice-valid">Valid signatures for period</label>
@@ -771,6 +770,32 @@
           <div class="col-sm-8">
             <input type="text" class="form-control" name="total" id="create-invoice-total" readonly/>
           </div>
+        </div>
+        <div class="form-group row">
+          <button type="button" id="create-invoice-button" class="btn btn-primary">Create Invoice</button>
+        </div>
+        <table id="create-invoice-table" class="table table-sm table-striped table-hover">
+          <thead>
+          <tr>
+            <th>Date Checked</th>
+            <th class="number">Page</th>
+            <th>Date Signed</th>
+            <th class="number">Valid Signatures</th>
+          </tr>
+          </thead>
+          <tbody>
+            <% _.each(pages, function (page) { %>
+              <tr data-date="<%- page.date_checked %>">
+                <td><%- formatDate(page.date_checked) %></td>
+                <td class="number"><%- page.number %></td>
+                <td><%- formatDate(page.date_signed) %></td>
+                <td class="number"><%- page.valid_lines %></td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+        <div id="create-invoice-no-lines" class="alert alert-warning" style="display: none">
+          There are no valid signatures collected by this circulator during this period.
         </div>
       </form>
     </script>
