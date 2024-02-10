@@ -61,9 +61,14 @@ module.exports = {
             const invoice = await db.getInvoice(project.id, n);
             invoice.circulator = await db.getCirculator(project.id, invoice.circulator_id);
             invoice.pages = await db.getPages({projectId: project.id, criteria: {invoice_id: invoice.id}});
+            invoice.valid_lines = invoice.pages.reduce((a, c) => a + +c.valid_lines, 0);
             invoices.push(invoice);
         }
-        res.send(invoiceTemplate({project, invoices}));
+        res.send(invoiceTemplate({project, invoices, formatDate}));
+
+        function formatDate(date) {
+            return date ? date.replace(/(\d{4})-(\d\d)-(\d\d)/, '$2/$3/$1') : '';
+        }
     },
 
 };
