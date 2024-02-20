@@ -760,6 +760,18 @@
           </div>
         </div>
         <div class="form-group row">
+          <label class="col-form-label col-sm-4" for="create-invoice-additional">Additional payment</label>
+          <div class="col-sm-8">
+            <input type="number" class="form-control" name="additional" id="create-invoice-additional" min="0" step="0.01" value="<%- additional %>"/>
+          </div>
+        </div>
+        <div class="form-group row">
+          <label class="col-form-label col-sm-4" for="create-invoice-check">Check number</label>
+          <div class="col-sm-8">
+            <input type="text" class="form-control" name="check" id="create-invoice-check" value="<%- check %>"/>
+          </div>
+        </div>
+        <div class="form-group row">
           <label class="col-form-label col-sm-4" for="create-invoice-total">Notes</label>
           <div class="col-sm-8">
             <textarea class="form-control" name="notes" id="create-invoice-notes"></textarea>
@@ -778,7 +790,9 @@
           </div>
         </div>
         <div class="form-group row">
-          <button type="button" id="create-invoice-button" class="btn btn-primary">Create Invoice</button>
+          <div class="col-sm-12">
+            <button type="button" id="create-invoice-button" class="btn btn-primary">Create Invoice</button>
+          </div>
         </div>
         <table id="create-invoice-table" class="table table-sm table-striped table-hover">
           <thead>
@@ -934,8 +948,10 @@
                 <th class="number">Invoice</th>
                 <th>Circulator</th>
                 <th>Created</th>
+                <th>Additional</th>
+                <th>Total</th>
                 <th>Paid</th>
-                <th>Amount</th>
+                <th>Check</th>
                 <th>Notes</th>
               </tr>
             </thead>
@@ -955,8 +971,10 @@
                 <td class="number"><%- i.number %></td>
                 <td><%- i.circulator_name %></td>
                 <td><%- i.date_created ? i.date_created.replace(/^(\d{4})-(\d\d)-(\d\d).*/, '$2/$3') : '' %></td>
-                <td><%- i.date_paid ? i.date_paid.replace(/^(\d{4})-(\d\d)-(\d\d).*/, '$2/$3') : '' %></td>
+                <td class="number"><%- i.additional || '' %></td>
                 <td class="number"><%- i.amount %></td>
+                <td><%- i.date_paid ? i.date_paid.replace(/^(\d{4})-(\d\d)-(\d\d).*/, '$2/$3') : '' %></td>
+                <td class="number"><%- i.check || '' %></td>
                 <td><%- i.notes || '' %></td>
               </tr>
             <% }); %>

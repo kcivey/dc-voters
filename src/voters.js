@@ -1252,11 +1252,11 @@
             .on('click', '.page-view-button', displayPage);
 
         $('#global-modal').on('click', '.circulator-edit-button', editCirculator)
-            .on('change', '#create-invoice-rate', fixInvoiceRate)
+            .on('change', '#create-invoice-rate, #create-invoice-additional', fixCurrency)
             .on('click', '#create-invoice-button', createInvoice)
             .on(
                 'change input',
-                '#create-invoice-start, #create-invoice-end, #create-invoice-rate',
+                '#create-invoice-start, #create-invoice-end, #create-invoice-rate, #create-invoice-additional',
                 recalculateInvoiceForm
             );
         $('#assign-pages-modal').on('click', '.assign-send-button', assignPages);
@@ -1363,23 +1363,30 @@
             const pages = await getJson(apiUrl('circulators/' + circulatorId + '/unpaid-pages'));
             const minDate = pages[0] ? pages[0].date_checked : '';
             const maxDate = pages[0] ? pages[pages.length - 1].date_checked : '';
-            const startDate = minDate;
-            const endDate = maxDate;
-            const rate = project.payPerSignature;
             const template = getTemplate('create-invoice-form');
-            openModal(
-                'Invoice for ' + circulatorName,
-                template({circulatorId, circulatorName, pages, minDate, maxDate, startDate, endDate, rate, formatDate})
-            );
+            const values = {
+                circulatorId,
+                circulatorName,
+                pages,
+                minDate,
+                maxDate,
+                startDate: minDate,
+                endDate: maxDate,
+                rate: project.payPerSignature,
+                additional: '0.00',
+                check: '',
+                formatDate(date) {
+                    return date ? date.replace(/(\d{4})-(\d\d)-(\d\d)/, '$2/$3') : '';
+                },
+            };
+            openModal('Invoice for ' + circulatorName, template(values), true);
             setTimeout(recalculateInvoiceForm, 200);
 
-            function formatDate(date) {
-                return date ? date.replace(/(\d{4})-(\d\d)-(\d\d)/, '$2/$3') : '';
-            }
         }
 
         function recalculateInvoiceForm() {
             const rate = $('#create-invoice-rate').val();
+            const additional = +$('#create-invoice-additional').val();
             const startDate = $('#create-invoice-start').val();
             const endDate = $('#create-invoice-end').val();
             let validLines = 0;
@@ -1395,16 +1402,16 @@
                 }
             });
             $('#create-invoice-valid').val(validLines);
-            $('#create-invoice-total').val((rate * validLines).toFixed(2));
+            $('#create-invoice-total').val((rate * validLines + additional).toFixed(2));
             $('#create-invoice-table').toggle(validLines > 0);
             $('#create-invoice-no-lines').toggle(validLines === 0);
             $('#create-invoice-button').prop('disabled', validLines === 0);
         }
 
-        function fixInvoiceRate() {
+        function fixCurrency() {
             const $input = $(this);
-            const rate = +$input.val().replace('$', '');
-            $input.val(rate.toFixed(2));
+            const amount = +$input.val().replace('$', '');
+            $input.val(amount.toFixed(2));
         }
 
         async function createInvoice() {
@@ -1420,8 +1427,10 @@
                 circulator_id: +$('#create-invoice-circulator-id').val(),
                 start_date: $('#create-invoice-start').val(),
                 end_date: $('#create-invoice-end').val(),
-                notes: $('#create-invoice-notes').val(),
+                additional: $('#create-invoice-additional').val(),
                 amount: $('#create-invoice-total').val(),
+                check: $('#create-invoice-check').val(),
+                notes: $('#create-invoice-notes').val(),
                 pages,
             };
             const invoice = await $.ajax({url: apiUrl('invoices'), data, dataType: 'json', type: 'POST'});

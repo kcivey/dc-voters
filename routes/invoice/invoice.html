@@ -62,9 +62,13 @@
             <% if (invoice.check) { %>
                 <tr>
                     <th>Check #</th>
-                    <td>$<%- invoice.check %></td>
+                    <td><%- invoice.check %></td>
                 </tr>
             <% } %>
+            <tr>
+                <th>Additional</th>
+                <td>$<%- invoice.additional %></td>
+            </tr>
             <tr>
                 <th>Total</th>
                 <td>$<%- invoice.amount %></td>
