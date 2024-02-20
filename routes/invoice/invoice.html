@@ -44,7 +44,7 @@
 </head>
 <body>
     <% _.each(invoices, function (invoice) { %>
-        <h1><%- project.name %></h1>
+        <h1><%- project.name %> Paid Petition Circulation</h1>
         <h2>Invoice <%- invoice.number %></h2>
         <table id="header-table">
             <tr>
@@ -59,14 +59,20 @@
                 <th>Circulator</th>
                 <td><%- invoice.circulator.name %></td>
             </tr>
+            <% if (invoice.check) { %>
+                <tr>
+                    <th>Check #</th>
+                    <td>$<%- invoice.check %></td>
+                </tr>
+            <% } %>
             <tr>
-                <th>Amount</th>
+                <th>Total</th>
                 <td>$<%- invoice.amount %></td>
             </tr>
             <% if (invoice.notes) { %>
                 <tr>
                     <th>Notes</th>
-                    <td>$<%- invoice.notes %></td>
+                    <td><%- invoice.notes %></td>
                 </tr>
             <% } %>
         </table>

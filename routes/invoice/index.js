@@ -44,6 +44,20 @@ module.exports = {
             .catch(next);
     },
 
+    deleteInvoice(req, res, next) {
+        if (!req.project.paidCirculators) {
+            throw createError(404, 'No invoices for this project');
+        }
+        db.deleteInvoice(req.project.id, +req.params.number)
+            .then(function (affectedRows) {
+                if (!affectedRows) {
+                    throw createError(404, 'No such invoice');
+                }
+                res.sendStatus(204);
+            })
+            .catch(next);
+    },
+
     async htmlInvoices(req, res) {
         const project = req.project;
         if (!project.paidCirculators) {

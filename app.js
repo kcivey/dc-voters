@@ -74,6 +74,7 @@ apiApp.get('/pages/:number', routes.getPage);
 apiApp.put('/pages/:number', routes.createOrUpdatePage);
 apiApp.get('/invoices', routes.getInvoices);
 apiApp.post('/invoices', routes.createOrUpdateInvoice);
+apiApp.delete('/invoices/:number', routes.deleteInvoice);
 apiApp.get('/invoices/invoice-:number.html', routes.htmlInvoices);
 apiApp.get('/invoices/:number', routes.getInvoice);
 apiApp.put('/invoices/:number', routes.createOrUpdateInvoice);

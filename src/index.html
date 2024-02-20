@@ -946,6 +946,11 @@
                   <button type="button" class="btn btn-outline-primary table-button invoice-print-button" data-number="<%- i.number %>" title="Print">
                     <i class="fas fa-print fa-fw"></i>
                   </button>
+                  <% if (!i.date_paid) { %>
+                    <button type="button" class="btn btn-outline-danger table-button invoice-delete-button" data-number="<%- i.number %>" title="Delete">
+                      <i class="fas fa-trash fa-fw"></i>
+                    </button>
+                  <% } %>
                 </td>
                 <td class="number"><%- i.number %></td>
                 <td><%- i.circulator_name %></td>

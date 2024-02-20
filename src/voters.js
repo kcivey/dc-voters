@@ -1246,6 +1246,7 @@
             .on('click', '.circulator-totals-button', showCirculatorTotals)
             .on('click', '.circulator-invoice-button', showInvoiceForm)
             .on('click', '.invoice-print-button', printInvoice)
+            .on('click', '.invoice-delete-button', deleteInvoice)
             .on('click', '.page-edit-button', editPage)
             .on('click', '.page-upload-show-button', showPageUploadForm)
             .on('click', '.page-view-button', displayPage);
@@ -1442,6 +1443,18 @@
                     type: 'DELETE',
                 });
                 showTable('circulators');
+            }
+        }
+
+        async function deleteInvoice() {
+            const number = $(this).data('number');
+            if (number) {
+                await $.ajax({
+                    url: apiUrl('invoices/' + number),
+                    dataType: 'json',
+                    type: 'DELETE',
+                });
+                showTable('invoices');
             }
         }
 
