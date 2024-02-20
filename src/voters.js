@@ -1436,7 +1436,8 @@
 
         async function deleteCirculator() {
             const id = $(this).data('id');
-            if (id) {
+            const confirm = window.confirm(`Delete circulator ${id}?`);
+            if (id && confirm) {
                 await $.ajax({
                     url: apiUrl('circulators/' + id),
                     dataType: 'json',
@@ -1448,7 +1449,8 @@
 
         async function deleteInvoice() {
             const number = $(this).data('number');
-            if (number) {
+            const confirm = window.confirm(`Delete invoice ${number}?`);
+            if (number && confirm) {
                 await $.ajax({
                     url: apiUrl('invoices/' + number),
                     dataType: 'json',
