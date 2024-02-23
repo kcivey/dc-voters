@@ -159,4 +159,37 @@ module.exports = {
             .catch(next);
     },
 
+    invoicesTsv(req, res, next) {
+        const project = req.project;
+        if (!project) {
+            throw createError(404, 'No project set');
+        }
+        if (!project.paidCirculators) {
+            throw createError(404, 'No invoices for project');
+        }
+        const filename = project.code + '-invoices.tsv';
+        db.getInvoices(project.id)
+            .then(function (rows) {
+                const tsv = stringify(
+                    rows.map(function (row) {
+                        return {
+                            number: row.number,
+                            circulator: row.circulator_name,
+                            date_created: moment(row.date_created).format('MM/DD/YYYY'),
+                            date_paid: row.date_paid ? moment(row.date_paid).format('MM/DD/YYYY') : '',
+                            start_date: moment(row.start_date).format('MM/DD/YYYY'),
+                            end_date: moment(row.end_date).format('MM/DD/YYYY'),
+                            check: row.check || '',
+                            total: row.amount,
+                        };
+                    }),
+                    {delimiter: '\t', header: true}
+                );
+                res.attachment(filename);
+                res.set('Content-Type', 'text/tab-separated-values; charset=utf-8');
+                res.send(tsv);
+            })
+            .catch(next);
+    },
+
 };
