@@ -1070,29 +1070,31 @@
                   <td class="text-right"><%- typeof total === 'number' ? commify(total) : total %></td>
                 </tr>
               <% }); %>
-              <tr>
-                <td>Ward breakdown</td>
-                <td class="pr-0" colspan="2">
-                  <table class="table table-striped">
-                    <tbody>
-                      <% _.each(wardBreakdown, function (info, ward) { %>
-                        <% if (info.signers) { %>
-                          <tr>
-                            <td><% if (ward !== 'TOTAL') { %>Ward <% } %><%- ward %></td>
-                            <td class="text-right text-nowrap">
-                              <%- commify(info.signers) %>
-                              <% if (!circulatorName) { %>
-                                / <%- commify(info.registered) %>
-                                (<%- (100 * info.signers / info.registered).toFixed(2) %>%)
-                              <% } %>
-                            </td>
-                          </tr>
-                        <% } %>
-                      <% }); %>
-                    </tbody>
-                  </table>
-                </td>
-              </tr>
+              <% if (wardBreakdown) { %>
+                <tr>
+                  <td>Ward breakdown</td>
+                  <td class="pr-0" colspan="2">
+                    <table class="table table-striped">
+                      <tbody>
+                        <% _.each(wardBreakdown, function (info, ward) { %>
+                          <% if (info.signers) { %>
+                            <tr>
+                              <td><% if (ward !== 'TOTAL') { %>Ward <% } %><%- ward %></td>
+                              <td class="text-right text-nowrap">
+                                <%- commify(info.signers) %>
+                                <% if (!circulatorName) { %>
+                                  / <%- commify(info.registered) %>
+                                  (<%- (100 * info.signers / info.registered).toFixed(2) %>%)
+                                <% } %>
+                              </td>
+                            </tr>
+                          <% } %>
+                        <% }); %>
+                      </tbody>
+                    </table>
+                  </td>
+                </tr>
+              <% } %>
             </tbody>
           </table>
         </div>

@@ -644,7 +644,7 @@
         $('#bottom-row')
             .html(totalTableTemplate({
                 totals,
-                wardBreakdown: data.wardBreakdown,
+                wardBreakdown: project.ward || project.party ? null : data.wardBreakdown,
                 circulatorName,
                 commify,
             }))
