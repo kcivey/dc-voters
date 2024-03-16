@@ -66,7 +66,7 @@ module.exports = function (app, apiApp) {
             function (email, delivery, callback) {
                 db.getUser({email})
                     .then(function (user) {
-                        if (user && !user.blocked) {
+                        if (user && !user.blocked && user.projects.length) {
                             return callback(null, user.id);
                         }
                         return callback(null, null);
