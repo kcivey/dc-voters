@@ -740,83 +740,115 @@
     <script type="text/template" id="create-invoice-form-template">
       <form action="/" id="create-invoice-form">
         <input type="hidden" name="circulator_id" id="create-invoice-circulator-id" value="<%- circulatorId %>"/>
-        <div class="form-group row">
-          <label class="col-form-label col-sm-4" for="create-invoice-start">Start</label>
-          <div class="col-sm-8">
-            <input type="date" class="form-control" name="start" id="create-invoice-start" value="<%- startDate %>"
-              min="<%- minDate %>" max="<%- maxDate %>"/>
+        <div class="row">
+          <div class="col-md-6">
+            <div class="form-group row">
+              <label class="col-form-label col-sm-4" for="create-invoice-start">Start</label>
+              <div class="col-sm-8">
+                <input type="date" class="form-control" name="start" id="create-invoice-start" value="<%- startDate %>"
+                  min="<%- minDate %>" max="<%- maxDate %>"/>
+              </div>
+            </div>
+            <div class="form-group row">
+              <label class="col-form-label col-sm-4" for="create-invoice-end">End</label>
+              <div class="col-sm-8">
+                <input type="date" class="form-control" name="end" id="create-invoice-end" value="<%- endDate %>"
+                  min="<%- minDate %>" max="<%- maxDate %>"/>
+              </div>
+            </div>
+            <div class="form-group row">
+              <label class="col-form-label col-sm-4" for="create-invoice-rate">Rate per signature</label>
+              <div class="col-sm-8">
+                <input type="number" class="form-control" name="rate" id="create-invoice-rate" min="0" step="0.01" value="<%- rate %>"/>
+              </div>
+            </div>
+            <div class="form-group row">
+              <label class="col-form-label col-sm-4" for="create-invoice-additional">Additional payment</label>
+              <div class="col-sm-8">
+                <input type="number" class="form-control" name="additional" id="create-invoice-additional" min="0" step="0.01" value="<%- additional %>"/>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="form-group row">
+              <label class="col-form-label col-sm-4" for="create-invoice-check">Check number</label>
+              <div class="col-sm-8">
+                <input type="text" class="form-control" name="check" id="create-invoice-check" value="<%- check %>"/>
+              </div>
+            </div>
+            <div class="form-group row">
+              <label class="col-form-label col-sm-4" for="create-invoice-total">Notes</label>
+              <div class="col-sm-8">
+                <textarea class="form-control" name="notes" id="create-invoice-notes"></textarea>
+              </div>
+            </div>
+            <div class="form-group row">
+              <label class="col-form-label col-sm-4" for="create-invoice-valid">Valid signatures for period</label>
+              <div class="col-sm-8">
+                <input type="text" class="form-control" name="valid" id="create-invoice-valid" readonly/>
+              </div>
+            </div>
+            <div class="form-group row">
+              <label class="col-form-label col-sm-4" for="create-invoice-total">Total due for period</label>
+              <div class="col-sm-8">
+                <input type="text" class="form-control" name="total" id="create-invoice-total" readonly/>
+              </div>
+            </div>
           </div>
         </div>
-        <div class="form-group row">
-          <label class="col-form-label col-sm-4" for="create-invoice-end">End</label>
-          <div class="col-sm-8">
-            <input type="date" class="form-control" name="end" id="create-invoice-end" value="<%- endDate %>"
-              min="<%- minDate %>" max="<%- maxDate %>"/>
-          </div>
-        </div>
-        <div class="form-group row">
-          <label class="col-form-label col-sm-4" for="create-invoice-rate">Rate per signature</label>
-          <div class="col-sm-8">
-            <input type="number" class="form-control" name="rate" id="create-invoice-rate" min="0" step="0.01" value="<%- rate %>"/>
-          </div>
-        </div>
-        <div class="form-group row">
-          <label class="col-form-label col-sm-4" for="create-invoice-additional">Additional payment</label>
-          <div class="col-sm-8">
-            <input type="number" class="form-control" name="additional" id="create-invoice-additional" min="0" step="0.01" value="<%- additional %>"/>
-          </div>
-        </div>
-        <div class="form-group row">
-          <label class="col-form-label col-sm-4" for="create-invoice-check">Check number</label>
-          <div class="col-sm-8">
-            <input type="text" class="form-control" name="check" id="create-invoice-check" value="<%- check %>"/>
-          </div>
-        </div>
-        <div class="form-group row">
-          <label class="col-form-label col-sm-4" for="create-invoice-total">Notes</label>
-          <div class="col-sm-8">
-            <textarea class="form-control" name="notes" id="create-invoice-notes"></textarea>
-          </div>
-        </div>
-        <div class="form-group row">
-          <label class="col-form-label col-sm-4" for="create-invoice-valid">Valid signatures for period</label>
-          <div class="col-sm-8">
-            <input type="text" class="form-control" name="valid" id="create-invoice-valid" readonly/>
-          </div>
-        </div>
-        <div class="form-group row">
-          <label class="col-form-label col-sm-4" for="create-invoice-total">Total due for period</label>
-          <div class="col-sm-8">
-            <input type="text" class="form-control" name="total" id="create-invoice-total" readonly/>
-          </div>
-        </div>
-        <div class="form-group row">
+        <div class="row">
           <div class="col-sm-12">
             <button type="button" id="create-invoice-button" class="btn btn-primary">Create Invoice</button>
           </div>
         </div>
-        <table id="create-invoice-table" class="table table-sm table-striped table-hover">
-          <thead>
-          <tr>
-            <th>Date Checked</th>
-            <th class="number">Page</th>
-            <th>Date Signed</th>
-            <th class="number">Valid Signatures</th>
-          </tr>
-          </thead>
-          <tbody>
-            <% _.each(pages, function (page) { %>
-              <tr data-date="<%- page.date_checked %>">
-                <td><%- formatDate(page.date_checked) %></td>
-                <td class="number"><%- page.number %></td>
-                <td><%- formatDate(page.date_signed) %></td>
-                <td class="number"><%- page.valid_lines %></td>
+        <div class="row">
+          <div class="col-sm-6">
+            <table id="create-invoice-date-table" class="table table-sm table-striped table-hover">
+              <thead>
+              <tr>
+                <th>Date Checked</th>
+                <th class="number">Page</th>
+                <th>Date Signed</th>
+                <th class="number">Valid Signatures</th>
               </tr>
-            <% }) %>
-          </tbody>
-        </table>
-        <div id="create-invoice-no-lines" class="alert alert-warning" style="display: none">
-          There are no valid signatures collected by this circulator during this period.
+              </thead>
+              <tbody>
+                <% _.each(pages, function (page) { %>
+                  <tr data-date="<%- page.date_checked %>">
+                    <td><%- formatDate(page.date_checked) %></td>
+                    <td class="number"><%- page.number %></td>
+                    <td><%- formatDate(page.date_signed) %></td>
+                    <td class="number"><%- page.valid_lines %></td>
+                  </tr>
+                <% }) %>
+              </tbody>
+            </table>
+            <div id="create-invoice-no-lines" class="alert alert-warning" style="display: none">
+              There are no valid signatures collected by this circulator during this period.
+            </div>
+          </div>
+          <div class="col-sm-6">
+            <table id="create-invoice-ward-table" class="table table-sm table-striped table-hover float-right">
+              <thead>
+                <tr>
+                  <th>Ward</th>
+                  <th class="number">Valid Signatures</th>
+                </tr>
+              </thead>
+              <tbody>
+              <% for (let i = 1; i <= 8; i++) { %>
+                <tr>
+                  <td class="number"><%- i %></td>
+                  <td class="number">0</td>
+                </tr>
+              <% } %>
+              <tr>
+                <td class="number">Total</td>
+                <td class="number">0</td>
+              </tr>
+              </tbody>
+            </table>
+          </div>
         </div>
       </form>
     </script>

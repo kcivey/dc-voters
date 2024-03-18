@@ -58,6 +58,26 @@ module.exports = {
             .catch(next);
     },
 
+    async getLineCountsForCirculatorByWard(req, res, next) {
+        try {
+            const rows = await db.getLineCountsForCirculatorByWard({
+                project: req.project,
+                circulatorId: +req.params.id,
+                startDate: req.query.start,
+                endDate: req.query.end,
+            });
+            const counts = Array(9).fill(0);
+            for (const r of rows) {
+                counts[r.ward] = r.valid;
+                counts[0] += r.valid;
+            }
+            return res.json(counts);
+        }
+        catch (e) {
+            return next(e);
+        }
+    },
+
     getUnpaidPagesForCirculator(req, res, next) {
         db.getUnpaidPagesForCirculator({
             project: req.project,

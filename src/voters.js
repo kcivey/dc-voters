@@ -1384,13 +1384,18 @@
 
         }
 
-        function recalculateInvoiceForm() {
+        async function recalculateInvoiceForm() {
+            const circulatorId = $('#create-invoice-circulator-id').val();
             const rate = $('#create-invoice-rate').val();
             const additional = +$('#create-invoice-additional').val();
             const startDate = $('#create-invoice-start').val();
             const endDate = $('#create-invoice-end').val();
+            const wardCounts = await getJson(
+                apiUrl('circulators/' + circulatorId + '/ward-counts'),
+                {start: startDate, end: endDate}
+            );
             let validLines = 0;
-            $('#create-invoice-table tbody tr').each(function () {
+            $('#create-invoice-date-table tbody tr').each(function () {
                 const $tr = $(this);
                 const date = $tr.data('date');
                 if (date >= startDate && date <= endDate) {
@@ -1401,9 +1406,15 @@
                     $tr.hide();
                 }
             });
+            const $rows = $('#create-invoice-ward-table tbody tr').get();
+            console.log($rows)
+            for (let i = 0; i <= 8; i++) {
+                const rowIndex = i > 0 ? i - 1 : 8;
+                $('td:last', $rows[rowIndex]).text(wardCounts[i]);
+            }
             $('#create-invoice-valid').val(validLines);
             $('#create-invoice-total').val((rate * validLines + additional).toFixed(2));
-            $('#create-invoice-table').toggle(validLines > 0);
+            $('#create-invoice-date-table, #create-invoice-ward-table').toggle(validLines > 0);
             $('#create-invoice-no-lines').toggle(validLines === 0);
             $('#create-invoice-button').prop('disabled', validLines === 0);
         }
@@ -1419,7 +1430,7 @@
             const today = (new Date(Date.now() - now.getTimezoneOffset())).toISOString()
                 .slice(0, 10);
             const pages = [];
-            $('#create-invoice-table tbody tr:visible').each(function () {
+            $('#create-invoice-date-table tbody tr:visible').each(function () {
                 pages.push(+$('td:nth-of-type(2)', this).text());
             });
             const data = {
