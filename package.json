@@ -23,7 +23,7 @@
     "express-session": "^1.18.0",
     "find-config": "^1.0.0",
     "generate-password": "^1.7.1",
-    "googleapis": "^130.0.0",
+    "googleapis": "^134.0.0",
     "http-errors": "^2.0.0",
     "js-yaml": "^4.1.0",
     "moment": "^2.30.1",
@@ -33,7 +33,7 @@
     "number-list": "^0.2.7",
     "passwordless": "^1.1.3",
     "passwordless-mysql": "github:kcivey/passwordless-mysql#mysql2",
-    "terser": "^5.29.1",
+    "terser": "^5.29.2",
     "underscore": "^1.13.6",
     "usps-webtools": "^1.0.7",
     "yargs": "^17.7.2"
