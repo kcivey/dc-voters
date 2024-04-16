@@ -337,7 +337,7 @@
                 <th id="party-column-head">Party</th>
                 <th class="text-center">Ward</th>
                 <th>Registered</th>
-                <th id="match-button-head"></th>
+                <th></th>
               </tr>
             </thead>
             <tfoot>
@@ -456,8 +456,8 @@
         <% if (wantedParty) { %><td><%- partyDisplay %></td><% } else { %><td style="display: none;"></td><% } %>
         <td class="text-center"><%- ward %></td>
         <td><%- registered %></td>
-        <% if (showButtons) { %>
-          <td>
+        <td>
+          <% if (showButtons) { %>
             <% if (circulatorMode) { %>
               <button type="button" class="btn btn-secondary btn-sm add-note">
                 Add Note
@@ -475,8 +475,10 @@
                 <% } %>
               </button>
             <% } %>
-          </td>
-        <% } else { %><td style="display: none;"></td><% } %>
+          <% } else if (duplicate_date) { %>
+            Signed <%- formatDate(duplicate_date) %>
+          <% } %>
+        </td>
       </tr>
     </script>
     <script type="text/template" id="user-form-template">

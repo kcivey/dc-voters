@@ -19,6 +19,9 @@
     let project;
     let imageAdjustment = 0;
     let circulatorMode = false;
+    function formatDate(date) {
+        return date ? date.replace(/(\d{4})-(\d\d)-(\d\d)/, '$2/$3') : '';
+    }
 
     const BaseView = Backbone.View.extend({
         initialize() {
@@ -874,7 +877,6 @@
                 $('#result-div > *').hide();
                 $('#party-column-head').toggle(!!project.party);
                 const showButtons = !!(status.lineRecord && status.lineRecord.line) || circulatorMode;
-                $('#match-button-head').toggle(showButtons);
                 $('#voter-table').show();
                 $('#voter-table tr:first').toggle(showButtons && !circulatorMode);
                 const results = data.results;
@@ -888,6 +890,7 @@
                     v.wantedWard = project.ward;
                     v.showButtons = showButtons;
                     v.circulatorMode = circulatorMode;
+                    v.formatDate = formatDate;
                     const tr = $(voterRowTemplate(v)).data('voterData', v);
                     tbody.append(tr);
                 });
@@ -1375,9 +1378,7 @@
                 rate: project.payPerSignature,
                 additional: '0.00',
                 check: '',
-                formatDate(date) {
-                    return date ? date.replace(/(\d{4})-(\d\d)-(\d\d)/, '$2/$3') : '';
-                },
+                formatDate,
             };
             openModal('Invoice for ' + circulatorName, template(values), true);
             setTimeout(recalculateInvoiceForm, 200);
