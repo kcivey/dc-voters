@@ -19,7 +19,7 @@
     "emailjs": "^3.8.1",
     "errorhandler": "^1.5.1",
     "express": "^4.19.2",
-    "express-mysql-session": "^3.0.0",
+    "express-mysql-session": "^3.0.1",
     "express-session": "^1.18.0",
     "find-config": "^1.0.0",
     "generate-password": "^1.7.1",
