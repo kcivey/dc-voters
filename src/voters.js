@@ -877,6 +877,8 @@
                 $('#result-div > *').hide();
                 $('#party-column-head').toggle(!!project.party);
                 const showButtons = !!(status.lineRecord && status.lineRecord.line) || circulatorMode;
+                $('#match-button-head').toggle(showButtons);
+                $('#signed-head').toggle(circulatorMode || !showButtons);
                 $('#voter-table').show();
                 $('#voter-table tr:first').toggle(showButtons && !circulatorMode);
                 const results = data.results;
