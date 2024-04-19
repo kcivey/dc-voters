@@ -13,7 +13,6 @@ const regulations = {
     WP: '1607.1(n) wrong party',
     WW: '1607.1(m) wrong ward',
     D: '1607.1(c)',
-    FR: '1607.1(b) not registered at address',
     CU: '1607.1(g) circulator not qualified',
     CA: '1607.1(h) circulator affidavit defective',
 };
