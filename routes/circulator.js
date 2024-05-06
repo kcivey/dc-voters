@@ -47,17 +47,6 @@ module.exports = {
             .catch(next);
     },
 
-    getLineCountsForCirculator(req, res, next) {
-        db.getLineCountsForCirculator({
-            project: req.project,
-            circulatorId: +req.params.id,
-            startDate: req.query.start,
-            endDate: req.query.end,
-        })
-            .then(rows => res.json(rows[0]))
-            .catch(next);
-    },
-
     async getLineCountsForCirculatorByWard(req, res, next) {
         try {
             const rows = await db.getLineCountsForCirculatorByWard({

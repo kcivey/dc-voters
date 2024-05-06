@@ -60,7 +60,6 @@ apiApp.post('/circulators', routes.createOrUpdateCirculator);
 apiApp.get('/circulators/:id', routes.getCirculator);
 apiApp.put('/circulators/:id', routes.createOrUpdateCirculator);
 apiApp.delete('/circulators/:id', routes.deleteCirculator);
-apiApp.get('/circulators/:id/line-counts', routes.getLineCountsForCirculator);
 apiApp.get('/circulators/:id/ward-counts', routes.getLineCountsForCirculatorByWard);
 apiApp.get('/circulators/:id/unpaid-pages', routes.getUnpaidPagesForCirculator);
 apiApp.post('/notes', routes.createOrUpdateNote);
