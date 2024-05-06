@@ -1395,7 +1395,7 @@
             const endDate = $('#create-invoice-end').val();
             const wardCounts = await getJson(
                 apiUrl('circulators/' + circulatorId + '/ward-counts'),
-                {start: startDate, end: endDate}
+                {start: startDate, end: endDate, unpaid: 1}
             );
             let validLines = 0;
             $('#create-invoice-date-table tbody tr').each(function () {

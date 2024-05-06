@@ -65,6 +65,7 @@ module.exports = {
                 circulatorId: +req.params.id,
                 startDate: req.query.start,
                 endDate: req.query.end,
+                unpaid: !!req.query.unpaid,
             });
             const counts = Array(9).fill(0);
             for (const r of rows) {
