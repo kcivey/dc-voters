@@ -15,6 +15,7 @@ CREATE TABLE IF NOT EXISTS projects (
   `lines_per_page` TINYINT UNSIGNED NOT NULL DEFAULT 20,
   `archived` TINYINT(1) UNSIGNED NOT NULL DEFAULT 0,
   `batches` TEXT,
+  `voter_counts` VARCHAR(64),
   `use_circulator_mode` TINYINT(1) UNSIGNED NOT NULL DEFAULT 0,
   PRIMARY KEY (`id`),
   UNIQUE KEY (`code`)

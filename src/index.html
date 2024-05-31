@@ -1106,15 +1106,14 @@
             <tbody>
               <% _.each(totals, function (total, label) { %>
                 <tr>
-                  <td colspan="2"><%- label %></td>
+                  <td><%- label %></td>
                   <td class="text-right"><%- typeof total === 'number' ? commify(total) : total %></td>
                 </tr>
               <% }); %>
               <% if (wardBreakdown) { %>
                 <tr>
-                  <td>Ward breakdown</td>
-                  <td class="pr-0" colspan="2">
-                    <table class="table table-striped">
+                  <td colspan="2"><p>Ward breakdown</p>
+                    <table class="table table-striped float-right">
                       <tbody>
                         <% _.each(wardBreakdown, function (info, ward) { %>
                           <% if (info.signers) { %>
