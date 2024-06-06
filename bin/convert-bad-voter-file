@@ -58,7 +58,7 @@ async function main() {
             RES_STREET: r.Street_Name.replace(/^\d+(?:ST|ND|RD|TH)$/i, m => m.toLowerCase()) + ' ' +
                 r.Street_Type.slice(0, 1) + r.Street_Type.slice(1).toLowerCase() + ' ' +
                 (r.Street_Dir || r.Street_Dir_Suffix),
-            RES_CITY: (r.City_Name || r.City).slice(0, 25),
+            RES_CITY: (r.City_Name || r.City || 'Washington').slice(0, 25),
             RES_STATE: 'DC',
             RES_ZIP: r.Zip_Code.slice(0, 5),
             RES_ZIP4: '',
