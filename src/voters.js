@@ -1410,7 +1410,6 @@
                 }
             });
             const $rows = $('#create-invoice-ward-table tbody tr').get();
-            console.log($rows)
             for (let i = 0; i <= 8; i++) {
                 const rowIndex = i > 0 ? i - 1 : 8;
                 $('td:last', $rows[rowIndex]).text(wardCounts[i]);
