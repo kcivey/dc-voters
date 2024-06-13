@@ -131,6 +131,10 @@
       div[data-lastpass-icon-root="true"],div[data-lastpass-infield="true"] {
           display: none !important;
       }
+      #create-invoice-rate input {
+        display: inline;
+        width: 70%;
+      }
     </style>
   </head>
   <body>
@@ -748,6 +752,7 @@
     <script type="text/template" id="create-invoice-form-template">
       <form action="/" id="create-invoice-form">
         <input type="hidden" name="circulator_id" id="create-invoice-circulator-id" value="<%- circulatorId %>"/>
+        <input type="hidden" name="circulator_id" id="create-invoice-detail"/>
         <div class="row">
           <div class="col-md-6">
             <div class="form-group row">
@@ -766,9 +771,29 @@
             </div>
             <div class="form-group row">
               <label class="col-form-label col-sm-4" for="create-invoice-rate">Rate per signature</label>
-              <div class="col-sm-8">
-                <input type="number" class="form-control" name="rate" id="create-invoice-rate" min="0" step="0.01" value="<%- rate %>"/>
-              </div>
+                <% if (Array.isArray(rate)) { %>
+                  <div class="col-sm-8" id="create-invoice-rate">
+                    <div class="row">
+                      <div class="col-6">
+                        <% for (let i = 1; i <= 8; i++) { %>
+                          <label>
+                            W<%- i %>
+                            <input type="number" class="form-control create-invoice-rate" name="rate" min="0" step="0.01" value="<%- rate[i - 1] %>"/>
+                          </label>
+                          <br/>
+                          <% if (i === 4) { %>
+                            </div>
+                            <div class="col-6">
+                          <% } %>
+                        <% } %>
+                      </div>
+                    </div>
+                  </div>
+                <% } else { %>
+                  <div class="col-sm-8">
+                    <input type="number" class="form-control create-invoice-rate" name="rate" id="create-invoice-rate" min="0" step="0.01" value="<%- rate %>"/>
+                  </div>
+                <% } %>
             </div>
             <div class="form-group row">
               <label class="col-form-label col-sm-4" for="create-invoice-additional">Additional payment</label>
@@ -810,55 +835,50 @@
           </div>
         </div>
         <div class="row">
-          <div class="col-sm-6">
-            <table id="create-invoice-date-table" class="table table-sm table-striped table-hover">
-              <thead>
-              <tr>
-                <th>Date Checked</th>
-                <th class="number">Page</th>
-                <th>Date Signed</th>
-                <th class="number">Valid Signatures</th>
-              </tr>
-              </thead>
-              <tbody>
-                <% _.each(pages, function (page) { %>
-                  <tr data-date="<%- page.date_checked %>">
-                    <td><%- formatDate(page.date_checked) %></td>
-                    <td class="number"><%- page.number %></td>
-                    <td><%- formatDate(page.date_signed) %></td>
-                    <td class="number"><%- page.valid_lines %></td>
-                  </tr>
-                <% }) %>
-              </tbody>
-            </table>
-            <div id="create-invoice-no-lines" class="alert alert-warning" style="display: none">
-              There are no valid signatures collected by this circulator during this period.
-            </div>
-          </div>
-          <div class="col-sm-6">
-            <table id="create-invoice-ward-table" class="table table-sm table-striped table-hover float-right">
-              <thead>
-                <tr>
-                  <th>Ward</th>
-                  <th class="number">Valid Signatures</th>
-                </tr>
-              </thead>
-              <tbody>
-              <% for (let i = 1; i <= 8; i++) { %>
-                <tr>
-                  <td class="number"><%- i %></td>
-                  <td class="number">0</td>
-                </tr>
-              <% } %>
-              <tr>
-                <td class="number">Total</td>
-                <td class="number">0</td>
-              </tr>
-              </tbody>
-            </table>
-          </div>
+          <div class="col-sm-12" id="create-invoice-table-container"></div>
         </div>
       </form>
+    </script>
+    <script type="text/template" id="create-invoice-table-template">
+      <% if (rows[0].date_checked) { %>
+        <table id="create-invoice-table" class="table table-sm table-striped table-hover">
+          <thead>
+          <tr>
+            <th rowspan="2">Date<br/>Checked</th>
+            <th rowspan="2" class="number">Page</th>
+            <th rowspan="2">Date<br/>Signed</th>
+            <th colspan="9" class="text-center">Valid Signatures</th>
+          </tr>
+          <tr>
+            <% for (let i = 1; i <= 8; i++) { %>
+              <th>W<%- i %></th>
+            <% } %>
+            <th>Total</th>
+          </tr>
+          </thead>
+          <tbody>
+          <% _.each(rows, function (page) { %>
+            <tr data-date="<%- page.date_checked %>">
+              <% if (!page.date_checked) { %>
+                <td colspan="3" class="text-right"><%- page.number.at(0).toUpperCase() + page.number.slice(1) %></td>
+              <% } else { %>
+                <td><%- formatDate(page.date_checked) %></td>
+                <td class="number"><%- page.number %></td>
+                <td><%- formatDate(page.date_signed) %></td>
+              <% } %>
+              <% for (let i = 1; i <= 8; i++) { %>
+                <td class="number"><%- page[i] || '' %></td>
+              <% } %>
+              <td class="number"><%- page.total %></td>
+            </tr>
+          <% }) %>
+          </tbody>
+        </table>
+      <% } else { %>
+        <div class="alert alert-warning">
+          There are no valid signatures collected by this circulator during this period.
+        </div>
+      <% } %>
     </script>
     <script type="text/template" id="alert-template">
       <div class="alert fade show <%- successful ? 'alert-success' : 'alert-danger' %>">

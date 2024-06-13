@@ -48,6 +48,9 @@ module.exports = {
     },
 
     async getLineCountsForCirculatorByWard(req, res, next) {
+        if (req.query.rate && !/^\d+(?:\.\d+)?(?:(?:,\s*\d+(?:\.\d+)?){7})?$/.test(req.query.rate)) {
+            throw createError(400, 'Invalid rate value');
+        }
         try {
             const rows = await db.getLineCountsForCirculatorByWard({
                 project: req.project,
@@ -56,10 +59,48 @@ module.exports = {
                 endDate: req.query.end,
                 unpaid: !!req.query.unpaid,
             });
-            const counts = Array(9).fill(0);
+            const counts = [];
+            const totalRow = {number: 'total', total: 0};
+            for (let ward = 1; ward <= 8; ward++) {
+                totalRow[ward] = 0;
+            }
+            let current = {page: null};
             for (const r of rows) {
-                counts[r.ward] = r.valid;
-                counts[0] += r.valid;
+                if (current.number !== r.page) {
+                    current = {
+                        number: r.page,
+                        date_checked: r.date_checked,
+                        date_signed: r.date_signed,
+                        total: 0,
+                    };
+                    for (let ward = 1; ward <= 8; ward++) {
+                        current[ward] = 0;
+                    }
+                    counts.push(current);
+                }
+                current[r.ward] = r.valid;
+                current.total += r.valid;
+                totalRow[r.ward] += r.valid;
+                totalRow.total += r.valid;
+            }
+            counts.push(totalRow);
+            const rate = req.query.rate
+                ? /,/.test(req.query.rate)
+                    ? req.query.rate.split(/,/).map(n => +n)
+                    : +req.query.rate
+                : null;
+            if (rate) {
+                const rateRow = {number: 'rate'};
+                const payRow = {number: 'pay', total: 0};
+                for (let ward = 1; ward <= 8; ward++) {
+                    const wardRate = Array.isArray(rate) ? rate[ward - 1] : rate;
+                    const amount = totalRow[ward] * wardRate;
+                    payRow.total += amount;
+                    payRow[ward] = amount.toFixed(2);
+                    rateRow[ward] = wardRate.toFixed(2);
+                }
+                payRow.total = payRow.total.toFixed(2);
+                counts.push(rateRow, payRow);
             }
             return res.json(counts);
         }

@@ -24,6 +24,9 @@
             text-align: right;
 
         }
+        #signature-detail th[colspan] {
+            text-align: center;
+        }
         #header-table td {
             text-align: left;
         }
@@ -37,7 +40,7 @@
             border-color: gray;
             border-width: 0 1px;
         }
-        #signature-detail tr:last-of-type {
+        #signature-detail tr.total {
             border-top: 1px solid gray;
         }
     </style>
@@ -81,28 +84,62 @@
             <% } %>
         </table>
         <table id="signature-detail">
-            <thead>
-                <tr>
-                    <th>Page</th>
-                    <th>Date Signed</th>
-                    <th>Date Checked</th>
-                    <th>Valid<br/>Signatures</th>
-                </tr>
-            </thead>
-            <tbody>
-                <% _.each(invoice.pages, function (page) { %>
+            <% if (invoice.detail) { %>
+                <thead>
                     <tr>
-                        <td><%- page.number %></td>
-                        <td><%- formatDate(page.date_signed) %></td>
-                        <td><%- formatDate(page.date_checked) %></td>
-                        <td><%- page.valid_lines %></td>
+                        <th rowspan="2">Date Checked</th>
+                        <th rowspan="2">Page</th>
+                        <th rowspan="2">Date Signed</th>
+                        <th colspan="9">Valid Signatures</th>
                     </tr>
-                <% }) %>
-                <tr>
-                    <th colspan="3">Total</th>
-                    <td><%- invoice.valid_lines %></td>
-                </tr>
-            </tbody>
+                    <tr>
+                        <% for (let i = 1; i <= 8; i++) { %>
+                            <th>W<%- i %></th>
+                        <% } %>
+                        <th>Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% _.each(invoice.detail, function (page) { %>
+                        <tr<% if (page.number === 'total') { %> class="total"<% } %>>
+                            <% if (!page.date_checked) { %>
+                                <td colspan="3"><%- page.number.at(0).toUpperCase() + page.number.slice(1) %></td>
+                            <% } else { %>
+                                <td><%- formatDate(page.date_checked) %></td>
+                                <td><%- page.number %></td>
+                                <td><%- formatDate(page.date_signed) %></td>
+                            <% } %>
+                            <% for (let i = 1; i <= 8; i++) { %>
+                                <td><%- page[i] || '' %></td>
+                            <% } %>
+                            <td><%- page.total %></td>
+                        </tr>
+                    <% }) %>
+                </tbody>
+            <% } else { %>
+                <thead>
+                    <tr>
+                        <th>Page</th>
+                        <th>Date Signed</th>
+                        <th>Date Checked</th>
+                        <th>Valid<br/>Signatures</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% _.each(invoice.pages, function (page) { %>
+                        <tr>
+                            <td><%- formatDate(page.date_checked) %></td>
+                            <td><%- page.number %></td>
+                            <td><%- formatDate(page.date_signed) %></td>
+                            <td><%- page.valid_lines %></td>
+                        </tr>
+                    <% }) %>
+                    <tr>
+                        <th colspan="3">Total</th>
+                        <td><%- invoice.valid_lines %></td>
+                    </tr>
+                </tbody>
+            <% } %>
         </table>
     <% }) %>
 </body>
