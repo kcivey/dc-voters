@@ -65,7 +65,9 @@ async function main() {
             PRECINCT: (r.Precinct || '0').replace(/\..*$/, ''), // remove fractional part
             WARD: r.WARD || r.City_Ward || r.WRD,
             ANC: r.ANC.replace(/^3\/4/, '3'),
-            SMD: (r.SMD || r.House_District || '').replace(/^3\/4/, '3')
+            SMD: (r.SMD || r.House_District || '')
+                .replace(/^3\/4/, '3')
+                .replace(/^6\/8/, '6')
                 .replace(/^(\d)(0+)$/, (m, m1, m2) => m1 + 'E' + m2.length.toString().padStart(2, '0')),
             IS_US_CITIZEN: r.IsUSCitizen || '',
             V110822G: r['2022 GENERAL ELECTION(Nov/08/2022)'],
