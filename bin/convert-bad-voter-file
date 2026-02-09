@@ -70,6 +70,9 @@ async function main() {
                 .replace(/^6\/8/, '6')
                 .replace(/^(\d)(0+)$/, (m, m1, m2) => m1 + 'E' + m2.length.toString().padStart(2, '0')),
             IS_US_CITIZEN: r.IsUSCitizen || '',
+            V071525S: r['2025_Special Election_W8(Jul/15/2025)'],
+            V110524G: r['2024 Presidential General Election(Nov/05/2024)'],
+            V060424P: r['2024 Presidential Primary Election(Jun/04/2024)'],
             V110822G: r['2022 GENERAL ELECTION(Nov/08/2022)'],
             V062122P: r['2022 PRIMARY ELECTION(Jun/21/2022)'],
             V110320G: r['2020 DC PRESIDENTIAL GENERAL ELECTI(Nov/03/2020)'],
@@ -87,9 +90,9 @@ async function main() {
             V042313S: r['DIST OF COLUMBIA AT-LARGE SPECIAL E(Apr/23/2013)'],
             V112012G: r['DISTRICT OF COLUMBIA GENERAL ELECTI(Nov/06/2012)'],
             V052012S: r['SPECIAL ELECTION WARD 5 COUNCIL(May/15/2012)'],
-            V042012P: r['DC PRESIDENTIAL PREF/COUNCIL PRIMAR(Apr/03/2012)'],
-            V022012S: r['RECALL SPECIAL ELECTION 4B04(Feb/28/2012)'],
-            V042011S: r['2011 DISTRICT OF COLUMBIA SPECIAL E(Apr/26/2011)'],
+            // V042012P: r['DC PRESIDENTIAL PREF/COUNCIL PRIMAR(Apr/03/2012)'],
+            // V022012S: r['RECALL SPECIAL ELECTION 4B04(Feb/28/2012)'],
+            // V042011S: r['2011 DISTRICT OF COLUMBIA SPECIAL E(Apr/26/2011)'],
             // V112010G: r['DISTRICT OF COLUMBIA GENERAL ELECTI(Nov/02/2010)'],
             // V092010P: r['DISTRICT OF COLUMBIA PRIMARY(Sep/14/2010)'],
         };
